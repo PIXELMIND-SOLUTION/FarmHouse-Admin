@@ -20,8 +20,10 @@ import {
   FaDownload,
   FaPlus,
   FaSquare,
-  FaCoins
+  FaCoins,
+  FaBell
 } from 'react-icons/fa';
+import { FaPhotoFilm } from 'react-icons/fa6';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 
@@ -67,39 +69,39 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
     { id: 'dashboard', icon: <FaTachometerAlt />, text: 'Dashboard', path: '/' },
     { id: 'users', icon: <FaUsers />, text: 'Users', path: '/users' },
     {
-      id: 'AllRooms',
+      id: 'AllHouses',
       icon: <FaSquare />,
-      text: 'AllRooms',
-      path: '/allrooms',
+      text: 'AllHouses',
+      path: '/farmhouses',
       subItems: [
-        { id: 'All Rooms', text: 'All Rooms', path: '/allrooms' }
+        { id: 'Farm Houses', text: 'Farm Houses', path: '/farmhouses' },
       ]
     },
+    { id: 'Banners', icon: <FaPhotoFilm />, text: 'Banners', path: '/banners' },
     {
-      id: 'Coins Packages',
+      id: 'All Bookings',
       icon: <FaCoins />,
-      text: 'Coins Packages',
-      path: '/coins-packages',
+      text: 'All Bookings',
+      path: '/allbookings',
       subItems: [
-        { id: 'Coins Packages', text: 'Create Coins Packages', path: '/create-coin-package' },
-        { id: 'Coins Packages', text: 'Coins Packages', path: '/all-coin-packages' },
-        { id: 'Coins Prices', text: 'Coins Prices', path: '/coins-prices' }
+        { id: 'All Bookings', text: 'All Bookings', path: '/allbookings' },
       ]
     },
     { id: 'Payments', icon: <FaFileInvoiceDollar />, text: 'Payments', path: '/all-payments' },
-    {
-      id: 'Forms&Reports',
-      icon: <FaRegQuestionCircle />,
-      text: 'Forms & Reports',
-      path: '/forms-reports',
-      subItems: [
-        { id: 'Complaints', text: 'All Complaints', path: '/complaints' },
-        { id: 'Reports', text: 'All Reports', path: '/reports' },
-        { id: 'Warnings', text: 'All Warnings', path: '/warnings' },
-        { id: 'Feedback', text: 'All Feedback', path: '/feedback' },
-        { id: 'Contact', text: 'All Contact', path: '/contactus' }
-      ]
-    },
+    // {
+    //   id: 'Forms&Reports',
+    //   icon: <FaRegQuestionCircle />,
+    //   text: 'Forms & Reports',
+    //   path: '/forms-reports',
+    //   subItems: [
+    //     { id: 'Complaints', text: 'All Complaints', path: '/complaints' },
+    //     { id: 'Reports', text: 'All Reports', path: '/reports' },
+    //     { id: 'Warnings', text: 'All Warnings', path: '/warnings' },
+    //     { id: 'Feedback', text: 'All Feedback', path: '/feedback' },
+    //     { id: 'Contact', text: 'All Contact', path: '/contactus' }
+    //   ]
+    // },
+    { id: 'Notifications', icon: <FaBell />, text: 'Notifications', path: '/allnotifications' },
     { id: 'Settings', icon: <FaCog />, text: 'Settings', path: '/settings' },
   ];
 
@@ -183,7 +185,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
               </div>
 
               <div>
-                <h1 className="text-xl font-bold">Mustivibes</h1>
+                <h1 className="text-xl font-bold">Farm House</h1>
                 <p className="text-xs text-gray-500">Admin Panel</p>
               </div>
             </div>

@@ -4,17 +4,14 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Dashboard from '../Views/Dashboard';
 import Users from '../Views/users/Users';
-import AllRooms from '../Views/rooms/AllRooms';
-import CreateCoinPackage from '../Views/coinPackages/CreateCainPackage';
-import AllCoinPackages from '../Views/coinPackages/AllCoinPackages';
-import CoinPrices from '../Views/coinPackages/CoinPrices';
 import Settings from '../Views/Settings';
 import AllPayments from '../Views/payments/AllPayments';
-import Complaints from '../Views/formsAndReports/Complaints';
-import Reports from '../Views/formsAndReports/Reports';
-import Warnings from '../Views/formsAndReports/Warnings';
-import Feedback from '../Views/formsAndReports/Feedback';
-import ContactUs from '../Views/formsAndReports/ContactUs'
+import FarmHouses from '../Views/AllHouses/FarmHouses';
+import AllBookings from '../Views/Bookings/AllBookings';
+import Banners from '../Views/Banners/Banners';
+import FarmhouseForm from '../Views/AllHouses/CreateFarmHouse'
+import SingleFarmhouse from '../Views/AllHouses/SingleFarmHouse'
+import FarmhouseSlots from '../Views/AllHouses/FarmHouseSlots';
 
 const AdminPanel = () => {
     const navigate = useNavigate();
@@ -109,19 +106,21 @@ const AdminPanel = () => {
 
                             <Route path="/users" element={<Users darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/allrooms" element={<AllRooms darkMode={darkMode} collapsed={collapsed} />} />
+                            <Route path="/banners" element={<Banners darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/create-coin-packages" element={<CreateCoinPackage darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path="/all-coin-packages" element={<AllCoinPackages darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path="/coins-prices" element={<CoinPrices darkMode={darkMode} collapsed={collapsed} />} />
+                            <Route path="/farmhouses/create" element={<FarmhouseForm darkMode={darkMode} />} />
+                            <Route path="/farmhouses/edit/:id" element={<FarmhouseForm darkMode={darkMode} />} />
+
+                            <Route path='/farmhouses' element={<FarmHouses darkMode={darkMode} collapsed={collapsed} />} />
+                            <Route path='/farmhouses/:id' element={<SingleFarmhouse darkMode={darkMode} collapsed={collapsed} />} />
+                            <Route path='/farmhouses/slot/:id' element={<FarmhouseSlots darkMode={darkMode} collapsed={collapsed} />} />
+
+                            <Route path="/allbookings" element={<AllBookings darkMode={darkMode} collapsed={collapsed} />} />
 
                             <Route path="/all-payments" element={<AllPayments darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path='/complaints' element={<Complaints darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path='/reports' element={<Reports darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path='/warnings' element={<Warnings darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path='/feedback' element={<Feedback darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path='/contactus' element={<ContactUs darkMode={darkMode} collapsed={collapsed} />} />
+
+
 
                             <Route path="/settings" element={<Settings darkMode={darkMode} collapsed={collapsed} />} />
 
