@@ -35,7 +35,7 @@ const FarmhouseForm = ({ darkMode }) => {
     if (!isEditMode) return;
 
     const fetchData = async () => {
-      const res = await axios.get(`${API_BASE}/get/${id}`);
+      const res = await axios.get(`${API_BASE}/farmhouse/${id}`);
       const f = res.data.farmhouse;
 
       setForm({
@@ -89,10 +89,10 @@ const FarmhouseForm = ({ darkMode }) => {
       setLoading(true);
 
       if (isEditMode) {
-        await axios.put(`${API_BASE}/update/${id}`, fd);
+        await axios.put(`${API_BASE}/farmhouse/${id}`, fd);
         alert("Farmhouse updated successfully");
       } else {
-        await axios.post(`${API_BASE}/create`, fd);
+        await axios.post(`${API_BASE}/farmhouse/create`, fd);
         alert("Farmhouse created successfully");
       }
 

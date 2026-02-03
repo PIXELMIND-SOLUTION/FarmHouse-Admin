@@ -11,7 +11,7 @@ const SingleFarmhouse = ({ darkMode }) => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    axios.get(`${API_BASE}/get/${id}`).then((res) => {
+    axios.get(`${API_BASE}/farmhouse/${id}`).then((res) => {
       setData(res.data.farmhouse);
     });
   }, [id]);

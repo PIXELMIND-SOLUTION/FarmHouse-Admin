@@ -2,12 +2,15 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { FaTrash, FaEdit, FaFileExport, FaEye, FaPlus, FaBox } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import FarmhouseSlots from "./FarmHouseSlots";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 const ITEMS_PER_PAGE = 10;
 
 const Farmhouses = ({ darkMode }) => {
   const navigate = useNavigate();
+  const [showSlots, setShowSlots] = useState(false);
+  const [FarmhouseId, setFarmhouseId] = useState();
 
   const [farmhouses, setFarmhouses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,7 +23,7 @@ const Farmhouses = ({ darkMode }) => {
   const fetchFarmhouses = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE}/all`);
+      const res = await axios.get(`${API_BASE}/all-farmhouse`);
       setFarmhouses(res.data.farmhouses || []);
     } catch {
       alert("Failed to load farmhouses");
@@ -163,12 +166,12 @@ const Farmhouses = ({ darkMode }) => {
                   <td className="p-4 flex gap-4">
                     <FaEye
                       className="text-emerald-500 cursor-pointer"
-                      onClick={() => navigate(`/admin/farmhouses/${f._id}`)}
+                      onClick={() => {
+                        navigate(`/admin/farmhouses/${f._id}`);
+                        setFarmhouseId(f._id);
+                      }}
                     />
-                    <FaBox
-                      className="text-emerald-500 cursor-pointer"
-                      onClick={() => navigate(`/admin/farmhouses/slot/${f._id}`)}
-                    />
+                    <button onClick={() => setShowSlots(true)}>View Slots</button>
                     <FaEdit
                       className="text-blue-500 cursor-pointer"
                       onClick={() =>
@@ -207,6 +210,13 @@ const Farmhouses = ({ darkMode }) => {
           Next
         </button>
       </div>
+
+      <FarmhouseSlots
+        open={showSlots}
+        onClose={() => setShowSlots(false)}
+        farmhouseId={FarmhouseId}
+        darkMode={false}
+      />
     </div>
   );
 };

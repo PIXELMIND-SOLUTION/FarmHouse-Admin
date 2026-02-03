@@ -74,6 +74,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
       text: 'AllHouses',
       path: '/farmhouses',
       subItems: [
+        { id: 'Create FarmHouses', text: 'Create FarmHouses', path: '/farmhouses/create' },
         { id: 'Farm Houses', text: 'Farm Houses', path: '/farmhouses' },
       ]
     },
