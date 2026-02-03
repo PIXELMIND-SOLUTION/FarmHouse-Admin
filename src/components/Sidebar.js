@@ -21,9 +21,10 @@ import {
   FaPlus,
   FaSquare,
   FaCoins,
-  FaBell
+  FaBell,
+  FaMoneyBill
 } from 'react-icons/fa';
-import { FaPhotoFilm } from 'react-icons/fa6';
+import { FaBilibili, FaPhotoFilm } from 'react-icons/fa6';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 
@@ -78,6 +79,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
         { id: 'Farm Houses', text: 'Farm Houses', path: '/farmhouses' },
       ]
     },
+    { id: 'Service Fees', icon: <FaMoneyBill />, text: 'Service Fees', path: '/service-fees' },
     { id: 'Banners', icon: <FaPhotoFilm />, text: 'Banners', path: '/banners' },
     {
       id: 'All Bookings',

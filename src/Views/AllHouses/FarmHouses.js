@@ -171,7 +171,16 @@ const Farmhouses = ({ darkMode }) => {
                         setFarmhouseId(f._id);
                       }}
                     />
-                    <button onClick={() => setShowSlots(true)}>View Slots</button>
+                    <button
+                      onClick={() => {
+                        setFarmhouseId(f._id);
+                        setShowSlots(true);
+                      }}
+                      className="text-blue-600 underline"
+                    >
+                      <FaBox/>
+                    </button>
+
                     <FaEdit
                       className="text-blue-500 cursor-pointer"
                       onClick={() =>
