@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaArrowLeft, FaTrash } from "react-icons/fa";
+import { FaArrowLeft, FaTrash, FaPlus } from "react-icons/fa";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 
@@ -16,7 +16,7 @@ const initialForm = {
   lat: "",
   lng: "",
   pricePerHour: "",
-  pricePerDay: ""
+  pricePerDay: "",
 };
 
 const FarmhouseForm = ({ darkMode }) => {
@@ -30,7 +30,7 @@ const FarmhouseForm = ({ darkMode }) => {
   const [timePrices, setTimePrices] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH (EDIT MODE) ================= */
+  /* ================= FETCH ================= */
   useEffect(() => {
     if (!isEditMode) return;
 
@@ -49,7 +49,7 @@ const FarmhouseForm = ({ darkMode }) => {
         lat: f.location?.coordinates[1] || "",
         lng: f.location?.coordinates[0] || "",
         pricePerHour: f.pricePerHour,
-        pricePerDay: f.pricePerDay
+        pricePerDay: f.pricePerDay,
       });
 
       setExistingImages(f.images || []);
@@ -107,137 +107,179 @@ const FarmhouseForm = ({ darkMode }) => {
 
   return (
     <div
-      className={`p-6 min-h-screen ${
-        darkMode ? "bg-gray-900 text-white" : "bg-gray-100"
+      className={`min-h-screen p-8 ${
+        darkMode
+          ? "bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white"
+          : "bg-gradient-to-br from-gray-100 via-white to-gray-200"
       }`}
     >
-      {/* Back */}
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        <FaArrowLeft /> Back
-      </button>
+      <div className="max-w-6xl mx-auto">
 
-      <h2 className="text-3xl font-bold mb-6">
-        {isEditMode ? "✏️ Edit Farmhouse" : "➕ Create Farmhouse"}
-      </h2>
+        {/* HEADER */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 mb-6 px-5 py-2 rounded-xl font-semibold
+          bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+        >
+          <FaArrowLeft /> Back
+        </button>
 
-      <div
-        className={`p-6 rounded-xl ${
-          darkMode ? "bg-gray-800" : "bg-white shadow"
-        }`}
-      >
-        {/* Fields */}
-        <div className="grid md:grid-cols-2 gap-4">
-          {Object.keys(initialForm).map((key) => (
-            <input
-              key={key}
-              name={key}
-              value={form[key]}
-              onChange={handleChange}
-              placeholder={key}
-              className="px-4 py-2 rounded border bg-white text-black"
-            />
-          ))}
-        </div>
+        <h2 className="text-4xl font-bold mb-8">
+          {isEditMode ? "✏️ Edit Farmhouse" : "➕ Create Farmhouse"}
+        </h2>
 
-        {/* Existing Images */}
-        {existingImages.length > 0 && (
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Existing Images</h3>
-            <div className="grid grid-cols-4 gap-3">
-              {existingImages.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  className="h-24 w-full object-cover rounded"
-                  alt=""
+        <div
+          className={`p-8 rounded-3xl border shadow-2xl backdrop-blur-md ${
+            darkMode
+              ? "bg-gray-900/70 border-gray-700"
+              : "bg-white/80 border-gray-300"
+          }`}
+        >
+          {/* INPUT GRID */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {Object.keys(initialForm).map((key) => (
+              <div key={key} className="flex flex-col gap-1">
+                <label className="text-sm font-semibold opacity-70 capitalize">
+                  {key}
+                </label>
+
+                <input
+                  name={key}
+                  value={form[key]}
+                  onChange={handleChange}
+                  placeholder={`Enter ${key}`}
+                  className="px-4 py-3 rounded-xl border-2 border-gray-300
+                  focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+                  outline-none transition text-black"
                 />
+              </div>
+            ))}
+          </div>
+
+          {/* EXISTING IMAGES */}
+          {existingImages.length > 0 && (
+            <div className="mt-10">
+              <h3 className="text-xl font-bold mb-4">
+                Existing Images
+              </h3>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {existingImages.map((img, i) => (
+                  <div
+                    key={i}
+                    className="overflow-hidden rounded-xl shadow-md hover:scale-105 transition"
+                  >
+                    <img
+                      src={img}
+                      alt=""
+                      className="h-32 w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* IMAGE UPLOAD */}
+          <div className="mt-10">
+            <label className="font-semibold block mb-2">
+              Upload Images
+            </label>
+
+            <input
+              type="file"
+              multiple
+              onChange={(e) => setImages([...e.target.files])}
+              className="w-full p-3 border-2 border-dashed border-gray-300 rounded-xl
+              bg-gray-50 hover:border-blue-400 cursor-pointer"
+            />
+          </div>
+
+          {/* TIME SLOT PRICING */}
+          <div className="mt-12">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">
+                Time Slot Pricing
+              </h3>
+
+              <button
+                onClick={addTimePrice}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl
+                bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
+              >
+                <FaPlus /> Add Slot
+              </button>
+            </div>
+
+            {timePrices.length === 0 && (
+              <p className="opacity-60">
+                No time slots added yet
+              </p>
+            )}
+
+            <div className="space-y-4">
+              {timePrices.map((tp, i) => (
+                <div
+                  key={i}
+                  className="grid md:grid-cols-4 gap-3 p-4 rounded-xl border
+                  bg-gray-50 dark:bg-gray-800 border-gray-300"
+                >
+                  <input
+                    value={tp.label}
+                    onChange={(e) =>
+                      updateTimePrice(i, "label", e.target.value)
+                    }
+                    placeholder="Label"
+                    className="p-3 rounded-lg border text-black"
+                  />
+
+                  <input
+                    value={tp.timing}
+                    onChange={(e) =>
+                      updateTimePrice(i, "timing", e.target.value)
+                    }
+                    placeholder="Timing"
+                    className="p-3 rounded-lg border text-black"
+                  />
+
+                  <input
+                    value={tp.price}
+                    onChange={(e) =>
+                      updateTimePrice(i, "price", e.target.value)
+                    }
+                    placeholder="Price"
+                    className="p-3 rounded-lg border text-black"
+                  />
+
+                  <button
+                    onClick={() => removeTimePrice(i)}
+                    className="flex items-center justify-center gap-2
+                    bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Upload Images */}
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setImages([...e.target.files])}
-          className="mt-4"
-        />
-
-        {/* Time Prices */}
-        <div className="mt-6">
-          <div className="flex justify-between mb-3">
-            <h3 className="font-semibold">Time Slot Pricing</h3>
+          {/* SUBMIT */}
+          <div className="mt-12 flex justify-end">
             <button
-              onClick={addTimePrice}
-              className="text-blue-500 font-medium"
+              disabled={loading}
+              onClick={handleSubmit}
+              className="px-8 py-3 rounded-xl font-bold text-white
+              bg-gradient-to-r from-emerald-500 to-emerald-700
+              hover:scale-105 transition shadow-xl disabled:opacity-50"
             >
-              + Add Slot
+              {loading
+                ? "Saving..."
+                : isEditMode
+                ? "Update Farmhouse"
+                : "Create Farmhouse"}
             </button>
           </div>
-
-          {timePrices.length === 0 && (
-            <p className="text-sm opacity-60 mb-2">
-              No time slots added yet
-            </p>
-          )}
-
-          {timePrices.map((tp, i) => (
-            <div
-              key={i}
-              className="grid grid-cols-3 gap-2 mb-2 items-center"
-            >
-              <input
-                value={tp.label}
-                onChange={(e) =>
-                  updateTimePrice(i, "label", e.target.value)
-                }
-                placeholder="Label"
-                className="p-2 border rounded bg-white text-black"
-              />
-              <input
-                value={tp.timing}
-                onChange={(e) =>
-                  updateTimePrice(i, "timing", e.target.value)
-                }
-                placeholder="Timing"
-                className="p-2 border rounded bg-white text-black"
-              />
-              <div className="flex gap-2">
-                <input
-                  value={tp.price}
-                  onChange={(e) =>
-                    updateTimePrice(i, "price", e.target.value)
-                  }
-                  placeholder="Price"
-                  className="p-2 border rounded bg-white text-black w-full"
-                />
-                <button
-                  onClick={() => removeTimePrice(i)}
-                  className="px-3 bg-red-600 hover:bg-red-700 text-white rounded"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
-
-        {/* Submit */}
-        <button
-          disabled={loading}
-          onClick={handleSubmit}
-          className="mt-8 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg"
-        >
-          {loading
-            ? "Saving..."
-            : isEditMode
-            ? "Update Farmhouse"
-            : "Create Farmhouse"}
-        </button>
       </div>
     </div>
   );

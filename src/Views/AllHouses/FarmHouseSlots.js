@@ -16,17 +16,17 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH SLOTS ================= */
+  /* ================= FETCH ================= */
   const fetchSlots = async (selectedDate) => {
     if (!selectedDate || !farmhouseId) return;
 
     try {
       setLoading(true);
+
       const res = await axios.get(
         `${API_BASE}/${farmhouseId}/slots?date=${selectedDate}`
       );
 
-      // API response structure handled here
       setSlots(res.data?.slots || []);
     } catch (err) {
       console.error(err);
@@ -43,106 +43,169 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      {/* Modal Box */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl">
+      
+      {/* ================= MODAL ================= */}
       <div
-        className={`w-full max-w-4xl mx-4 rounded-2xl shadow-2xl overflow-hidden
-        ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}
+        className={`relative w-full max-w-5xl mx-4 rounded-3xl overflow-hidden
+        shadow-[0_25px_80px_rgba(0,0,0,0.6)]
+        border backdrop-blur-2xl
+        ${
+          darkMode
+            ? "bg-gradient-to-br from-gray-900/95 to-gray-950 border-gray-700 text-white"
+            : "bg-gradient-to-br from-white/95 to-gray-100 border-gray-200 text-gray-900"
+        }`}
       >
-        {/* Header */}
-        <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            📅 Available Slots
+
+        {/* Glow Border */}
+        <div className="absolute inset-0 rounded-3xl pointer-events-none border border-white/10 detached" />
+
+        {/* ================= HEADER ================= */}
+        <div className="sticky top-0 z-10 flex justify-between items-center px-8 py-6 border-b border-white/10 backdrop-blur-xl">
+          <h2 className="text-3xl font-bold flex items-center gap-3 tracking-tight">
+            <FaCalendarAlt className="text-blue-500" />
+            Available Slots
           </h2>
+
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+            className="p-3 rounded-full bg-white/10 hover:bg-red-500/80 transition"
           >
             <FaTimes />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Date Picker */}
+        {/* ================= BODY ================= */}
+        <div className="p-8 space-y-8">
+
+          {/* DATE PICKER */}
           <div
-            className={`flex items-center gap-3 p-4 rounded-xl
-            ${darkMode ? "bg-gray-800" : "bg-gray-50"}`}
+            className={`flex items-center justify-between gap-4 p-6 rounded-2xl border shadow-inner
+            ${
+              darkMode
+                ? "bg-gray-800/60 border-gray-700"
+                : "bg-white border-gray-200"
+            }`}
           >
-            <FaCalendarAlt className="text-blue-500 text-lg" />
+            <div className="flex items-center gap-3 text-lg font-semibold">
+              <FaCalendarAlt className="text-blue-500" />
+              Select Date
+            </div>
+
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="px-4 py-2 rounded border text-black w-full sm:w-auto"
+              className="px-5 py-3 rounded-xl border text-black
+              focus:ring-4 focus:ring-blue-400/40
+              shadow-md"
             />
           </div>
 
-          {/* Slots */}
+          {/* ================= SLOTS ================= */}
+
           {loading ? (
-            <p className="text-center opacity-70">Loading slots...</p>
-          ) : slots.length === 0 ? (
-            <p className="text-center opacity-60">
-              No slots available for selected date
-            </p>
-          ) : (
-            <div className="grid sm:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2">
-              {slots.map((slot, i) => (
+            <div className="grid sm:grid-cols-2 gap-6">
+              {[...Array(4)].map((_, i) => (
                 <div
                   key={i}
-                  className={`p-5 rounded-xl border flex justify-between items-center transition
-                  ${
-                    slot.available
-                      ? "border-emerald-500 bg-emerald-500/10"
-                      : "border-red-500 bg-red-500/10"
-                  }`}
-                >
-                  <div>
-                    <h3 className="text-lg font-semibold">{slot.label}</h3>
-                    <p className="text-sm opacity-80">{slot.timing}</p>
-
-                    {/* Check-in / Check-out */}
-                    <p className="text-xs opacity-70 mt-1">
-                      Check-in:{" "}
-                      {new Date(slot.checkIn).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      {" • "}
-                      Check-out:{" "}
-                      {new Date(slot.checkOut).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-
-                    <p className="mt-2 font-semibold text-lg">
-                      ₹{slot.price}
-                    </p>
-                  </div>
-
-                  <div>
-                    {slot.available ? (
-                      <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                        <FaCheckCircle /> Available
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-red-600 font-medium">
-                        <FaTimesCircle /> Booked
-                      </span>
-                    )}
-                  </div>
-                </div>
+                  className="h-28 rounded-2xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"
+                />
               ))}
+            </div>
+          ) : slots.length === 0 ? (
+            <div className="text-center py-16 opacity-60 text-lg">
+              No slots available for selected date
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-6 max-h-[55vh] overflow-y-auto pr-2">
+              {slots.map((slot, i) => {
+                const available = slot.available;
+
+                return (
+                  <div
+                    key={i}
+                    className={`relative p-6 rounded-2xl border transition-all duration-300
+                    hover:scale-[1.02] hover:shadow-2xl
+                    ${
+                      available
+                        ? "border-emerald-500 bg-emerald-500/10"
+                        : "border-red-500 bg-red-500/10"
+                    }`}
+                  >
+
+                    {/* Glow */}
+                    <div
+                      className={`absolute inset-0 rounded-2xl blur-xl opacity-20
+                      ${
+                        available
+                          ? "bg-emerald-400"
+                          : "bg-red-400"
+                      }`}
+                    />
+
+                    <div className="relative flex justify-between items-center">
+
+                      {/* LEFT */}
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight">
+                          {slot.label}
+                        </h3>
+
+                        <p className="opacity-80 text-sm">
+                          {slot.timing}
+                        </p>
+
+                        {/* Times */}
+                        <p className="text-xs opacity-70 mt-1">
+                          Check-in:{" "}
+                          {new Date(slot.checkIn).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                          {" • "}
+                          Check-out:{" "}
+                          {new Date(slot.checkOut).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+
+                        <p className="mt-3 text-2xl font-bold">
+                          ₹{slot.price}
+                        </p>
+                      </div>
+
+                      {/* RIGHT STATUS */}
+                      <div>
+                        {available ? (
+                          <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600 text-white shadow-lg">
+                            <FaCheckCircle />
+                            Available
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-600 text-white shadow-lg">
+                            <FaTimesCircle />
+                            Booked
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+        {/* ================= FOOTER ================= */}
+        <div className="sticky bottom-0 flex justify-end px-8 py-6 border-t border-white/10 backdrop-blur-xl">
           <button
             onClick={onClose}
-            className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
+            className="px-8 py-3 rounded-xl font-semibold
+            bg-gradient-to-r from-blue-600 to-indigo-600
+            hover:from-blue-700 hover:to-indigo-700
+            text-white shadow-lg transition"
           >
             Close
           </button>
