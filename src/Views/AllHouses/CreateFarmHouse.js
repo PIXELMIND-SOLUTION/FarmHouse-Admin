@@ -35,36 +35,42 @@ const FarmhouseForm = ({ darkMode }) => {
     if (!isEditMode) return;
 
     const fetchData = async () => {
-      const res = await axios.get(`${API_BASE}/farmhouse/${id}`);
-      const f = res.data.farmhouse;
+      try {
+        const res = await axios.get(`${API_BASE}/farmhouse/${id}`);
+        const f = res.data.farmhouse;
 
-      setForm({
-        name: f.name,
-        address: f.address,
-        description: f.description,
-        amenities: f.amenities.join(","),
-        rating: f.rating,
-        feedbackSummary: f.feedbackSummary,
-        bookingFor: f.bookingFor,
-        lat: f.location?.coordinates[1] || "",
-        lng: f.location?.coordinates[0] || "",
-        pricePerHour: f.pricePerHour,
-        pricePerDay: f.pricePerDay,
-      });
+        setForm({
+          name: f.name || "",
+          address: f.address || "",
+          description: f.description || "",
+          amenities: f.amenities?.join(",") || "",
+          rating: f.rating || "",
+          feedbackSummary: f.feedbackSummary || "",
+          bookingFor: f.bookingFor || "",
+          lat: f.location?.coordinates?.[1] || "",
+          lng: f.location?.coordinates?.[0] || "",
+          pricePerHour: f.pricePerHour || "",
+          pricePerDay: f.pricePerDay || "",
+        });
 
-      setExistingImages(f.images || []);
-      setTimePrices(f.timePrices || []);
+        setExistingImages(f.images || []);
+        setTimePrices(f.timePrices || []);
+      } catch (err) {
+        console.error("Fetch Error:", err);
+        alert("Failed to load farmhouse data");
+      }
     };
 
     fetchData();
   }, [id, isEditMode]);
 
   /* ================= HANDLERS ================= */
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const addTimePrice = () =>
-    setTimePrices([...timePrices, { label: "", timing: "", price: "" }]);
+    setTimePrices([...timePrices, { label: "", timing: "" }]);
 
   const updateTimePrice = (index, key, value) => {
     const updated = [...timePrices];
@@ -78,28 +84,42 @@ const FarmhouseForm = ({ darkMode }) => {
   };
 
   /* ================= SUBMIT ================= */
+
   const handleSubmit = async () => {
-    const fd = new FormData();
-
-    Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-    fd.append("timePrices", JSON.stringify(timePrices));
-    images.forEach((img) => fd.append("images", img));
-
     try {
       setLoading(true);
 
+      const fd = new FormData();
+
+      Object.entries(form).forEach(([key, value]) => {
+        fd.append(key, value);
+      });
+
+      // EXACT POSTMAN FORMAT
+      fd.append("timePrices", JSON.stringify(timePrices));
+
+      images.forEach((img) => {
+        fd.append("images", img);
+      });
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
       if (isEditMode) {
-        await axios.put(`${API_BASE}/farmhouse/${id}`, fd);
+        await axios.put(`${API_BASE}/farmhouse/${id}`, fd, config);
         alert("Farmhouse updated successfully");
       } else {
-        await axios.post(`${API_BASE}/farmhouse/create`, fd);
+        await axios.post(`${API_BASE}/farmhouse-create`, fd, config);
         alert("Farmhouse created successfully");
       }
 
       navigate("/admin/farmhouses");
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
+      console.error("API ERROR:", err?.response?.data || err.message);
+      alert("Something went wrong while saving farmhouse");
     } finally {
       setLoading(false);
     }
@@ -135,6 +155,7 @@ const FarmhouseForm = ({ darkMode }) => {
               : "bg-white/80 border-gray-300"
           }`}
         >
+
           {/* INPUT GRID */}
           <div className="grid md:grid-cols-2 gap-6">
             {Object.keys(initialForm).map((key) => (
@@ -195,11 +216,11 @@ const FarmhouseForm = ({ darkMode }) => {
             />
           </div>
 
-          {/* TIME SLOT PRICING */}
+          {/* TIME SLOT */}
           <div className="mt-12">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">
-                Time Slot Pricing
+                Time Slots
               </h3>
 
               <button
@@ -221,7 +242,7 @@ const FarmhouseForm = ({ darkMode }) => {
               {timePrices.map((tp, i) => (
                 <div
                   key={i}
-                  className="grid md:grid-cols-4 gap-3 p-4 rounded-xl border
+                  className="grid md:grid-cols-3 gap-3 p-4 rounded-xl border
                   bg-gray-50 dark:bg-gray-800 border-gray-300"
                 >
                   <input
@@ -239,15 +260,6 @@ const FarmhouseForm = ({ darkMode }) => {
                       updateTimePrice(i, "timing", e.target.value)
                     }
                     placeholder="Timing"
-                    className="p-3 rounded-lg border text-black"
-                  />
-
-                  <input
-                    value={tp.price}
-                    onChange={(e) =>
-                      updateTimePrice(i, "price", e.target.value)
-                    }
-                    placeholder="Price"
                     className="p-3 rounded-lg border text-black"
                   />
 
@@ -279,6 +291,7 @@ const FarmhouseForm = ({ darkMode }) => {
                 : "Create Farmhouse"}
             </button>
           </div>
+
         </div>
       </div>
     </div>
