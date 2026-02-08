@@ -6,7 +6,9 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaUsers,
+  FaEye,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://31.97.206.144:5124/api/auth/users";
 const PAGE_SIZE = 8;
@@ -18,6 +20,8 @@ const Users = ({ darkMode }) => {
   const [search, setSearch] = useState("");
   const [genderFilter, setGenderFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const navigate = useNavigate();
 
   /* ================= FETCH USERS ================= */
   useEffect(() => {
@@ -106,11 +110,10 @@ const Users = ({ darkMode }) => {
 
   return (
     <div
-      className={`min-h-screen p-8 ${
-        darkMode
-          ? "bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white"
-          : "bg-gradient-to-br from-gray-100 via-white to-gray-200"
-      }`}
+      className={`min-h-screen p-8 ${darkMode
+        ? "bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white"
+        : "bg-gradient-to-br from-gray-100 via-white to-gray-200"
+        }`}
     >
       <div className="max-w-7xl mx-auto">
 
@@ -140,11 +143,10 @@ const Users = ({ darkMode }) => {
         {/* FILTER BAR */}
         <div
           className={`mb-8 p-5 rounded-2xl border shadow-lg backdrop-blur-md
-          ${
-            darkMode
+          ${darkMode
               ? "bg-gray-800/60 border-gray-700"
               : "bg-white/80 border-gray-300"
-          }`}
+            }`}
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -172,20 +174,18 @@ const Users = ({ darkMode }) => {
 
         {/* PREMIUM TABLE */}
         <div
-          className={`rounded-2xl overflow-hidden border shadow-2xl ${
-            darkMode
-              ? "bg-gray-900 border-gray-700"
-              : "bg-white border-gray-300"
-          }`}
+          className={`rounded-2xl overflow-hidden border shadow-2xl ${darkMode
+            ? "bg-gray-900 border-gray-700"
+            : "bg-white border-gray-300"
+            }`}
         >
           <table className="w-full">
             <thead
-              className={`text-sm uppercase tracking-wider ${
-                darkMode ? "bg-gray-800" : "bg-gray-100"
-              }`}
+              className={`text-sm uppercase tracking-wider ${darkMode ? "bg-gray-800" : "bg-gray-100"
+                }`}
             >
               <tr>
-                {["#", "User", "Email", "Phone", "Gender", "Location"].map(
+                {["#", "User", "Email", "Phone", "Gender", "Location", "Actions"].map(
                   (h) => (
                     <th
                       key={h}
@@ -214,7 +214,7 @@ const Users = ({ darkMode }) => {
                   return (
                     <tr
                       key={u._id}
-                      className="border-b hover:bg-blue-50 dark:hover:bg-gray-800 transition"
+                      className="border-b hover:bg-blue-50 dark:hover:bg-gray-800 dark:hover:text-white transition"
                     >
                       <td className="px-6 py-4 font-semibold">
                         {(currentPage - 1) * PAGE_SIZE + index + 1}
@@ -245,6 +245,29 @@ const Users = ({ darkMode }) => {
                           ? `${u.liveLocation.coordinates[1]}, ${u.liveLocation.coordinates[0]}`
                           : "N/A"}
                       </td>
+
+                      <td className="px-6 py-4 text-sm opacity-70">
+                        <button
+                          onClick={() => navigate(`/admin/user/${u._id}`)}
+                          className="
+                          group
+                          p-2.5
+                          rounded-xl
+                          bg-indigo-500/10
+                          text-indigo-500
+                          hover:bg-indigo-600
+                          hover:text-white
+                          transition-all
+                          duration-300
+                          hover:scale-110
+                          hover:shadow-lg
+                        "
+                        >
+                          <FaEye className="text-sm group-hover:rotate-12 transition" />
+                        </button>
+                      </td>
+
+
                     </tr>
                   );
                 })

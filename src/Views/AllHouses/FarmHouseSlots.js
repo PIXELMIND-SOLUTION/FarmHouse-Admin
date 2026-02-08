@@ -44,17 +44,16 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl">
-      
+
       {/* ================= MODAL ================= */}
       <div
         className={`relative w-full max-w-5xl mx-4 rounded-3xl overflow-hidden
         shadow-[0_25px_80px_rgba(0,0,0,0.6)]
         border backdrop-blur-2xl
-        ${
-          darkMode
+        ${darkMode
             ? "bg-gradient-to-br from-gray-900/95 to-gray-950 border-gray-700 text-white"
             : "bg-gradient-to-br from-white/95 to-gray-100 border-gray-200 text-gray-900"
-        }`}
+          }`}
       >
 
         {/* Glow Border */}
@@ -81,11 +80,10 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
           {/* DATE PICKER */}
           <div
             className={`flex items-center justify-between gap-4 p-6 rounded-2xl border shadow-inner
-            ${
-              darkMode
+            ${darkMode
                 ? "bg-gray-800/60 border-gray-700"
                 : "bg-white border-gray-200"
-            }`}
+              }`}
           >
             <div className="flex items-center gap-3 text-lg font-semibold">
               <FaCalendarAlt className="text-blue-500" />
@@ -127,21 +125,19 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                     key={i}
                     className={`relative p-6 rounded-2xl border transition-all duration-300
                     hover:scale-[1.02] hover:shadow-2xl
-                    ${
-                      available
+                    ${available
                         ? "border-emerald-500 bg-emerald-500/10"
                         : "border-red-500 bg-red-500/10"
-                    }`}
+                      }`}
                   >
 
                     {/* Glow */}
                     <div
                       className={`absolute inset-0 rounded-2xl blur-xl opacity-20
-                      ${
-                        available
+                      ${available
                           ? "bg-emerald-400"
                           : "bg-red-400"
-                      }`}
+                        }`}
                     />
 
                     <div className="relative flex justify-between items-center">
@@ -159,17 +155,22 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                         {/* Times */}
                         <p className="text-xs opacity-70 mt-1">
                           Check-in:{" "}
-                          {new Date(slot.checkIn).toLocaleTimeString([], {
-                            hour: "2-digit",
+                          {new Date(slot.checkIn).toLocaleTimeString("en-US", {
+                            hour: "numeric",
                             minute: "2-digit",
+                            hour12: true,
+                            timeZone: "UTC",
                           })}
                           {" • "}
                           Check-out:{" "}
-                          {new Date(slot.checkOut).toLocaleTimeString([], {
-                            hour: "2-digit",
+                          {new Date(slot.checkOut).toLocaleTimeString("en-US", {
+                            hour: "numeric",
                             minute: "2-digit",
+                            hour12: true,
+                            timeZone: "UTC",
                           })}
                         </p>
+
 
                         <p className="mt-3 text-2xl font-bold">
                           ₹{slot.price}

@@ -13,6 +13,7 @@ import FarmhouseForm from '../Views/AllHouses/CreateFarmHouse'
 import SingleFarmhouse from '../Views/AllHouses/SingleFarmHouse'
 import FarmhouseSlots from '../Views/AllHouses/FarmHouseSlots';
 import AdminFeesConfig from '../Views/AdminServiceFees';
+import UserDetails from '../Views/users/UserDetails';
 
 const AdminPanel = () => {
     const navigate = useNavigate();
@@ -106,6 +107,7 @@ const AdminPanel = () => {
                             <Route path="/dashboard" element={<Dashboard darkMode={darkMode} collapsed={collapsed} />} />
 
                             <Route path="/users" element={<Users darkMode={darkMode} collapsed={collapsed} />} />
+                            <Route path="/user/:id" element={<UserDetails darkMode={darkMode} collapsed={collapsed} />} />
 
                             <Route path="/service-fees" element={<AdminFeesConfig darkMode={darkMode} collapsed={collapsed} />} />
 

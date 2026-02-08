@@ -212,7 +212,7 @@ const Farmhouses = ({ darkMode }) => {
                 paginatedData.map((f, index) => (
                   <tr
                     key={f._id}
-                    className="border-b hover:bg-blue-50 dark:hover:bg-gray-800 transition"
+                    className="border-b hover:bg-blue-50 dark:hover:bg-gray-800 dark:hover:text-white transition"
                   >
                     <td className="px-6 py-4 font-semibold">
                       {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}

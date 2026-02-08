@@ -181,14 +181,14 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
             <div className="flex items-center cursor-pointer" onClick={() => onNavigate('/')}>
               <div className="w-8 h-8  rounded-lg flex items-center justify-center mr-3 overflow-hidden">
                 <img
-                  src="/logo.png"   // or your logo path
+                  src="/logo1.png"   // or your logo path
                   alt="Logo"
                   className="w-8 h-8 object-contain rounded-lg"
                 />
               </div>
 
               <div>
-                <h1 className="text-xl font-bold">Farm House</h1>
+                <h1 className="text-xl font-bold">V Farm House</h1>
                 <p className="text-xs text-gray-500">Admin Panel</p>
               </div>
             </div>

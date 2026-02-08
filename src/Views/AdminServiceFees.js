@@ -5,6 +5,7 @@ import {
   FaSave,
   FaSyncAlt,
   FaMoneyBillWave,
+  FaRupeeSign,
 } from "react-icons/fa";
 
 const API_BASE = "http://31.97.206.144:5124/api/fees";
@@ -41,7 +42,7 @@ const AdminFeesConfig = ({ darkMode = false }) => {
     fetchFees();
   }, []);
 
-  /* ================= CREATE / UPDATE ================= */
+  /* ================= SAVE ================= */
   const handleSave = async () => {
     if (!cleaningFee || !serviceFee) {
       alert("Please enter all values");
@@ -55,7 +56,6 @@ const AdminFeesConfig = ({ darkMode = false }) => {
         serviceFee: Number(serviceFee),
       });
 
-      alert("Fees updated successfully");
       fetchFees();
     } catch (err) {
       console.error(err);
@@ -75,7 +75,6 @@ const AdminFeesConfig = ({ darkMode = false }) => {
       setConfigId(null);
       setCleaningFee("");
       setServiceFee("");
-      alert("Fees config deleted");
     } catch (err) {
       console.error(err);
       alert("Delete failed");
@@ -84,97 +83,142 @@ const AdminFeesConfig = ({ darkMode = false }) => {
 
   return (
     <div
-      className={`min-h-screen p-6 ${
-        darkMode ? "bg-gray-900 text-white" : "bg-gray-100"
+      className={`relative min-h-screen p-6 overflow-hidden ${
+        darkMode
+          ? "bg-[#020617] text-white"
+          : "bg-gradient-to-br from-slate-100 to-white text-gray-900"
       }`}
     >
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold flex items-center gap-2">
-            <FaMoneyBillWave className="text-emerald-500" />
+      
+
+      <div className="relative max-w-3xl mx-auto">
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-4xl font-bold flex items-center gap-3 tracking-tight">
+            <div className="p-3 rounded-xl bg-emerald-500/15">
+              <FaMoneyBillWave className="text-emerald-400 text-2xl" />
+            </div>
+
             Fees Configuration
           </h2>
 
           <button
             onClick={fetchFees}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl
+            bg-white/10 backdrop-blur-xl
+            border border-white/20
+            hover:bg-indigo-600
+            transition-all duration-300 shadow-lg"
           >
             <FaSyncAlt />
             Refresh
           </button>
         </div>
 
-        {/* Card */}
-        <div
-          className={`rounded-2xl shadow-xl p-6 ${
-            darkMode ? "bg-gray-800" : "bg-white"
-          }`}
-        >
-          {loading ? (
-            <p className="text-center opacity-70">Loading...</p>
-          ) : (
-            <>
-              {/* Inputs */}
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block mb-2 font-medium">
-                    Cleaning Fee (₹)
-                  </label>
-                  <input
-                    type="number"
+        {/* 🔥 MAIN CARD */}
+        <div className="relative">
+          {/* glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 opacity-20 blur-2xl rounded-3xl"></div>
+
+          <div
+            className={`relative rounded-3xl p-10 backdrop-blur-2xl border shadow-[0_20px_80px_rgba(0,0,0,0.45)]
+            ${
+              darkMode
+                ? "bg-white/5 border-white/10"
+                : "bg-white/70 border-white"
+            }`}
+          >
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <FaSyncAlt className="animate-spin text-3xl text-emerald-400" />
+              </div>
+            ) : (
+              <>
+                {/* INPUTS */}
+                <div className="grid md:grid-cols-2 gap-8 mb-10">
+                  <PremiumInput
+                    label="Cleaning Fee"
                     value={cleaningFee}
-                    onChange={(e) => setCleaningFee(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-400 text-black"
-                    placeholder="Enter cleaning fee"
+                    onChange={setCleaningFee}
+                    darkMode={darkMode}
                   />
-                </div>
 
-                <div>
-                  <label className="block mb-2 font-medium">
-                    Service Fee (₹)
-                  </label>
-                  <input
-                    type="number"
+                  <PremiumInput
+                    label="Service Fee"
                     value={serviceFee}
-                    onChange={(e) => setServiceFee(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-400 text-black"
-                    placeholder="Enter service fee"
+                    onChange={setServiceFee}
+                    darkMode={darkMode}
                   />
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex justify-between items-center">
-                <button
-                  onClick={handleDelete}
-                  disabled={!configId}
-                  className="flex items-center gap-2 px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
-                >
-                  <FaTrash />
-                  Delete
-                </button>
+                {/* ACTIONS */}
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={handleDelete}
+                    disabled={!configId}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl
+                    bg-red-600 hover:bg-red-700
+                    shadow-lg hover:scale-105
+                    transition disabled:opacity-40"
+                  >
+                    <FaTrash />
+                    Delete
+                  </button>
 
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50"
-                >
-                  <FaSave />
-                  {saving ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            </>
-          )}
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl
+                    bg-gradient-to-r from-emerald-500 to-indigo-500
+                    hover:scale-105
+                    shadow-xl
+                    font-semibold
+                    transition disabled:opacity-50"
+                  >
+                    <FaSave />
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Info */}
-        <p className="mt-4 text-sm opacity-60 text-center">
+        {/* FOOTNOTE */}
+        <p className="mt-6 text-center text-sm opacity-60">
           This configuration is applied globally across bookings.
         </p>
       </div>
     </div>
   );
 };
+
+/* ================= PREMIUM INPUT ================= */
+
+const PremiumInput = ({ label, value, onChange, darkMode }) => (
+  <div className="space-y-2">
+    <label className="font-medium opacity-80">{label} (₹)</label>
+
+    <div
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl border
+      transition focus-within:ring-2 focus-within:ring-emerald-400
+      ${
+        darkMode
+          ? "bg-white/5 border-white/10"
+          : "bg-white border-gray-200 shadow-sm"
+      }`}
+    >
+      <FaRupeeSign className="text-emerald-400" />
+
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Enter amount"
+        className="w-full bg-transparent outline-none"
+      />
+    </div>
+  </div>
+);
 
 export default AdminFeesConfig;
