@@ -8,6 +8,7 @@ import {
   FaMapMarkerAlt,
   FaChevronLeft,
   FaChevronRight,
+  FaHome,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -18,6 +19,8 @@ const SingleFarmhouse = ({ darkMode }) => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [index, setIndex] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     axios.get(`${API_BASE}/farmhouse/${id}`).then((res) => {
@@ -45,8 +48,8 @@ const SingleFarmhouse = ({ darkMode }) => {
   return (
     <div
       className={`min-h-screen ${darkMode
-          ? "bg-[#020617] text-white"
-          : "bg-gradient-to-br from-slate-100 to-white text-gray-900"
+        ? "bg-[#020617] text-white"
+        : "bg-gradient-to-br from-slate-100 to-white text-gray-900"
         }`}
     >
       {/* BACK */}
@@ -63,18 +66,58 @@ const SingleFarmhouse = ({ darkMode }) => {
 
         <div className="relative rounded-3xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.6)] mb-10">
 
-          {/* IMAGE */}
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={index}
-              src={data.images[index]}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="h-[520px] w-full object-cover"
-            />
-          </AnimatePresence>
+          {data?.images?.length > 0 ? (
+
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={data.images[index]}
+                src={data.images[index]}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="h-[520px] w-full object-cover"
+              />
+            </AnimatePresence>
+
+          ) : (
+
+            <div
+              className="
+                      h-[520px]
+                      w-full
+                      flex
+                      items-center
+                      justify-center
+                      relative
+                      overflow-hidden
+                      bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100
+    "
+            >
+              {/* Glow blobs */}
+              <div className="absolute w-[400px] h-[400px] bg-purple-300 rounded-full blur-[120px] opacity-40 top-[-100px] left-[-100px]" />
+              <div className="absolute w-[350px] h-[350px] bg-indigo-300 rounded-full blur-[120px] opacity-40 bottom-[-100px] right-[-100px]" />
+
+              {/* Content */}
+              <div className="relative text-center px-6 py-4">
+                <div className="flex justify-center items-center mb-4">
+                  <FaHome className="text-indigo-500 text-6xl" />
+                </div>
+
+
+                <h2 className="text-2xl font-bold text-gray-700 mb-2">
+                  No Farmhouse Images Yet
+                </h2>
+
+                <p className="text-gray-500 max-w-md">
+                  Upload high-quality images to attract more bookings
+                  and build trust with your guests.
+                </p>
+              </div>
+            </div>
+
+          )}
+
 
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -139,8 +182,8 @@ const SingleFarmhouse = ({ darkMode }) => {
           {/* LEFT */}
           <div
             className={`md:col-span-2 p-8 rounded-3xl backdrop-blur-xl border shadow-xl ${darkMode
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-gray-200"
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
               }`}
           >
             <h2 className="text-2xl font-bold mb-4">
@@ -194,8 +237,8 @@ const SingleFarmhouse = ({ darkMode }) => {
           {/* SIDEBAR */}
           <div
             className={`p-8 rounded-3xl backdrop-blur-xl border shadow-xl ${darkMode
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-gray-200"
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
               }`}
           >
             <h3 className="text-xl font-bold mb-6">
@@ -241,8 +284,8 @@ const SingleFarmhouse = ({ darkMode }) => {
         {data.bookedSlots.length > 0 && (
           <div
             className={`mt-10 p-8 rounded-3xl backdrop-blur-xl border shadow-xl ${darkMode
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-gray-200"
+              ? "bg-white/5 border-white/10"
+              : "bg-white border-gray-200"
               }`}
           >
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -276,8 +319,161 @@ const SingleFarmhouse = ({ darkMode }) => {
             </div>
           </div>
         )}
+
+        {data?.vendorCredentials?.name ? (
+
+
+          < div
+            className={`mt-10 p-8 rounded-3xl backdrop-blur-xl border shadow-xl transition ${darkMode
+              ? "bg-indigo-500/10 border border-indigo-400"
+              : "bg-white border-gray-200"
+              }`}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">
+                Vendor Credentials
+              </h3>
+
+              {/* Copy BOTH */}
+              <button
+                onClick={() =>
+                  navigator.clipboard.writeText(
+                    `Farmhouse Credentials:\nUserId: ${data?.vendorCredentials?.name}\nPassword: ${data?.vendorCredentials?.password}`
+                  )
+                }
+                className="
+        px-4 py-2
+        rounded-xl
+        border
+        font-semibold
+        text-sm
+        hover:bg-indigo-50
+        transition
+        bg-emerald-500/10 border border-emerald-400
+         hover:text-black
+      "
+              >
+                Copy All
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+
+              {/* USERNAME */}
+              <div
+                className="
+      flex justify-between items-center
+      rounded-2xl border
+      p-5
+      bg-emerald-500/10 border border-emerald-400
+      "
+              >
+                <div>
+                  <p className="text-xs opacity-70">
+                    User ID
+                  </p>
+                  <p className="font-semibold text-lg">
+                    {data?.vendorCredentials?.name}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      `${data?.vendorCredentials?.name}`
+                    )
+                  }
+                  className="
+          px-3 py-2
+          rounded-lg
+          border
+          text-sm font-semibold
+          hover:bg-indigo-100
+          transition
+          bg-emerald-500/10 border border-emerald-400
+           hover:text-black
+        "
+                >
+                  Copy
+                </button>
+              </div>
+
+              {/* PASSWORD */}
+              <div
+                className="
+      flex justify-between items-center
+      rounded-2xl border
+      p-5
+      bg-emerald-500/10 border border-emerald-400
+      "
+              >
+                <div>
+                  <p className="text-xs opacity-70">
+                    Password
+                  </p>
+                  <p className="font-semibold text-lg tracking-widest">
+                    {showPassword
+                      ? data?.vendorCredentials?.password
+                      : "••••••••"}
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  {/* Eye Toggle */}
+                  <button
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="
+            px-3 py-2
+            rounded-lg
+            border
+            text-sm font-semibold
+            hover:bg-gray-100
+            transition
+            bg-emerald-500/10 border border-emerald-400
+             hover:text-black
+          "
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+
+                  {/* Copy */}
+                  <button
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        `${data?.vendorCredentials?.password}`
+                      )
+                    }
+                    className="
+            px-3 py-2
+            rounded-lg
+            border
+            text-sm font-semibold
+            hover:bg-indigo-100
+            transition
+            bg-emerald-500/10 border border-emerald-400
+            hover:text-black
+          "
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Hint */}
+            <p className="text-xs opacity-60 mt-4">
+              🔒 Keep these credentials secure. Do not share publicly.
+            </p>
+          </div>
+        ) :
+          null
+        }
+
+
+
       </div>
-    </div>
+    </div >
   );
 };
 

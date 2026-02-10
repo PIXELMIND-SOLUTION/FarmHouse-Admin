@@ -7,6 +7,8 @@ import {
   FaChevronRight,
   FaUsers,
   FaEye,
+  FaEdit,
+  FaTrash,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -246,26 +248,53 @@ const Users = ({ darkMode }) => {
                           : "N/A"}
                       </td>
 
-                      <td className="px-6 py-4 text-sm opacity-70">
-                        <button
-                          onClick={() => navigate(`/admin/user/${u._id}`)}
-                          className="
-                          group
-                          p-2.5
-                          rounded-xl
-                          bg-indigo-500/10
-                          text-indigo-500
-                          hover:bg-indigo-600
-                          hover:text-white
-                          transition-all
-                          duration-300
-                          hover:scale-110
-                          hover:shadow-lg
-                        "
-                        >
-                          <FaEye className="text-sm group-hover:rotate-12 transition" />
-                        </button>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-3">
+
+                          {/* VIEW */}
+                          <button
+                            onClick={() => navigate(`/admin/user/${u._id}`)}
+                            className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600
+      hover:bg-indigo-600 hover:text-white transition"
+                          >
+                            <FaEye />
+                          </button>
+
+                          {/* EDIT */}
+                          <button
+                            onClick={() => navigate(`/admin/user/update/${u._id}`)}
+                            className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600
+      hover:bg-emerald-600 hover:text-white transition"
+                          >
+                            <FaEdit />
+                          </button>
+
+                          {/* DELETE */}
+                          <button
+                            onClick={async () => {
+                              if (!window.confirm("Delete this user permanently?")) return;
+
+                              try {
+                                await axios.delete(
+                                  `http://31.97.206.144:5124/api/auth/user/${u._id}`
+                                );
+
+                                setUsers((prev) =>
+                                  prev.filter((x) => x._id !== u._id)
+                                );
+                              } catch (err) {
+                                alert("Failed to delete user");
+                              }
+                            }}
+                            className="p-2.5 rounded-xl bg-red-500/10 text-red-600
+      hover:bg-red-600 hover:text-white transition"
+                          >
+                            <FaTrash />
+                          </button>
+
+                        </div>
                       </td>
+
 
 
                     </tr>
