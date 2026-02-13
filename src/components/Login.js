@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
+import {
+  FiMail,
+  FiLock,
+  FiLogIn,
+  FiEye,
+  FiEyeOff,
+} from "react-icons/fi";
 
 const DEFAULT_EMAIL = "admin@gmail.com";
 const DEFAULT_PASSWORD = "admin@123";
@@ -10,137 +16,203 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ================= LOGIN ================= */
-  const handleLogin = async (e) => {
+  /* LOGIN */
+  const handleLogin = (e) => {
     e.preventDefault();
     setError("");
 
     if (!email || !password) {
-      setError("Email and password are required");
+      setError("Please enter email and password");
       return;
     }
 
     setLoading(true);
 
-    // Simulate API delay
     setTimeout(() => {
-      if (
-        email === DEFAULT_EMAIL &&
-        password === DEFAULT_PASSWORD
-      ) {
-        // Store mock admin session
+      if (email === DEFAULT_EMAIL && password === DEFAULT_PASSWORD) {
         sessionStorage.setItem("adminToken", "mock-admin-token");
-        sessionStorage.setItem(
-          "AdminData",
-          JSON.stringify({
-            email: DEFAULT_EMAIL,
-            role: "admin",
-            name: "Admin User"
-          })
-        );
-        sessionStorage.setItem("isAdmin", "true");
-
         navigate("/admin");
       } else {
-        setError("Invalid email or password");
+        setError("Invalid credentials");
       }
 
       setLoading(false);
-    }, 800);
+    }, 900);
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center
-      bg-gradient-to-br from-orange-500 via-orange-400 to-orange-200 px-4"
-    >
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
+
+      {/* 🌆 REAL ESTATE GRID BACKGROUND */}
+<div className="absolute inset-0 -z-20 bg-[#f6f9fc]" />
+
+{/* Blueprint Grid */}
+<div
+  className="absolute inset-0 -z-10 opacity-[0.35]"
+  style={{
+    backgroundImage: `
+      linear-gradient(to right, rgba(30,64,175,0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30,64,175,0.08) 1px, transparent 1px)
+    `,
+    backgroundSize: "42px 42px",
+  }}
+/>
+
+{/* Large City Blocks */}
+<div
+  className="absolute inset-0 -z-10 opacity-[0.15]"
+  style={{
+    backgroundImage: `
+      linear-gradient(to right, rgba(30,64,175,0.12) 2px, transparent 2px),
+      linear-gradient(to bottom, rgba(30,64,175,0.12) 2px, transparent 2px)
+    `,
+    backgroundSize: "140px 140px",
+  }}
+/>
+
+{/* 🌇 Building Shadows */}
+<div className="absolute bottom-0 left-0 right-0 h-[280px] -z-10 bg-gradient-to-t from-slate-900/10 to-transparent" />
+
+{/* Skyscraper Silhouettes */}
+<div className="absolute bottom-0 left-0 w-full flex justify-between items-end px-10 -z-10 opacity-20">
+
+  <div className="w-16 h-40 bg-slate-800 rounded-t-lg"></div>
+  <div className="w-24 h-56 bg-slate-900 rounded-t-xl"></div>
+  <div className="w-14 h-32 bg-slate-800 rounded-t-md"></div>
+  <div className="w-20 h-48 bg-slate-900 rounded-t-lg"></div>
+  <div className="w-12 h-28 bg-slate-800 rounded-t"></div>
+  <div className="w-28 h-60 bg-slate-900 rounded-t-xl"></div>
+
+</div>
+
+
+      {/* 🌈 AURORA BACKGROUND */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute w-[600px] h-[600px] bg-purple-400 rounded-full blur-[140px] opacity-40 -top-32 -left-32"></div>
+        <div className="absolute w-[500px] h-[500px] bg-blue-400 rounded-full blur-[140px] opacity-40 bottom-0 right-0"></div>
+        <div className="absolute w-[400px] h-[400px] bg-pink-400 rounded-full blur-[120px] opacity-30 top-1/3 right-1/4"></div>
+      </div>
+
+      {/* GLASS CARD */}
+      <div
+        className="w-full max-w-md p-8 rounded-[28px]
+        backdrop-blur-2xl
+        bg-white/30
+        border border-white/40
+        shadow-[0_20px_80px_rgba(0,0,0,0.15)]"
+      >
         {/* HEADER */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-orange-600">
-            Admin Login
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            V Farm House
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Sign in to access admin panel
+
+          <p className="text-gray-700 mt-2">
+            Admin Control Center
           </p>
         </div>
 
         {/* ERROR */}
         {error && (
-          <div
-            className="mb-4 text-sm text-red-600
-            bg-red-100 p-3 rounded-lg text-center"
-          >
+          <div className="mb-6 text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl text-sm text-center">
             {error}
           </div>
         )}
 
         {/* FORM */}
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-6">
+
           {/* EMAIL */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <div className="relative mt-1">
-              <FiMail className="absolute left-3 top-3 text-orange-500" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="admin@gmail.com"
-                className="w-full pl-10 pr-4 py-2.5
-                  border border-gray-300 rounded-xl
-                  focus:ring-2 focus:ring-orange-400
-                  focus:outline-none transition"
-              />
-            </div>
+          <div className="relative">
+            <FiMail className="absolute left-4 top-4 text-gray-500" />
+
+            <input
+              type="email"
+              required
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="
+                w-full pl-11 pr-4 py-3.5
+                rounded-xl
+                bg-white/70
+                border border-white/60
+                focus:border-indigo-400
+                focus:ring-4
+                focus:ring-indigo-200
+                outline-none
+                transition
+              "
+            />
           </div>
 
           {/* PASSWORD */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="relative mt-1">
-              <FiLock className="absolute left-3 top-3 text-orange-500" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="admin@123"
-                className="w-full pl-10 pr-4 py-2.5
-                  border border-gray-300 rounded-xl
-                  focus:ring-2 focus:ring-orange-400
-                  focus:outline-none transition"
-              />
-            </div>
+          <div className="relative">
+            <FiLock className="absolute left-4 top-4 text-gray-500" />
+
+            <input
+              type={show ? "text" : "password"}
+              required
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="
+                w-full pl-11 pr-11 py-3.5
+                rounded-xl
+                bg-white/70
+                border border-white/60
+                focus:border-purple-400
+                focus:ring-4
+                focus:ring-purple-200
+                outline-none
+                transition
+              "
+            />
+
+            <button
+              type="button"
+              onClick={() => setShow(!show)}
+              className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+            >
+              {show ? <FiEyeOff /> : <FiEye />}
+            </button>
           </div>
 
-          {/* BUTTON */}
+          {/* LOGIN BUTTON */}
           <button
-            type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2
-              bg-gradient-to-r from-orange-500 to-orange-600
-              text-white py-3 rounded-xl font-semibold
-              hover:opacity-90 transition-all
-              active:scale-95 disabled:opacity-50"
+            className="
+              w-full py-3.5
+              rounded-xl
+              text-white
+              font-semibold
+              flex items-center justify-center gap-2
+              bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600
+              hover:scale-[1.02]
+              active:scale-[0.98]
+              transition
+              shadow-lg
+            "
           >
-            <FiLogIn size={18} />
-            {loading ? "Logging in..." : "Login"}
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <FiLogIn />
+                Sign In
+              </>
+            )}
           </button>
         </form>
 
         {/* FOOTER */}
-        <p className="text-xs text-gray-400 text-center mt-6">
-          © {new Date().getFullYear()} Admin Panel
-        </p>
+        <div className="text-center mt-8 text-sm text-gray-700">
+          Secure Admin Portal • {new Date().getFullYear()}
+        </div>
       </div>
     </div>
   );
