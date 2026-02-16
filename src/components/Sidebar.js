@@ -104,8 +104,8 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
     //     { id: 'Contact', text: 'All Contact', path: '/contactus' }
     //   ]
     // },
-    { id: 'Notifications', icon: <FaBell />, text: 'Notifications', path: '/allnotifications' },
-    { id: 'Settings', icon: <FaCog />, text: 'Settings', path: '/settings' },
+    { id: 'Revenue', icon: <FaMoneyBill />, text: 'Revenue', path: '/Revenue' },
+    // { id: 'Settings', icon: <FaCog />, text: 'Settings', path: '/settings' },
   ];
 
   const handleItemClick = (item) => {
@@ -159,17 +159,23 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        ${collapsed ? 'md:w-20' : 'md:w-64'}
-        fixed md:relative z-40
-        h-screen
-        transition-all duration-300 ease-in-out
-        flex flex-col
-        border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-        shadow-lg md:shadow-sm
-      `}>
+      <aside
+        className={`
+    ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}
+    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+    ${collapsed ? 'md:w-20' : 'md:w-64'}
+    
+    fixed top-0 left-0
+    h-[100vh] w-64
+    z-50
+    
+    transition-all duration-300 ease-in-out
+    flex flex-col
+    
+    border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}
+    shadow-2xl md:shadow-lg
+  `}
+      >
         {/* Header */}
         <div className={`
           p-4 ${darkMode ? 'border-gray-700' : 'border-gray-200'} 
@@ -213,7 +219,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
           {/* Collapse Toggle Button (Desktop only) */}
           <button
             onClick={toggleCollapsed}
-            className={`hidden md:flex p-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} ${collapsed ? 'absolute -right-3 top-6 bg-white dark:bg-gray-800 border shadow-lg' : ''}`}
+            className={`hidden md:flex p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-700' : 'bg-gray-100hover:bg-gray-100'} ${collapsed ? 'absolute -right-3 top-6 bg-white dark:bg-gray-800 border shadow-lg' : ''}`}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? (
@@ -225,7 +231,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 p-2 md:p-4 overflow-y-auto">
+        <nav className="flex-1 p-2 md:p-4 overflow-y-auto scrollbar-thin">
           <ul className="space-y-1">
             {menuItems.map((item) => (
               <li key={item.id}>
@@ -354,7 +360,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
           {collapsed ? (
             <div className="relative">
               <img
-                src="https://ui-avatars.com/api/?name=AU&background=3b82f6&color=fff"
+                src="/logo1.png"
                 alt="Admin"
                 className="w-10 h-10 rounded-full mx-auto cursor-pointer"
                 onMouseEnter={() => setHoveredItem('profile')}
@@ -370,8 +376,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
                   ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'}
                   whitespace-nowrap
                 `}>
-                  <div className="text-sm font-medium">Admin User</div>
-                  <div className="text-xs opacity-75">admin@example.com</div>
+                  <div className="text-sm font-medium">Admin</div>
                 </div>
               )}
             </div>
@@ -379,15 +384,15 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
             <div className="flex items-center cursor-pointer" onClick={() => onNavigate('/profile')}>
               <div className="relative">
                 <img
-                  src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff"
+                  src="/logo1.png"
                   alt="Admin User"
                   className="w-10 h-10 rounded-full"
                 />
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
               </div>
               <div className="ml-3">
-                <h4 className="font-semibold text-sm">Admin User</h4>
-                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>admin@example.com</p>
+                <h4 className="font-semibold text-sm">Admin</h4>
+
               </div>
             </div>
           )}

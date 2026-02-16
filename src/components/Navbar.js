@@ -74,30 +74,21 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
           ) : ("")}
         </button>
 
-        {/* Breadcrumb/Page Title */}
-        <div className="hidden md:block">
-          <h1 className="text-lg font-semibold">
-            Dashboard
-            {collapsed && <span className="text-xs text-gray-500 ml-2">(Collapsed)</span>}
-          </h1>
-          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            Welcome back, Admin
-          </p>
-        </div>
+
 
         {/* Mobile Search Toggle */}
-        <button
+        {/* <button
           onClick={() => setSearchOpen(!searchOpen)}
           className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           aria-label="Search"
         >
           <FaSearch className="text-lg" />
-        </button>
+        </button> */}
       </div>
 
-      
 
-      
+
+
 
       {/* Right Section */}
       <div className="flex items-center space-x-2 md:space-x-3">
@@ -132,7 +123,7 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
 
 
         {/* Notifications */}
-        <div className="relative">
+        {/* <div className="relative">
           <button
             onClick={() => setNotificationOpen(!notificationOpen)}
             className={`relative p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
@@ -145,7 +136,7 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
             )}
           </button>
 
-          {/* Notification Dropdown */}
+        
           {notificationOpen && (
             <>
               <div
@@ -199,7 +190,7 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
               </div>
             </>
           )}
-        </div>
+        </div> */}
 
         {/* User Profile */}
         <div className="relative">
@@ -208,7 +199,7 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
             className={`flex items-center space-x-2 p-1 pr-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
           >
             <img
-              src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff"
+              src="/logo1.png"
               alt="Admin"
               className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-700"
             />
@@ -239,17 +230,17 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
                 <div className="p-4 border-b dark:border-gray-700">
                   <div className="flex items-center space-x-3">
                     <img
-                      src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff"
+                      src="/logo1.png"
                       alt="Admin"
                       className="w-10 h-10 rounded-full"
                     />
                     <div>
-                      <p className="font-semibold">Admin User</p>
-                      <p className="text-sm opacity-75">admin@example.com</p>
+                      <p className="font-semibold">Admin</p>
+                      {/* <p className="text-sm opacity-75">admin@example.com</p> */}
                     </div>
                   </div>
                 </div>
-                <a
+                {/* <a
                   href="#"
                   className={`block px-4 py-3 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                 >
@@ -260,7 +251,7 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
                   className={`block px-4 py-3 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                 >
                   <FaCog className="inline mr-2" /> Settings
-                </a>
+                </a> */}
                 <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
                 <a
                   href="/"

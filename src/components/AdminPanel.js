@@ -70,7 +70,7 @@ const AdminPanel = () => {
     }, []);
 
     return (
-        <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+        <div className={`h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
             <div className="flex">
                 {/* Sidebar */}
                 <Sidebar
@@ -97,43 +97,46 @@ const AdminPanel = () => {
                         sidebarOpen={sidebarOpen}
                         onNavigate={handleNavigation}
                     />
-
-                    {/* Main Content Area with Routes */}
-                    <main className={`
-                        flex-1 p-4 md:p-6 overflow-y-auto
-                        transition-all duration-300
+                    <div className={`${collapsed ? 'md:ml-20' : 'md:ml-64'} transition-all duration-300`}>
+                        {/* Main Content Area with Routes */}
+                        <main className={`
+                        flex-1
+                        overflow-y-auto
+                        overflow-x-hidden
+                        p-4 md:p-6
                     `}>
-                        <Routes>
-                            <Route path="/" element={<Dashboard darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path="/dashboard" element={<Dashboard darkMode={darkMode} collapsed={collapsed} />} />
+                            <Routes>
+                                <Route path="/" element={<Dashboard darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/dashboard" element={<Dashboard darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/users" element={<Users darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path="/user/:id" element={<UserDetails darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path="/user/update/:id" element={<UpdateUser darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/users" element={<Users darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/user/:id" element={<UserDetails darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/user/update/:id" element={<UpdateUser darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/service-fees" element={<AdminFeesConfig darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/service-fees" element={<AdminFeesConfig darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/banners" element={<Banners darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/banners" element={<Banners darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/farmhouses/create" element={<FarmhouseForm darkMode={darkMode} />} />
-                            <Route path="/farmhouses/edit/:id" element={<FarmhouseForm darkMode={darkMode} />} />
+                                <Route path="/farmhouses/create" element={<FarmhouseForm darkMode={darkMode} />} />
+                                <Route path="/farmhouses/edit/:id" element={<FarmhouseForm darkMode={darkMode} />} />
 
-                            <Route path='/farmhouses' element={<FarmHouses darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path='/farmhouses/:id' element={<SingleFarmhouse darkMode={darkMode} collapsed={collapsed} />} />
-                            <Route path='/farmhouses/slot/:id' element={<FarmhouseSlots darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path='/farmhouses' element={<FarmHouses darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path='/farmhouses/:id' element={<SingleFarmhouse darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path='/farmhouses/slot/:id' element={<FarmhouseSlots darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/allbookings" element={<AllBookings darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/allbookings" element={<AllBookings darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="/all-payments" element={<AllPayments darkMode={darkMode} collapsed={collapsed} />} />
-
-
+                                <Route path="/all-payments" element={<AllPayments darkMode={darkMode} collapsed={collapsed} />} />
 
 
-                            <Route path="/settings" element={<Settings darkMode={darkMode} collapsed={collapsed} />} />
 
-                            <Route path="*" element={<Navigate to="/admin" replace />} />
-                        </Routes>
-                    </main>
+
+                                <Route path="/settings" element={<Settings darkMode={darkMode} collapsed={collapsed} />} />
+
+                                <Route path="*" element={<Navigate to="/admin" replace />} />
+                            </Routes>
+                        </main>
+                    </div>
                 </div>
             </div>
         </div>
