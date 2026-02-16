@@ -85,8 +85,8 @@ const AdminFeesConfig = ({ darkMode = false }) => {
     <div
       className={`relative min-h-screen p-6 overflow-hidden ${
         darkMode
-          ? "bg-[#020617] text-white"
-          : "bg-gradient-to-br from-slate-100 to-white text-gray-900"
+          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+          : "bg-gradient-to-br from-lime-100 via-white to-lime-200 text-stone-900"
       }`}
     >
       
@@ -94,9 +94,15 @@ const AdminFeesConfig = ({ darkMode = false }) => {
       <div className="relative max-w-3xl mx-auto">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-10">
-          <h2 className="text-4xl font-bold flex items-center gap-3 tracking-tight">
-            <div className="p-3 rounded-xl bg-emerald-500/15">
-              <FaMoneyBillWave className="text-emerald-400 text-2xl" />
+          <h2 className={`text-4xl font-bold flex items-center gap-3 tracking-tight ${
+            darkMode ? 'text-lime-400' : 'text-lime-700'
+          }`}>
+            <div className={`p-3 rounded-xl ${
+              darkMode ? 'bg-lime-500/15' : 'bg-lime-100'
+            }`}>
+              <FaMoneyBillWave className={`text-2xl ${
+                darkMode ? 'text-lime-400' : 'text-lime-600'
+              }`} />
             </div>
 
             Fees Configuration
@@ -104,11 +110,13 @@ const AdminFeesConfig = ({ darkMode = false }) => {
 
           <button
             onClick={fetchFees}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl
-            bg-white/10 backdrop-blur-xl
-            border border-white/20
-            hover:bg-indigo-600
-            transition-all duration-300 shadow-lg"
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl
+            backdrop-blur-xl border
+            transition-all duration-300 shadow-lg ${
+              darkMode
+                ? 'bg-white/10 border-white/20 hover:bg-lime-600'
+                : 'bg-white/10 border-lime-300 hover:bg-lime-600 hover:text-white'
+            }`}
           >
             <FaSyncAlt />
             Refresh
@@ -118,19 +126,24 @@ const AdminFeesConfig = ({ darkMode = false }) => {
         {/* 🔥 MAIN CARD */}
         <div className="relative">
           {/* glow */}
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 opacity-20 blur-2xl rounded-3xl"></div>
+          <div className={`absolute inset-0 opacity-20 blur-2xl rounded-3xl ${
+            darkMode
+              ? 'bg-gradient-to-r from-lime-500 via-amber-500 to-lime-500'
+              : 'bg-gradient-to-r from-lime-400 via-amber-400 to-lime-400'
+          }`}></div>
 
           <div
-            className={`relative rounded-3xl p-10 backdrop-blur-2xl border shadow-[0_20px_80px_rgba(0,0,0,0.45)]
-            ${
+            className={`relative rounded-3xl p-10 backdrop-blur-2xl border shadow-[0_20px_80px_rgba(0,0,0,0.45)] ${
               darkMode
-                ? "bg-white/5 border-white/10"
-                : "bg-white/70 border-white"
+                ? "bg-white/5 border-stone-700"
+                : "bg-white/70 border-lime-200"
             }`}
           >
             {loading ? (
               <div className="flex justify-center py-20">
-                <FaSyncAlt className="animate-spin text-3xl text-emerald-400" />
+                <FaSyncAlt className={`animate-spin text-3xl ${
+                  darkMode ? 'text-lime-400' : 'text-lime-600'
+                }`} />
               </div>
             ) : (
               <>
@@ -157,7 +170,7 @@ const AdminFeesConfig = ({ darkMode = false }) => {
                     onClick={handleDelete}
                     disabled={!configId}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-xl
-                    bg-red-600 hover:bg-red-700
+                    bg-red-600 hover:bg-red-700 text-white
                     shadow-lg hover:scale-105
                     transition disabled:opacity-40"
                   >
@@ -168,12 +181,13 @@ const AdminFeesConfig = ({ darkMode = false }) => {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl
-                    bg-gradient-to-r from-emerald-500 to-indigo-500
-                    hover:scale-105
-                    shadow-xl
-                    font-semibold
-                    transition disabled:opacity-50"
+                    className={`flex items-center gap-2 px-8 py-3 rounded-xl
+                    hover:scale-105 shadow-xl font-semibold text-white
+                    transition disabled:opacity-50 ${
+                      darkMode
+                        ? 'bg-gradient-to-r from-lime-600 to-amber-600'
+                        : 'bg-gradient-to-r from-lime-500 to-amber-500'
+                    }`}
                   >
                     <FaSave />
                     {saving ? "Saving..." : "Save Changes"}
@@ -185,7 +199,9 @@ const AdminFeesConfig = ({ darkMode = false }) => {
         </div>
 
         {/* FOOTNOTE */}
-        <p className="mt-6 text-center text-sm opacity-60">
+        <p className={`mt-6 text-center text-sm ${
+          darkMode ? 'text-stone-500' : 'text-stone-600'
+        }`}>
           This configuration is applied globally across bookings.
         </p>
       </div>
@@ -197,25 +213,28 @@ const AdminFeesConfig = ({ darkMode = false }) => {
 
 const PremiumInput = ({ label, value, onChange, darkMode }) => (
   <div className="space-y-2">
-    <label className="font-medium opacity-80">{label} (₹)</label>
+    <label className={`font-medium ${
+      darkMode ? 'text-stone-300' : 'text-stone-700'
+    }`}>{label} (₹)</label>
 
     <div
       className={`flex items-center gap-3 px-4 py-3 rounded-xl border
-      transition focus-within:ring-2 focus-within:ring-emerald-400
-      ${
+      transition focus-within:ring-2 ${
         darkMode
-          ? "bg-white/5 border-white/10"
-          : "bg-white border-gray-200 shadow-sm"
+          ? "bg-white/5 border-stone-700 focus-within:ring-lime-500 focus-within:border-lime-500"
+          : "bg-white border-lime-300 shadow-sm focus-within:ring-lime-500 focus-within:border-lime-500"
       }`}
     >
-      <FaRupeeSign className="text-emerald-400" />
+      <FaRupeeSign className={darkMode ? 'text-lime-400' : 'text-lime-600'} />
 
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Enter amount"
-        className="w-full bg-transparent outline-none"
+        className={`w-full bg-transparent outline-none ${
+          darkMode ? 'text-white placeholder:text-stone-500' : 'text-stone-900 placeholder:text-stone-400'
+        }`}
       />
     </div>
   </div>

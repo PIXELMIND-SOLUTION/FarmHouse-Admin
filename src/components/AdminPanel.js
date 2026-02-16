@@ -71,7 +71,7 @@ const AdminPanel = () => {
     }, []);
 
     return (
-        <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+        <div className={`min-h-screen ${darkMode ? 'dark bg-stone-900' : 'bg-lime-50'}`}>
             <div className="flex">
                 {/* Sidebar */}
                 <Sidebar

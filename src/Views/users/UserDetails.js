@@ -40,7 +40,7 @@ const UserDetails = ({ darkMode }) => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <FaSpinner className="animate-spin text-4xl text-indigo-500" />
+        <FaSpinner className={`animate-spin text-4xl ${darkMode ? 'text-lime-400' : 'text-lime-600'}`} />
       </div>
     );
   }
@@ -61,20 +61,21 @@ const UserDetails = ({ darkMode }) => {
     <div
       className={`min-h-screen p-6 md:p-10 transition-all duration-500 ${
         darkMode
-          ? "bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white"
-          : "bg-gradient-to-br from-slate-100 via-white to-slate-200 text-gray-900"
+          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+          : "bg-gradient-to-br from-lime-100 via-white to-lime-200 text-stone-900"
       }`}
     >
       {/* Back Button */}
       <div className="max-w-6xl mx-auto mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="group flex items-center gap-2 px-5 py-2.5 rounded-full
-          backdrop-blur-xl
-          bg-white/10 hover:bg-indigo-600
-          border border-white/20
-          hover:border-indigo-500
-          transition-all duration-300 shadow-lg"
+          className={`group flex items-center gap-2 px-5 py-2.5 rounded-full
+          backdrop-blur-xl border
+          transition-all duration-300 shadow-lg ${
+            darkMode
+              ? 'bg-white/10 hover:bg-lime-600 border-white/20 hover:border-lime-500'
+              : 'bg-white/10 hover:bg-lime-600 border-lime-300 hover:border-lime-500'
+          }`}
         >
           <FaArrowLeft className="group-hover:-translate-x-1 transition" />
           Back
@@ -85,34 +86,46 @@ const UserDetails = ({ darkMode }) => {
       <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden relative">
 
         {/* glowing border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 opacity-20 blur-2xl"></div>
+        <div className={`absolute inset-0 opacity-20 blur-2xl ${
+          darkMode 
+            ? 'bg-gradient-to-r from-lime-500 via-amber-500 to-lime-500'
+            : 'bg-gradient-to-r from-lime-400 via-amber-400 to-lime-400'
+        }`}></div>
 
         <div
           className={`relative backdrop-blur-2xl border rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.45)]
           ${
             darkMode
-              ? "bg-white/5 border-white/10"
-              : "bg-white/70 border-white/40"
+              ? "bg-white/5 border-stone-700"
+              : "bg-white/70 border-lime-200"
           }`}
         >
           {/* HEADER */}
-          <div className="flex flex-col md:flex-row items-center gap-8 p-10 border-b border-white/10">
+          <div className={`flex flex-col md:flex-row items-center gap-8 p-10 border-b ${
+            darkMode ? 'border-stone-700' : 'border-lime-200'
+          }`}>
             {/* Avatar */}
             <div className="relative">
-              <div className="absolute inset-0 rounded-full blur-2xl bg-indigo-500/40"></div>
+              <div className={`absolute inset-0 rounded-full blur-2xl ${
+                darkMode ? 'bg-lime-500/40' : 'bg-lime-400/40'
+              }`}></div>
 
               {user.profileImage ? (
                 <img
                   src={user.profileImage}
                   alt="profile"
-                  className="relative w-32 h-32 rounded-full object-cover ring-4 ring-indigo-500 shadow-2xl"
+                  className={`relative w-32 h-32 rounded-full object-cover ring-4 shadow-2xl ${
+                    darkMode ? 'ring-lime-500' : 'ring-lime-600'
+                  }`}
                 />
               ) : (
                 <div
-                  className="relative w-32 h-32 rounded-full flex items-center justify-center
+                  className={`relative w-32 h-32 rounded-full flex items-center justify-center
                   text-5xl font-bold text-white
-                  bg-gradient-to-br from-indigo-500 to-purple-600
-                  ring-4 ring-indigo-500 shadow-2xl"
+                  bg-gradient-to-br from-lime-500 to-lime-600
+                  ring-4 shadow-2xl ${
+                    darkMode ? 'ring-lime-500' : 'ring-lime-600'
+                  }`}
                 >
                   {firstLetter}
                 </div>
@@ -125,12 +138,14 @@ const UserDetails = ({ darkMode }) => {
                 {user.fullName}
               </h1>
 
-              <p className="opacity-70 mt-1">@{user.username}</p>
+              <p className={darkMode ? 'text-stone-400 mt-1' : 'text-stone-600 mt-1'}>@{user.username}</p>
 
               <span
-                className="inline-block mt-3 px-4 py-1 rounded-full text-sm
-                bg-gradient-to-r from-indigo-500/20 to-purple-500/20
-                border border-indigo-400/30"
+                className={`inline-block mt-3 px-4 py-1 rounded-full text-sm border ${
+                  darkMode
+                    ? 'bg-lime-500/20 border-lime-500/30 text-lime-400'
+                    : 'bg-lime-100 border-lime-400/30 text-lime-700'
+                }`}
               >
                 {user.gender?.toUpperCase()}
               </span>
@@ -142,8 +157,8 @@ const UserDetails = ({ darkMode }) => {
 
             {/* CONTACT CARD */}
             <PremiumCard darkMode={darkMode} title="Contact Information">
-              <InfoRow icon={<FaEnvelope />} label="Email" value={user.email} />
-              <InfoRow icon={<FaPhone />} label="Phone" value={user.phoneNumber} />
+              <InfoRow darkMode={darkMode} icon={<FaEnvelope />} label="Email" value={user.email} />
+              <InfoRow darkMode={darkMode} icon={<FaPhone />} label="Phone" value={user.phoneNumber} />
             </PremiumCard>
 
             {/* LOCATION CARD */}
@@ -151,6 +166,7 @@ const UserDetails = ({ darkMode }) => {
               {lat && lng ? (
                 <>
                   <InfoRow
+                    darkMode={darkMode}
                     icon={<FaMapMarkerAlt />}
                     label="Coordinates"
                     value={`${lat} , ${lng}`}
@@ -160,15 +176,18 @@ const UserDetails = ({ darkMode }) => {
                     href={`https://www.google.com/maps?q=${lat},${lng}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-4 inline-flex items-center gap-2 text-sm
-                    text-indigo-400 hover:text-indigo-300 transition"
+                    className={`mt-4 inline-flex items-center gap-2 text-sm transition ${
+                      darkMode
+                        ? 'text-lime-400 hover:text-lime-300'
+                        : 'text-lime-600 hover:text-lime-700'
+                    }`}
                   >
                     Open in Google Maps
                     <FaExternalLinkAlt size={12} />
                   </a>
                 </>
               ) : (
-                <p className="opacity-60 text-sm">Location unavailable</p>
+                <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Location unavailable</p>
               )}
             </PremiumCard>
 
@@ -176,14 +195,20 @@ const UserDetails = ({ darkMode }) => {
             {address && (
               <div className="md:col-span-2">
                 <div
-                  className={`rounded-2xl p-[1px] bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500`}
+                  className={`rounded-2xl p-[1px] ${
+                    darkMode 
+                      ? 'bg-gradient-to-r from-lime-500 via-amber-500 to-lime-500'
+                      : 'bg-gradient-to-r from-lime-400 via-amber-400 to-lime-400'
+                  }`}
                 >
                   <div
                     className={`rounded-2xl p-8 backdrop-blur-xl ${
-                      darkMode ? "bg-[#020617]" : "bg-white"
+                      darkMode ? "bg-stone-900" : "bg-white"
                     }`}
                   >
-                    <h3 className="text-xl font-semibold mb-6">
+                    <h3 className={`text-xl font-semibold mb-6 ${
+                      darkMode ? 'text-lime-400' : 'text-lime-700'
+                    }`}>
                       Primary Address
                     </h3>
 
@@ -191,8 +216,8 @@ const UserDetails = ({ darkMode }) => {
                     <div
                       className={`p-5 rounded-xl mb-6 ${
                         darkMode
-                          ? "bg-white/5 border border-white/10"
-                          : "bg-slate-100"
+                          ? "bg-white/5 border border-stone-700"
+                          : "bg-lime-50 border border-lime-200"
                       }`}
                     >
                       <p className="text-lg font-medium">
@@ -202,10 +227,10 @@ const UserDetails = ({ darkMode }) => {
 
                     {/* grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      <AddressItem label="City" value={address.city} />
-                      <AddressItem label="State" value={address.state} />
-                      <AddressItem label="Country" value={address.country} />
-                      <AddressItem label="Postal Code" value={address.postalCode} />
+                      <AddressItem darkMode={darkMode} label="City" value={address.city} />
+                      <AddressItem darkMode={darkMode} label="State" value={address.state} />
+                      <AddressItem darkMode={darkMode} label="Country" value={address.country} />
+                      <AddressItem darkMode={darkMode} label="Postal Code" value={address.postalCode} />
                     </div>
                   </div>
                 </div>
@@ -214,7 +239,9 @@ const UserDetails = ({ darkMode }) => {
           </div>
 
           {/* FOOTER */}
-          <div className="p-6 text-xs opacity-60 text-center border-t border-white/10">
+          <div className={`p-6 text-xs text-center border-t ${
+            darkMode ? 'border-stone-700 text-stone-500' : 'border-lime-200 text-stone-500'
+          }`}>
             Last Updated: {new Date(user.updatedAt).toLocaleString()}
           </div>
         </div>
@@ -227,32 +254,31 @@ const UserDetails = ({ darkMode }) => {
 
 const PremiumCard = ({ title, children, darkMode }) => (
   <div
-    className={`rounded-2xl p-6 backdrop-blur-xl border transition hover:scale-[1.02]
-    ${
+    className={`rounded-2xl p-6 backdrop-blur-xl border transition hover:scale-[1.02] ${
       darkMode
-        ? "bg-white/5 border-white/10 hover:border-indigo-400/40"
-        : "bg-white/70 border-white hover:shadow-xl"
+        ? "bg-white/5 border-stone-700 hover:border-lime-500/40"
+        : "bg-white/70 border-lime-200 hover:shadow-xl hover:border-lime-300"
     }`}
   >
-    <h3 className="text-lg font-semibold mb-5">{title}</h3>
+    <h3 className={`text-lg font-semibold mb-5 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>{title}</h3>
     <div className="space-y-4">{children}</div>
   </div>
 );
 
-const InfoRow = ({ icon, label, value }) => (
+const InfoRow = ({ icon, label, value, darkMode }) => (
   <div className="flex items-center gap-4">
-    <div className="text-indigo-400 text-lg">{icon}</div>
+    <div className={`text-lg ${darkMode ? 'text-lime-400' : 'text-lime-600'}`}>{icon}</div>
 
     <div>
-      <p className="text-xs opacity-60">{label}</p>
+      <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>{label}</p>
       <p className="text-sm font-medium">{value || "—"}</p>
     </div>
   </div>
 );
 
-const AddressItem = ({ label, value }) => (
+const AddressItem = ({ label, value, darkMode }) => (
   <div>
-    <p className="text-xs opacity-60">{label}</p>
+    <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>{label}</p>
     <p className="font-semibold mt-1">{value}</p>
   </div>
 );

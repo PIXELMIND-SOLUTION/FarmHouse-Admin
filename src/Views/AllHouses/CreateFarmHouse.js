@@ -129,8 +129,8 @@ const FarmhouseForm = ({ darkMode }) => {
     <div
       className={`min-h-screen p-8 ${
         darkMode
-          ? "bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white"
-          : "bg-gradient-to-br from-gray-100 via-white to-gray-200"
+          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+          : "bg-gradient-to-br from-lime-100 via-white to-lime-200"
       }`}
     >
       <div className="max-w-6xl mx-auto">
@@ -139,20 +139,20 @@ const FarmhouseForm = ({ darkMode }) => {
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 mb-6 px-5 py-2 rounded-xl font-semibold
-          bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+          bg-lime-600 hover:bg-lime-700 text-white shadow-lg"
         >
           <FaArrowLeft /> Back
         </button>
 
-        <h2 className="text-4xl font-bold mb-8">
+        <h2 className={`text-4xl font-bold mb-8 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
           {isEditMode ? "✏️ Edit Farmhouse" : "➕ Create Farmhouse"}
         </h2>
 
         <div
           className={`p-8 rounded-3xl border shadow-2xl backdrop-blur-md ${
             darkMode
-              ? "bg-gray-900/70 border-gray-700"
-              : "bg-white/80 border-gray-300"
+              ? "bg-stone-900/70 border-stone-700"
+              : "bg-white/80 border-lime-300"
           }`}
         >
 
@@ -160,7 +160,9 @@ const FarmhouseForm = ({ darkMode }) => {
           <div className="grid md:grid-cols-2 gap-6">
             {Object.keys(initialForm).map((key) => (
               <div key={key} className="flex flex-col gap-1">
-                <label className="text-sm font-semibold opacity-70 capitalize">
+                <label className={`text-sm font-semibold capitalize ${
+                  darkMode ? 'text-stone-400' : 'text-stone-700'
+                }`}>
                   {key}
                 </label>
 
@@ -169,9 +171,11 @@ const FarmhouseForm = ({ darkMode }) => {
                   value={form[key]}
                   onChange={handleChange}
                   placeholder={`Enter ${key}`}
-                  className="px-4 py-3 rounded-xl border-2 border-gray-300
-                  focus:border-blue-500 focus:ring-2 focus:ring-blue-200
-                  outline-none transition text-black"
+                  className={`px-4 py-3 rounded-xl border-2 outline-none transition ${
+                    darkMode
+                      ? "bg-stone-800 border-stone-700 text-white focus:border-lime-500 focus:ring-2 focus:ring-lime-500/50"
+                      : "bg-white border-lime-300 text-stone-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
+                  }`}
                 />
               </div>
             ))}
@@ -180,7 +184,7 @@ const FarmhouseForm = ({ darkMode }) => {
           {/* EXISTING IMAGES */}
           {existingImages.length > 0 && (
             <div className="mt-10">
-              <h3 className="text-xl font-bold mb-4">
+              <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
                 Existing Images
               </h3>
 
@@ -188,7 +192,7 @@ const FarmhouseForm = ({ darkMode }) => {
                 {existingImages.map((img, i) => (
                   <div
                     key={i}
-                    className="overflow-hidden rounded-xl shadow-md hover:scale-105 transition"
+                    className="overflow-hidden rounded-xl shadow-md hover:scale-105 transition border-2 border-lime-400"
                   >
                     <img
                       src={img}
@@ -203,7 +207,7 @@ const FarmhouseForm = ({ darkMode }) => {
 
           {/* IMAGE UPLOAD */}
           <div className="mt-10">
-            <label className="font-semibold block mb-2">
+            <label className={`font-semibold block mb-2 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
               Upload Images
             </label>
 
@@ -211,29 +215,32 @@ const FarmhouseForm = ({ darkMode }) => {
               type="file"
               multiple
               onChange={(e) => setImages([...e.target.files])}
-              className="w-full p-3 border-2 border-dashed border-gray-300 rounded-xl
-              bg-gray-50 hover:border-blue-400 cursor-pointer"
+              className={`w-full p-3 border-2 border-dashed rounded-xl cursor-pointer ${
+                darkMode
+                  ? "border-stone-700 bg-stone-800 hover:border-lime-500"
+                  : "border-lime-300 bg-lime-50 hover:border-lime-400"
+              }`}
             />
           </div>
 
           {/* TIME SLOT */}
           <div className="mt-12">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
                 Time Slots
               </h3>
 
               <button
                 onClick={addTimePrice}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl
-                bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
+                bg-lime-600 hover:bg-lime-700 text-white shadow-md"
               >
                 <FaPlus /> Add Slot
               </button>
             </div>
 
             {timePrices.length === 0 && (
-              <p className="opacity-60">
+              <p className={darkMode ? 'text-stone-400' : 'text-stone-600'}>
                 No time slots added yet
               </p>
             )}
@@ -242,8 +249,11 @@ const FarmhouseForm = ({ darkMode }) => {
               {timePrices.map((tp, i) => (
                 <div
                   key={i}
-                  className="grid md:grid-cols-3 gap-3 p-4 rounded-xl border
-                  bg-gray-50 dark:bg-gray-800 border-gray-300"
+                  className={`grid md:grid-cols-3 gap-3 p-4 rounded-xl border ${
+                    darkMode
+                      ? "bg-stone-800 border-stone-700"
+                      : "bg-lime-50 border-lime-300"
+                  }`}
                 >
                   <input
                     value={tp.label}
@@ -251,7 +261,11 @@ const FarmhouseForm = ({ darkMode }) => {
                       updateTimePrice(i, "label", e.target.value)
                     }
                     placeholder="Label"
-                    className="p-3 rounded-lg border text-black"
+                    className={`p-3 rounded-lg border ${
+                      darkMode
+                        ? "bg-stone-900 border-stone-700 text-white"
+                        : "bg-white border-lime-300 text-stone-900"
+                    }`}
                   />
 
                   <input
@@ -260,7 +274,11 @@ const FarmhouseForm = ({ darkMode }) => {
                       updateTimePrice(i, "timing", e.target.value)
                     }
                     placeholder="Timing"
-                    className="p-3 rounded-lg border text-black"
+                    className={`p-3 rounded-lg border ${
+                      darkMode
+                        ? "bg-stone-900 border-stone-700 text-white"
+                        : "bg-white border-lime-300 text-stone-900"
+                    }`}
                   />
 
                   <button
@@ -281,7 +299,7 @@ const FarmhouseForm = ({ darkMode }) => {
               disabled={loading}
               onClick={handleSubmit}
               className="px-8 py-3 rounded-xl font-bold text-white
-              bg-gradient-to-r from-emerald-500 to-emerald-700
+              bg-gradient-to-r from-lime-500 to-lime-700
               hover:scale-105 transition shadow-xl disabled:opacity-50"
             >
               {loading

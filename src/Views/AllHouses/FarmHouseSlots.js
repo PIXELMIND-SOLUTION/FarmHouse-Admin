@@ -51,7 +51,7 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
   /* ================= OPEN MODAL ================= */
 
   const openReasonModal = (slot) => {
-    setSelectedSlot(slot); // ✅ FULL object
+    setSelectedSlot(slot);
     setReason("");
     setReasonModal(true);
   };
@@ -67,7 +67,7 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
     }
 
     try {
-      setTogglingId(selectedSlot.slotId); // ✅ correct id
+      setTogglingId(selectedSlot.slotId);
 
       await axios.put(
         `${API_BASE}/${farmhouseId}/slots/${selectedSlot.slotId}/toggle?date=${date}`,
@@ -108,15 +108,19 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
           border backdrop-blur-2xl
           ${
             darkMode
-              ? "bg-gradient-to-br from-gray-900/95 to-gray-950 border-gray-700 text-white"
-              : "bg-gradient-to-br from-white/95 to-gray-100 border-gray-200 text-gray-900"
+              ? "bg-gradient-to-br from-stone-900/95 to-stone-950 border-stone-700 text-white"
+              : "bg-gradient-to-br from-white/95 to-lime-100 border-lime-200 text-stone-900"
           }`}
         >
 
           {/* HEADER */}
-          <div className="sticky top-0 flex justify-between items-center px-8 py-6 border-b border-white/10">
-            <h2 className="text-3xl font-bold flex items-center gap-3">
-              <FaCalendarAlt className="text-blue-500" />
+          <div className={`sticky top-0 flex justify-between items-center px-8 py-6 border-b ${
+            darkMode ? 'border-stone-700' : 'border-lime-200'
+          }`}>
+            <h2 className={`text-3xl font-bold flex items-center gap-3 ${
+              darkMode ? 'text-lime-400' : 'text-lime-700'
+            }`}>
+              <FaCalendarAlt className={darkMode ? 'text-lime-500' : 'text-lime-600'} />
               Available Slots
             </h2>
 
@@ -133,15 +137,16 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
 
             {/* DATE */}
             <div
-              className={`flex items-center justify-between gap-4 p-6 rounded-2xl border
-              ${
+              className={`flex items-center justify-between gap-4 p-6 rounded-2xl border ${
                 darkMode
-                  ? "bg-gray-800/60 border-gray-700"
-                  : "bg-white border-gray-200"
+                  ? "bg-stone-800/60 border-stone-700"
+                  : "bg-white border-lime-200"
               }`}
             >
-              <div className="flex items-center gap-3 text-lg font-semibold">
-                <FaCalendarAlt className="text-blue-500" />
+              <div className={`flex items-center gap-3 text-lg font-semibold ${
+                darkMode ? 'text-lime-400' : 'text-lime-700'
+              }`}>
+                <FaCalendarAlt className={darkMode ? 'text-lime-500' : 'text-lime-600'} />
                 Select Date
               </div>
 
@@ -149,7 +154,11 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="px-5 py-3 rounded-xl border text-black shadow-md"
+                className={`px-5 py-3 rounded-xl border shadow-md ${
+                  darkMode 
+                    ? 'bg-stone-900 border-stone-700 text-white'
+                    : 'bg-white border-lime-300 text-stone-900'
+                }`}
               />
             </div>
 
@@ -162,12 +171,13 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
               <div className="grid sm:grid-cols-2 gap-6 max-h-[55vh] overflow-y-auto pr-2">
                 {slots.map((slot) => (
                   <div
-                    key={slot.slotId} // ✅ FIXED
-                    className={`p-6 rounded-2xl border transition
-                    ${
+                    key={slot.slotId}
+                    className={`p-6 rounded-2xl border transition ${
                       slot.available
-                        ? "border-emerald-500 bg-emerald-500/10"
-                        : "border-red-500 bg-red-500/10"
+                        ? darkMode 
+                          ? 'border-lime-500 bg-lime-500/10'
+                          : 'border-lime-500 bg-lime-100'
+                        : 'border-red-500 bg-red-500/10'
                     }`}
                   >
                     <div className="flex justify-between items-center">
@@ -175,11 +185,13 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                         <h3 className="text-xl font-bold">
                           {slot.label}
                         </h3>
-                        <p className="text-sm opacity-70">
+                        <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
                           {slot.timing}
                         </p>
 
-                        <p className="mt-2 text-2xl font-bold">
+                        <p className={`mt-2 text-2xl font-bold ${
+                          darkMode ? 'text-lime-400' : 'text-lime-700'
+                        }`}>
                           ₹{slot.price}
                         </p>
                       </div>
@@ -188,7 +200,9 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
 
                         {/* STATUS */}
                         {slot.available ? (
-                          <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600 text-white">
+                          <span className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                            darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
+                          }`}>
                             <FaCheckCircle />
                             Available
                           </span>
@@ -202,12 +216,15 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                         {/* TOGGLE */}
                         <button
                           disabled={togglingId === slot.slotId}
-                          onClick={() => openReasonModal(slot)} // ✅ PASS FULL SLOT
-                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold
-                          ${
+                          onClick={() => openReasonModal(slot)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold ${
                             slot.isActive
-                              ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                              : "bg-gray-500 hover:bg-gray-600 text-white"
+                              ? darkMode 
+                                ? 'bg-lime-600 hover:bg-lime-700 text-white'
+                                : 'bg-lime-500 hover:bg-lime-600 text-white'
+                              : darkMode
+                              ? 'bg-stone-600 hover:bg-stone-700 text-white'
+                              : 'bg-stone-500 hover:bg-stone-600 text-white'
                           }`}
                         >
                           {slot.isActive ? (
@@ -231,11 +248,13 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
           </div>
 
           {/* FOOTER */}
-          <div className="flex justify-end px-8 py-6 border-t border-white/10">
+          <div className={`flex justify-end px-8 py-6 border-t ${
+            darkMode ? 'border-stone-700' : 'border-lime-200'
+          }`}>
             <button
               onClick={onClose}
               className="px-8 py-3 rounded-xl font-semibold
-              bg-gradient-to-r from-blue-600 to-indigo-600
+              bg-gradient-to-r from-lime-600 to-lime-700
               text-white shadow-lg"
             >
               Close
@@ -249,14 +268,15 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
       {reasonModal && selectedSlot && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-lg">
           <div
-            className={`w-full max-w-lg p-8 rounded-3xl shadow-2xl border
-            ${
+            className={`w-full max-w-lg p-8 rounded-3xl shadow-2xl border ${
               darkMode
-                ? "bg-gray-900 border-gray-700 text-white"
-                : "bg-white border-gray-200"
+                ? "bg-stone-900 border-stone-700 text-white"
+                : "bg-white border-lime-200"
             }`}
           >
-            <h3 className="text-2xl font-bold mb-4">
+            <h3 className={`text-2xl font-bold mb-4 ${
+              darkMode ? 'text-lime-400' : 'text-lime-700'
+            }`}>
               Enter Reason
             </h3>
 
@@ -265,20 +285,28 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Type reason here..."
-              className="w-full p-4 rounded-xl border text-black"
+              className={`w-full p-4 rounded-xl border ${
+                darkMode 
+                  ? 'bg-stone-800 border-stone-700 text-white'
+                  : 'bg-white border-lime-300 text-stone-900'
+              }`}
             />
 
             <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setReasonModal(false)}
-                className="px-6 py-2 rounded-lg bg-gray-400 text-white"
+                className={`px-6 py-2 rounded-lg ${
+                  darkMode ? 'bg-stone-600 text-white' : 'bg-stone-400 text-white'
+                }`}
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleToggle}
-                className="px-6 py-2 rounded-lg bg-blue-600 text-white"
+                className={`px-6 py-2 rounded-lg ${
+                  darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
+                }`}
               >
                 Confirm
               </button>

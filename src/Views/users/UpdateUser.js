@@ -57,8 +57,12 @@ const UpdateUser = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading user...
+      <div className={`min-h-screen flex items-center justify-center ${
+        darkMode ? 'bg-stone-900 text-white' : 'bg-lime-50 text-stone-900'
+      }`}>
+        <div className="text-lg font-semibold animate-pulse">
+          Loading user...
+        </div>
       </div>
     );
   }
@@ -67,21 +71,29 @@ const UpdateUser = ({ darkMode }) => {
     <div
       className={`min-h-screen p-8 ${
         darkMode
-          ? "bg-gray-900 text-white"
-          : "bg-gradient-to-br from-gray-100 to-white"
+          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+          : "bg-gradient-to-br from-lime-100 via-white to-lime-200 text-stone-900"
       }`}
     >
-      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-8">
+      <div className={`max-w-3xl mx-auto rounded-3xl shadow-2xl p-8 ${
+        darkMode ? 'bg-stone-800/50 border-2 border-stone-700' : 'bg-white border-2 border-lime-200'
+      }`}>
 
         {/* HEADER */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-6 text-indigo-600 font-semibold"
+          className={`flex items-center gap-2 mb-6 font-semibold transition ${
+            darkMode 
+              ? 'text-lime-400 hover:text-lime-300'
+              : 'text-lime-600 hover:text-lime-700'
+          }`}
         >
           <FaArrowLeft /> Back
         </button>
 
-        <h2 className="text-3xl font-bold mb-6">
+        <h2 className={`text-3xl font-bold mb-6 ${
+          darkMode ? 'text-lime-400' : 'text-lime-700'
+        }`}>
           Update User
         </h2>
 
@@ -96,28 +108,40 @@ const UpdateUser = ({ darkMode }) => {
             { label: "Username", name: "username" },
           ].map((f) => (
             <div key={f.name}>
-              <label className="text-sm font-semibold">
+              <label className={`text-sm font-semibold ${
+                darkMode ? 'text-stone-300' : 'text-stone-700'
+              }`}>
                 {f.label}
               </label>
               <input
                 name={f.name}
                 value={form[f.name]}
                 onChange={handleChange}
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-indigo-400 outline-none"
+                className={`w-full mt-1 px-4 py-3 rounded-xl border-2 outline-none transition ${
+                  darkMode
+                    ? 'bg-stone-900 border-stone-700 text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+                    : 'bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+                }`}
               />
             </div>
           ))}
 
           {/* GENDER */}
           <div>
-            <label className="text-sm font-semibold">
+            <label className={`text-sm font-semibold ${
+              darkMode ? 'text-stone-300' : 'text-stone-700'
+            }`}>
               Gender
             </label>
             <select
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="w-full mt-1 px-4 py-3 rounded-xl border"
+              className={`w-full mt-1 px-4 py-3 rounded-xl border-2 outline-none transition ${
+                darkMode
+                  ? 'bg-stone-900 border-stone-700 text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+                  : 'bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+              }`}
             >
               <option value="">Select</option>
               <option value="male">Male</option>
@@ -129,9 +153,18 @@ const UpdateUser = ({ darkMode }) => {
           {/* SAVE */}
           <button
             disabled={saving}
-            className="mt-4 flex items-center justify-center gap-2 px-6 py-3
-            rounded-xl bg-indigo-600 text-white font-semibold
-            hover:bg-indigo-700 transition"
+            className={`mt-4 flex items-center justify-center gap-2 px-6 py-3
+            rounded-xl font-semibold transition-all
+            ${
+              saving
+                ? 'opacity-60 cursor-not-allowed'
+                : 'hover:scale-[1.02]'
+            }
+            ${
+              darkMode
+                ? 'bg-lime-600 text-white hover:bg-lime-700'
+                : 'bg-lime-500 text-white hover:bg-lime-600'
+            }`}
           >
             <FaSave />
             {saving ? "Saving..." : "Update User"}

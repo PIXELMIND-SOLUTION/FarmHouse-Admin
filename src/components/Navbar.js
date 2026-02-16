@@ -53,8 +53,8 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
 
   return (
     <header className={`
-      ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}
-      border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}
+      ${darkMode ? 'bg-stone-800 text-white' : 'bg-white text-stone-800'}
+      border-b ${darkMode ? 'border-stone-700' : 'border-lime-200'}
       px-4 py-3
       flex items-center justify-between
       transition-all duration-300
@@ -66,43 +66,28 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
         {/* Menu Toggle Button */}
         <button
           onClick={toggleSidebar}
-          className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+          className={`p-2 rounded-lg ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-lime-100'} transition-colors`}
           aria-label="Toggle menu"
         >
           {isMobile ? (
             <FiMenu className="text-xl" />
           ) : ("")}
         </button>
-
-
-
-        {/* Mobile Search Toggle */}
-        {/* <button
-          onClick={() => setSearchOpen(!searchOpen)}
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-          aria-label="Search"
-        >
-          <FaSearch className="text-lg" />
-        </button> */}
       </div>
-
-
-
-
 
       {/* Right Section */}
       <div className="flex items-center space-x-2 md:space-x-3">
         {/* Dark Mode Toggle */}
         <button
           onClick={toggleDarkMode}
-          className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+          className={`p-2 rounded-lg ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-lime-100'} transition-colors`}
           title={darkMode ? 'Light Mode' : 'Dark Mode'}
           aria-label="Toggle dark mode"
         >
           {darkMode ? (
-            <FaSun className="text-lg text-yellow-400" />
+            <FaSun className="text-lg text-amber-400" />
           ) : (
-            <FaMoon className="text-lg" />
+            <FaMoon className="text-lg text-amber-600" />
           )}
         </button>
 
@@ -111,7 +96,7 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
           onClick={toggleFullscreen}
           title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           className={`relative p-2 rounded-lg transition-colors
-    ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}
+    ${darkMode ? "hover:bg-stone-700" : "hover:bg-lime-100"}
   `}
         >
           {isFullscreen ? (
@@ -121,93 +106,22 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
           )}
         </button>
 
-
-        {/* Notifications */}
-        {/* <div className="relative">
-          <button
-            onClick={() => setNotificationOpen(!notificationOpen)}
-            className={`relative p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
-          >
-            <FaBell className="text-lg" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-        
-          {notificationOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setNotificationOpen(false)}
-              ></div>
-              <div className={`
-                absolute right-0 mt-2 w-80
-                ${darkMode ? 'bg-gray-800' : 'bg-white'}
-                rounded-lg shadow-xl border ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-                z-50
-              `}>
-                <div className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-semibold">Notifications</h3>
-                    <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
-                      {unreadCount} new
-                    </span>
-                  </div>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.map(notification => (
-                    <div
-                      key={notification.id}
-                      className={`
-                        p-4 border-b ${darkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-100 hover:bg-gray-50'}
-                        transition-colors duration-200 cursor-pointer
-                        ${notification.unread ? (darkMode ? 'bg-gray-700/50' : 'bg-blue-50/50') : ''}
-                      `}
-                    >
-                      <div className="flex items-start">
-                        <div className={`w-2 h-2 rounded-full mt-2 mr-3 ${notification.unread ? 'bg-blue-500' : 'bg-transparent'}`}></div>
-                        <div className="flex-1">
-                          <p className="font-medium">{notification.text}</p>
-                          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            {notification.time}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="p-2 text-center border-t dark:border-gray-700">
-                  <a
-                    href="#"
-                    className={`block py-2 text-sm ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}
-                  >
-                    View all notifications
-                  </a>
-                </div>
-              </div>
-            </>
-          )}
-        </div> */}
-
         {/* User Profile */}
         <div className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className={`flex items-center space-x-2 p-1 pr-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+            className={`flex items-center space-x-2 p-1 pr-2 rounded-lg ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-lime-100'} transition-colors`}
           >
             <img
               src="/logo1.png"
               alt="Admin"
-              className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-700"
+              className={`w-8 h-8 rounded-full border-2 ${darkMode ? 'border-lime-500' : 'border-lime-600'}`}
             />
             {!collapsed && (
               <>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium">Admin</p>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Administrator</p>
+                  <p className={`text-sm font-medium ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>Admin</p>
+                  <p className={`text-xs ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>Administrator</p>
                 </div>
                 <FiChevronDown className="hidden md:block" />
               </>
@@ -223,39 +137,26 @@ const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode, collapsed, sidebarOpe
               ></div>
               <div className={`
                 absolute right-0 mt-2 w-48
-                ${darkMode ? 'bg-gray-800' : 'bg-white'}
-                rounded-lg shadow-xl border ${darkMode ? 'border-gray-700' : 'border-gray-200'}
+                ${darkMode ? 'bg-stone-800' : 'bg-white'}
+                rounded-lg shadow-xl border ${darkMode ? 'border-stone-700' : 'border-lime-200'}
                 z-50
               `}>
-                <div className="p-4 border-b dark:border-gray-700">
+                <div className={`p-4 border-b ${darkMode ? 'border-stone-700' : 'border-lime-200'}`}>
                   <div className="flex items-center space-x-3">
                     <img
                       src="/logo1.png"
                       alt="Admin"
-                      className="w-10 h-10 rounded-full"
+                      className={`w-10 h-10 rounded-full border-2 ${darkMode ? 'border-lime-500' : 'border-lime-600'}`}
                     />
                     <div>
-                      <p className="font-semibold">Admin</p>
-                      {/* <p className="text-sm opacity-75">admin@example.com</p> */}
+                      <p className={`font-semibold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>Admin</p>
                     </div>
                   </div>
                 </div>
-                {/* <a
-                  href="#"
-                  className={`block px-4 py-3 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
-                >
-                  <FaUser className="inline mr-2" /> Profile
-                </a>
-                <a
-                  href="#"
-                  className={`block px-4 py-3 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
-                >
-                  <FaCog className="inline mr-2" /> Settings
-                </a> */}
-                <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
+                <div className={`border-t ${darkMode ? 'border-stone-700' : 'border-lime-200'}`}></div>
                 <a
                   href="/"
-                  className={`block px-4 py-3 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} text-red-600 dark:text-red-400`}
+                  className={`block px-4 py-3 ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-lime-50'} text-red-600 dark:text-red-400`}
                 >
                   <FaSignOutAlt className="inline mr-2" /> Logout
                 </a>

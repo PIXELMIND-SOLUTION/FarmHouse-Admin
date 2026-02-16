@@ -91,21 +91,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
       ]
     },
     { id: 'Payments', icon: <FaFileInvoiceDollar />, text: 'Payments', path: '/all-payments' },
-    // {
-    //   id: 'Forms&Reports',
-    //   icon: <FaRegQuestionCircle />,
-    //   text: 'Forms & Reports',
-    //   path: '/forms-reports',
-    //   subItems: [
-    //     { id: 'Complaints', text: 'All Complaints', path: '/complaints' },
-    //     { id: 'Reports', text: 'All Reports', path: '/reports' },
-    //     { id: 'Warnings', text: 'All Warnings', path: '/warnings' },
-    //     { id: 'Feedback', text: 'All Feedback', path: '/feedback' },
-    //     { id: 'Contact', text: 'All Contact', path: '/contactus' }
-    //   ]
-    // },
     { id: 'Revenue', icon: <FaMoneyBill />, text: 'Revenue', path: '/revenue' },
-    // { id: 'Settings', icon: <FaCog />, text: 'Settings', path: '/settings' },
   ];
 
   const handleItemClick = (item) => {
@@ -161,7 +147,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
       {/* Sidebar */}
       <aside
         className={`
-    ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}
+    ${darkMode ? 'bg-stone-800 text-white' : 'bg-white text-stone-800'}
     ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
     ${collapsed ? 'md:w-20' : 'md:w-64'}
     
@@ -172,13 +158,13 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
     transition-all duration-300 ease-in-out
     flex flex-col
     
-    border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}
+    border-r ${darkMode ? 'border-stone-700' : 'border-lime-200'}
     shadow-2xl md:shadow-lg
   `}
       >
         {/* Header */}
         <div className={`
-          p-4 ${darkMode ? 'border-gray-700' : 'border-gray-200'} 
+          p-4 ${darkMode ? 'border-stone-700' : 'border-lime-200'} 
           flex items-center ${collapsed ? 'justify-center' : 'justify-between'}
           border-b
         `}>
@@ -187,30 +173,30 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
             <div className="flex items-center cursor-pointer" onClick={() => onNavigate('/')}>
               <div className="w-8 h-8  rounded-lg flex items-center justify-center mr-3 overflow-hidden">
                 <img
-                  src="/logo1.png"   // or your logo path
+                  src="/logo1.png"
                   alt="Logo"
                   className="w-8 h-8 object-contain rounded-lg"
                 />
               </div>
 
               <div>
-                <h1 className="text-xl font-bold">V Farm House</h1>
-                <p className="text-xs text-gray-500">Admin Panel</p>
+                <h1 className={`text-xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>V Farm House</h1>
+                <p className={`text-xs ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>Admin Panel</p>
               </div>
             </div>
           ) : (
             <div
-              className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 bg-gradient-to-br from-lime-500 to-lime-600 rounded-lg flex items-center justify-center cursor-pointer"
               onClick={() => onNavigate('/')}
             >
-              <span className="text-white font-bold">A</span>
+              <span className="text-white font-bold">V</span>
             </div>
           )}
 
           {/* Close Button (Mobile only) */}
           <button
             onClick={toggleSidebar}
-            className={`md:hidden p-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} ${collapsed ? 'hidden' : ''}`}
+            className={`md:hidden p-1 rounded ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-lime-100'} ${collapsed ? 'hidden' : ''}`}
             aria-label="Close sidebar"
           >
             <FaTimes className="text-lg" />
@@ -219,7 +205,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
           {/* Collapse Toggle Button (Desktop only) */}
           <button
             onClick={toggleCollapsed}
-            className={`hidden md:flex p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-700' : 'bg-gray-100hover:bg-gray-100'} ${collapsed ? 'absolute -right-3 top-6 bg-white dark:bg-gray-800 border shadow-lg' : ''}`}
+            className={`hidden md:flex p-1 rounded ${darkMode ? 'bg-stone-700 hover:bg-stone-600' : 'bg-lime-100 hover:bg-lime-200'} ${collapsed ? 'absolute -right-3 top-6 bg-white dark:bg-stone-800 border shadow-lg' : ''}`}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? (
@@ -243,8 +229,8 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
                       w-full flex items-center ${collapsed ? 'justify-center' : 'justify-between'} 
                       p-3 rounded-lg transition-all duration-200
                       ${activeItem === item.id || isSubItemActive(item.id, item.subItems)
-                        ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`
-                        : `${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`
+                        ? `${darkMode ? 'bg-lime-600 text-white' : 'bg-lime-100 text-lime-700'}`
+                        : `${darkMode ? 'hover:bg-stone-700 text-stone-300' : 'hover:bg-lime-50 text-stone-700'}`
                       }
                       ${collapsed ? 'relative' : ''}
                     `}
@@ -269,14 +255,14 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
 
                     {/* Active indicator */}
                     {(activeItem === item.id || isSubItemActive(item.id, item.subItems)) && !collapsed && (
-                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      <span className={`w-2 h-2 ${darkMode ? 'bg-lime-400' : 'bg-lime-600'} rounded-full`}></span>
                     )}
 
                     {/* Tooltip for collapsed state */}
                     {collapsed && hoveredItem === item.id && (
                       <div className={`
                         absolute left-full ml-2 px-3 py-2 rounded-md shadow-lg z-50
-                        ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'}
+                        ${darkMode ? 'bg-stone-700 text-white' : 'bg-white text-stone-800 border border-lime-200'}
                         whitespace-nowrap
                       `}>
                         {item.text}
@@ -286,7 +272,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
 
                   {/* Sub-items (only when not collapsed and menu is open) */}
                   {!collapsed && item.subItems && openSubmenus[item.id] && (
-                    <div className="mt-1 ml-6 pl-3 border-l-2 border-gray-200 dark:border-gray-700 space-y-1">
+                    <div className={`mt-1 ml-6 pl-3 border-l-2 ${darkMode ? 'border-stone-700' : 'border-lime-200'} space-y-1`}>
                       {item.subItems.map((subItem) => {
                         const isActive = location.pathname === subItem.path ||
                           location.pathname.includes(subItem.path.split('/')[1]);
@@ -299,15 +285,15 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
                               w-full flex items-center justify-start p-2 rounded-lg 
                               transition-all duration-200 text-sm
                               ${isActive
-                                ? `${darkMode ? 'bg-gray-700 text-blue-400' : 'bg-gray-100 text-blue-600'} font-medium`
-                                : `${darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'}`
+                                ? `${darkMode ? 'bg-stone-700 text-lime-400' : 'bg-lime-50 text-lime-700'} font-medium`
+                                : `${darkMode ? 'hover:bg-stone-700 text-stone-300' : 'hover:bg-lime-50 text-stone-600'}`
                               }
                             `}
                           >
                             <span className="mr-2">•</span>
                             {subItem.text}
                             {isActive && (
-                              <span className="ml-auto w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                              <span className={`ml-auto w-1.5 h-1.5 ${darkMode ? 'bg-lime-400' : 'bg-lime-600'} rounded-full`}></span>
                             )}
                           </button>
                         );
@@ -320,7 +306,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
           </ul>
 
           {/* Divider */}
-          <div className={`my-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
+          <div className={`my-4 border-t ${darkMode ? 'border-stone-700' : 'border-lime-200'}`}></div>
 
           {/* Logout */}
           <div className="relative">
@@ -329,7 +315,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
               className={`
                 w-full flex items-center ${collapsed ? 'justify-center' : 'justify-start'} 
                 p-3 rounded-lg transition-all duration-200
-                ${darkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'}
+                ${darkMode ? 'hover:bg-stone-700 text-red-400' : 'hover:bg-amber-50 text-red-600'}
                 ${collapsed ? 'relative' : ''}
               `}
               onMouseEnter={() => collapsed && setHoveredItem('logout')}
@@ -342,7 +328,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
               {collapsed && hoveredItem === 'logout' && (
                 <div className={`
                   absolute left-full ml-2 px-3 py-2 rounded-md shadow-lg z-50
-                  ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'}
+                  ${darkMode ? 'bg-stone-700 text-white' : 'bg-white text-stone-800 border border-lime-200'}
                   whitespace-nowrap
                 `}>
                   Logout
@@ -354,7 +340,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
 
         {/* User Profile */}
         <div className={`
-          p-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}
+          p-3 border-t ${darkMode ? 'border-stone-700' : 'border-lime-200'}
           ${collapsed ? 'text-center' : ''}
         `}>
           {collapsed ? (
@@ -362,18 +348,18 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
               <img
                 src="/logo1.png"
                 alt="Admin"
-                className="w-10 h-10 rounded-full mx-auto cursor-pointer"
+                className="w-10 h-10 rounded-full mx-auto cursor-pointer border-2 border-lime-500"
                 onMouseEnter={() => setHoveredItem('profile')}
                 onMouseLeave={() => setHoveredItem(null)}
                 onClick={() => onNavigate('/profile')}
               />
-              <div className="absolute bottom-0 right-1/2 translate-x-1/2 translate-y-1/2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+              <div className={`absolute bottom-0 right-1/2 translate-x-1/2 translate-y-1/2 w-3 h-3 ${darkMode ? 'bg-lime-500' : 'bg-lime-600'} rounded-full border-2 ${darkMode ? 'border-stone-800' : 'border-white'}`}></div>
 
               {/* Profile tooltip */}
               {hoveredItem === 'profile' && (
                 <div className={`
                   absolute left-full bottom-0 ml-2 px-3 py-2 rounded-md shadow-lg z-50
-                  ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'}
+                  ${darkMode ? 'bg-stone-700 text-white' : 'bg-white text-stone-800 border border-lime-200'}
                   whitespace-nowrap
                 `}>
                   <div className="text-sm font-medium">Admin</div>
@@ -386,13 +372,12 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
                 <img
                   src="/logo1.png"
                   alt="Admin User"
-                  className="w-10 h-10 rounded-full"
+                  className="w-10 h-10 rounded-full border-2 border-lime-500"
                 />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+                <div className={`absolute bottom-0 right-0 w-3 h-3 ${darkMode ? 'bg-lime-500' : 'bg-lime-600'} rounded-full border-2 ${darkMode ? 'border-stone-800' : 'border-white'}`}></div>
               </div>
               <div className="ml-3">
-                <h4 className="font-semibold text-sm">Admin</h4>
-
+                <h4 className={`font-semibold text-sm ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>Admin</h4>
               </div>
             </div>
           )}
@@ -403,7 +388,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
       {!sidebarOpen && (
         <button
           onClick={toggleSidebar}
-          className="fixed bottom-4 left-4 md:hidden z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105"
+          className="fixed bottom-4 left-4 md:hidden z-50 bg-gradient-to-br from-lime-600 to-lime-700 text-white p-3 rounded-full shadow-lg hover:from-lime-700 hover:to-lime-800 transition-all duration-200 hover:scale-105"
           aria-label="Open menu"
         >
           <FaBars className="text-xl" />

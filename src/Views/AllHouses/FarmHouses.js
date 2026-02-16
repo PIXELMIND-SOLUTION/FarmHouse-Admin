@@ -147,21 +147,21 @@ const Farmhouses = ({ darkMode }) => {
     <div
       className={`min-h-screen p-4 md:p-8 ${
         darkMode
-          ? "bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white"
-          : "bg-gradient-to-br from-gray-100 via-white to-gray-200"
+          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+          : "bg-gradient-to-br from-lime-100 via-white to-lime-200"
       }`}
     >
       {/* Status Update Modal */}
       {showStatusModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className={`rounded-2xl p-6 w-full max-w-md ${
-            darkMode ? "bg-gray-800" : "bg-white"
+            darkMode ? "bg-stone-800 border-2 border-stone-700" : "bg-white border-2 border-lime-200"
           }`}>
-            <h3 className="text-xl font-bold mb-4">
+            <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
               {newStatus ? "Activate Farmhouse" : "Deactivate Farmhouse"}
             </h3>
             
-            <p className="mb-4 opacity-80">
+            <p className={`mb-4 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
               {newStatus 
                 ? "Please provide a reason for activating this farmhouse:" 
                 : "Please provide a reason for deactivating this farmhouse:"}
@@ -173,8 +173,8 @@ const Farmhouses = ({ darkMode }) => {
               placeholder="Enter reason..."
               className={`w-full p-3 rounded-xl border-2 mb-4 min-h-[120px] ${
                 darkMode 
-                  ? "bg-gray-700 border-gray-600 text-white" 
-                  : "bg-white border-gray-300 text-black"
+                  ? "bg-stone-900 border-stone-700 text-white" 
+                  : "bg-white border-lime-300 text-stone-900"
               }`}
             />
             
@@ -187,8 +187,8 @@ const Farmhouses = ({ darkMode }) => {
                 }}
                 className={`px-5 py-2 rounded-xl font-medium ${
                   darkMode 
-                    ? "bg-gray-700 hover:bg-gray-600" 
-                    : "bg-gray-200 hover:bg-gray-300"
+                    ? "bg-stone-700 hover:bg-stone-600" 
+                    : "bg-stone-200 hover:bg-stone-300"
                 }`}
               >
                 Cancel
@@ -198,7 +198,7 @@ const Farmhouses = ({ darkMode }) => {
                 onClick={confirmToggleStatus}
                 className={`px-5 py-2 rounded-xl font-medium text-white ${
                   newStatus 
-                    ? "bg-green-600 hover:bg-green-700" 
+                    ? "bg-lime-600 hover:bg-lime-700" 
                     : "bg-red-600 hover:bg-red-700"
                 }`}
               >
@@ -214,10 +214,12 @@ const Farmhouses = ({ darkMode }) => {
         {/* PREMIUM HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold flex items-center gap-3">
+            <h2 className={`text-3xl md:text-4xl font-bold flex items-center gap-3 ${
+              darkMode ? 'text-lime-400' : 'text-lime-700'
+            }`}>
               🏡 Farmhouses
             </h2>
-            <p className="opacity-70 mt-1 text-sm md:text-base">
+            <p className={`mt-1 text-sm md:text-base ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
               Manage farmhouse listings, bookings and pricing
             </p>
           </div>
@@ -226,7 +228,7 @@ const Farmhouses = ({ darkMode }) => {
             <button
               onClick={() => navigate("/admin/farmhouses/create")}
               className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-xl font-semibold
-              bg-gradient-to-r from-blue-500 to-indigo-600
+              bg-gradient-to-r from-lime-500 to-lime-700
               hover:scale-105 transition shadow-xl text-white text-sm md:text-base"
             >
               <FaPlus />
@@ -236,7 +238,7 @@ const Farmhouses = ({ darkMode }) => {
             <button
               onClick={exportCSV}
               className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-xl font-semibold
-              bg-gradient-to-r from-emerald-500 to-emerald-700
+              bg-gradient-to-r from-amber-500 to-amber-700
               hover:scale-105 transition shadow-xl text-white text-sm md:text-base"
             >
               <FaFileExport />
@@ -247,22 +249,23 @@ const Farmhouses = ({ darkMode }) => {
 
         {/* FILTER BAR */}
         <div
-          className={`mb-8 p-4 md:p-5 rounded-2xl border shadow-lg backdrop-blur-md
-          ${
+          className={`mb-8 p-4 md:p-5 rounded-2xl border shadow-lg backdrop-blur-md ${
             darkMode
-              ? "bg-gray-800/60 border-gray-700"
-              : "bg-white/80 border-gray-300"
+              ? "bg-stone-800/60 border-stone-700"
+              : "bg-white/80 border-lime-300"
           }`}
         >
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 opacity-50" />
+              <FaSearch className={`absolute left-4 top-1/2 -translate-y-1/2 ${
+                darkMode ? 'text-stone-500' : 'text-stone-400'
+              }`} />
               <input
                 className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 outline-none ${
                   darkMode
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-black"
+                    ? "bg-stone-900 border-stone-700 text-white focus:border-lime-500"
+                    : "bg-white border-lime-300 text-stone-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
                 }`}
                 placeholder="Search farmhouse..."
                 value={search}
@@ -274,8 +277,8 @@ const Farmhouses = ({ darkMode }) => {
             <select
               className={`px-4 py-3 rounded-xl border-2 outline-none font-medium ${
                 darkMode
-                  ? "bg-gray-700 border-gray-600 text-white"
-                  : "border-gray-300 focus:border-blue-500 text-black"
+                  ? "bg-stone-900 border-stone-700 text-white focus:border-lime-500"
+                  : "bg-white border-lime-300 text-stone-900 focus:border-lime-500"
               }`}
               value={filterBookingFor}
               onChange={(e) => setFilterBookingFor(e.target.value)}
@@ -290,8 +293,8 @@ const Farmhouses = ({ darkMode }) => {
             <select
               className={`px-4 py-3 rounded-xl border-2 outline-none font-medium ${
                 darkMode
-                  ? "bg-gray-700 border-gray-600 text-white"
-                  : "border-gray-300 focus:border-blue-500 text-black"
+                  ? "bg-stone-900 border-stone-700 text-white focus:border-lime-500"
+                  : "bg-white border-lime-300 text-stone-900 focus:border-lime-500"
               }`}
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -308,20 +311,22 @@ const Farmhouses = ({ darkMode }) => {
           <div
             className={`rounded-2xl overflow-hidden border shadow-2xl min-w-[800px] ${
               darkMode
-                ? "bg-gray-900 border-gray-700"
-                : "bg-white border-gray-300"
+                ? "bg-stone-900 border-stone-700"
+                : "bg-white border-lime-300"
             }`}
           >
             <table className="w-full">
               <thead
                 className={`text-sm uppercase tracking-wider ${
-                  darkMode ? "bg-gray-800" : "bg-gray-100"
+                  darkMode ? "bg-stone-800" : "bg-lime-100"
                 }`}
               >
                 <tr>
                   {["#", "Farmhouse", "Booking", "Price", "Status", "Booked", "Actions"].map(
                     (h) => (
-                      <th key={h} className="px-4 md:px-6 py-3 md:py-4 text-left font-bold border-b whitespace-nowrap">
+                      <th key={h} className={`px-4 md:px-6 py-3 md:py-4 text-left font-bold border-b whitespace-nowrap ${
+                        darkMode ? 'border-stone-700 text-lime-400' : 'border-lime-200 text-lime-700'
+                      }`}>
                         {h}
                       </th>
                     )
@@ -332,13 +337,13 @@ const Farmhouses = ({ darkMode }) => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="py-12 text-center opacity-60">
+                    <td colSpan="7" className={`py-12 text-center ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
                       Loading farmhouses...
                     </td>
                   </tr>
                 ) : paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="py-12 text-center opacity-60">
+                    <td colSpan="7" className={`py-12 text-center ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
                       No farmhouses found
                     </td>
                   </tr>
@@ -346,7 +351,11 @@ const Farmhouses = ({ darkMode }) => {
                   paginatedData.map((f, index) => (
                     <tr
                       key={f._id}
-                      className="border-b hover:bg-blue-50 dark:hover:bg-gray-800 dark:hover:text-white transition"
+                      className={`border-b transition ${
+                        darkMode 
+                          ? 'border-stone-800 hover:bg-stone-800' 
+                          : 'border-lime-100 hover:bg-lime-50'
+                      }`}
                     >
                       <td className="px-4 md:px-6 py-3 md:py-4 font-semibold whitespace-nowrap">
                         {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
@@ -355,20 +364,24 @@ const Farmhouses = ({ darkMode }) => {
                       {/* Name */}
                       <td className="px-4 md:px-6 py-3 md:py-4">
                         <div className="font-bold text-sm md:text-base">{f.name}</div>
-                        <div className="text-xs md:text-sm opacity-60">{f.address}</div>
+                        <div className={`text-xs md:text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>{f.address}</div>
                       </td>
 
                       <td className="px-4 md:px-6 py-3 md:py-4">
                         <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${
-                          f.bookingFor === 'birthday' ? 'bg-pink-100 text-pink-700' :
-                          f.bookingFor === 'party' ? 'bg-purple-100 text-purple-700' :
-                          'bg-blue-100 text-blue-700'
+                          f.bookingFor === 'birthday' 
+                            ? darkMode ? 'bg-pink-500/20 text-pink-400' : 'bg-pink-100 text-pink-700'
+                            : f.bookingFor === 'party' 
+                            ? darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-700'
+                            : darkMode ? 'bg-lime-500/20 text-lime-400' : 'bg-lime-100 text-lime-700'
                         }`}>
                           {f.bookingFor}
                         </span>
                       </td>
 
-                      <td className="px-4 md:px-6 py-3 md:py-4 font-bold text-emerald-600 whitespace-nowrap">
+                      <td className={`px-4 md:px-6 py-3 md:py-4 font-bold whitespace-nowrap ${
+                        darkMode ? 'text-lime-400' : 'text-lime-600'
+                      }`}>
                         ₹{f.pricePerDay}
                       </td>
 
@@ -379,8 +392,10 @@ const Farmhouses = ({ darkMode }) => {
                             onClick={() => toggleActiveStatus(f._id, f.active)}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                               f.active
-                                ? "bg-green-100 text-green-700 hover:bg-green-200"
-                                : "bg-red-100 text-red-700 hover:bg-red-200"
+                                ? darkMode 
+                                  ? "bg-lime-500/20 text-lime-400 hover:bg-lime-500/30"
+                                  : "bg-lime-100 text-lime-700 hover:bg-lime-200"
+                                : "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400"
                             }`}
                           >
                             {f.active ? (
@@ -401,8 +416,8 @@ const Farmhouses = ({ darkMode }) => {
                       <td className="px-4 md:px-6 py-3 md:py-4">
                         <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${
                           (f.bookedSlots?.length || 0) > 0 
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-gray-100 text-gray-700'
+                            ? darkMode ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
+                            : darkMode ? 'bg-stone-700 text-stone-400' : 'bg-stone-100 text-stone-700'
                         }`}>
                           {f.bookedSlots?.length || 0}
                         </span>
@@ -412,13 +427,17 @@ const Farmhouses = ({ darkMode }) => {
                       <td className="px-4 md:px-6 py-3 md:py-4">
                         <div className="flex gap-3 md:gap-4 text-base md:text-lg">
                           <FaEye
-                            className="cursor-pointer text-emerald-500 hover:scale-125 transition hover:text-emerald-600"
+                            className={`cursor-pointer hover:scale-125 transition ${
+                              darkMode ? 'text-lime-400 hover:text-lime-500' : 'text-lime-600 hover:text-lime-700'
+                            }`}
                             title="View Details"
                             onClick={() => navigate(`/admin/farmhouses/${f._id}`)}
                           />
 
                           <FaBox
-                            className="cursor-pointer text-indigo-500 hover:scale-125 transition hover:text-indigo-600"
+                            className={`cursor-pointer hover:scale-125 transition ${
+                              darkMode ? 'text-amber-400 hover:text-amber-500' : 'text-amber-600 hover:text-amber-700'
+                            }`}
                             title="Manage Slots"
                             onClick={() => {
                               setFarmhouseId(f._id);
@@ -427,7 +446,9 @@ const Farmhouses = ({ darkMode }) => {
                           />
 
                           <FaEdit
-                            className="cursor-pointer text-blue-500 hover:scale-125 transition hover:text-blue-600"
+                            className={`cursor-pointer hover:scale-125 transition ${
+                              darkMode ? 'text-blue-400 hover:text-blue-500' : 'text-blue-600 hover:text-blue-700'
+                            }`}
                             title="Edit Farmhouse"
                             onClick={() =>
                               navigate(`/admin/farmhouses/edit/${f._id}`)
@@ -452,7 +473,7 @@ const Farmhouses = ({ darkMode }) => {
         {/* PREMIUM PAGINATION */}
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
-            <p className="opacity-70 font-medium text-sm md:text-base">
+            <p className={`font-medium text-sm md:text-base ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
               Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} of {filteredData.length} farmhouses
             </p>
 
@@ -460,10 +481,10 @@ const Farmhouses = ({ darkMode }) => {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition ${
+                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition disabled:opacity-40 ${
                   darkMode
-                    ? "hover:bg-gray-700 disabled:opacity-40"
-                    : "hover:bg-gray-200 disabled:opacity-40"
+                    ? "border-stone-700 hover:bg-stone-800"
+                    : "border-lime-300 hover:bg-lime-100"
                 }`}
               >
                 Prev
@@ -476,10 +497,10 @@ const Farmhouses = ({ darkMode }) => {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition ${
+                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition disabled:opacity-40 ${
                   darkMode
-                    ? "hover:bg-gray-700 disabled:opacity-40"
-                    : "hover:bg-gray-200 disabled:opacity-40"
+                    ? "border-stone-700 hover:bg-stone-800"
+                    : "border-lime-300 hover:bg-lime-100"
                 }`}
               >
                 Next
