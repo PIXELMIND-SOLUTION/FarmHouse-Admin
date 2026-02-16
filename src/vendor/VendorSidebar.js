@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { FiGrid, FiCalendar, FiSettings, FiHome } from "react-icons/fi";
+import { FiGrid, FiCalendar, FiSettings, FiHome, FiLogOut } from "react-icons/fi";
 
 const VendorSidebar = ({
     sidebarOpen,
@@ -14,6 +14,7 @@ const VendorSidebar = ({
         { name: "Farmhouses", icon: <FiHome />, path: "/farmhouses" },
         // { name: "Bookings", icon: <FiCalendar />, path: "/bookings" },
         // { name: "Settings", icon: <FiSettings />, path: "/settings" },
+        // { name: "Logout", icon: <FiLogOut />, path: "/" },
     ];
 
     return (

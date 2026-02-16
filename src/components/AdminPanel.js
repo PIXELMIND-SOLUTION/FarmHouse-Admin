@@ -15,6 +15,7 @@ import FarmhouseSlots from '../Views/AllHouses/FarmHouseSlots';
 import AdminFeesConfig from '../Views/AdminServiceFees';
 import UserDetails from '../Views/users/UserDetails';
 import UpdateUser from '../Views/users/UpdateUser';
+import Revenue from '../Views/payments/Revenue';
 
 const AdminPanel = () => {
     const navigate = useNavigate();
@@ -70,7 +71,7 @@ const AdminPanel = () => {
     }, []);
 
     return (
-        <div className={`h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+        <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
             <div className="flex">
                 {/* Sidebar */}
                 <Sidebar
@@ -127,6 +128,7 @@ const AdminPanel = () => {
                                 <Route path="/allbookings" element={<AllBookings darkMode={darkMode} collapsed={collapsed} />} />
 
                                 <Route path="/all-payments" element={<AllPayments darkMode={darkMode} collapsed={collapsed} />} />
+                                <Route path="/revenue" element={<Revenue darkMode={darkMode} collapsed={collapsed} />} />
 
 
 

@@ -4,7 +4,7 @@ import { FiEye, FiMapPin, FiStar, FiHeart } from "react-icons/fi";
 import FarmhouseSlotsModal from "./FarmhouseSlotModal";
 
 const farmHouse = JSON.parse(sessionStorage.getItem("VendorData"));
-const FARMHOUSE_ID = farmHouse?.vendorId;
+const FARMHOUSE_ID = farmHouse?.farmhouseId;
 
 const VendorFarmhouse = () => {
   const [farmhouse, setFarmhouse] = useState(null);

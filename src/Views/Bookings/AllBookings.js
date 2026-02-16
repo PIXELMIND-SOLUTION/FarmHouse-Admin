@@ -213,10 +213,10 @@ const AllBookings = ({ darkMode, collapsed }) => {
                 <RefreshCw className={`h-5 w-5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
               </button>
               
-              <button className={`px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium flex items-center space-x-2 hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105`}>
+              {/* <button className={`px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium flex items-center space-x-2 hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105`}>
                 <Download className="h-4 w-4" />
                 <span>Export</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

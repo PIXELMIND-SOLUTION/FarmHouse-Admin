@@ -104,7 +104,7 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
     //     { id: 'Contact', text: 'All Contact', path: '/contactus' }
     //   ]
     // },
-    { id: 'Revenue', icon: <FaMoneyBill />, text: 'Revenue', path: '/Revenue' },
+    { id: 'Revenue', icon: <FaMoneyBill />, text: 'Revenue', path: '/revenue' },
     // { id: 'Settings', icon: <FaCog />, text: 'Settings', path: '/settings' },
   ];
 
