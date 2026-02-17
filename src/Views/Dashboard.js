@@ -481,27 +481,60 @@ const Dashboard = ({ darkMode, collapsed }) => {
             </div>
 
             <div className="space-y-4">
-              {recentActivity.bookings.map((booking, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className={`w-10 h-10 rounded-lg ${booking.status === 'confirmed' ? 'bg-lime-500/20' : 'bg-amber-500/20'
-                    } flex items-center justify-center`}>
-                    {booking.status === 'confirmed' ? (
-                      <CheckCircle className="h-5 w-5 text-lime-600" />
-                    ) : (
-                      <Clock className="h-5 w-5 text-amber-600" />
-                    )}
+
+              {/* Empty State */}
+              {!recentActivity?.bookings?.length && (
+                <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
+                  No recent bookings found.
+                </p>
+              )}
+
+              {recentActivity?.bookings?.map((booking, index) => {
+
+                // SAFE FALLBACKS
+                const status = booking?.status || "pending";
+                const farmhouseName = booking?.farmhouse?.name || "Unknown Farmhouse";
+                const amount = booking?.totalAmount ?? "0";
+                const bookingDate = booking?.date
+                  ? new Date(booking.date).toLocaleDateString()
+                  : "No date";
+
+                return (
+                  <div key={index} className="flex items-start space-x-3">
+
+                    {/* STATUS ICON */}
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center
+          ${status === "confirmed" ? "bg-lime-500/20" : "bg-amber-500/20"}`}
+                    >
+                      {status === "confirmed" ? (
+                        <CheckCircle className="h-5 w-5 text-lime-600" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-amber-600" />
+                      )}
+                    </div>
+
+                    {/* BOOKING INFO */}
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`font-medium truncate ${darkMode ? "text-white" : "text-stone-900"
+                          }`}
+                      >
+                        {farmhouseName}
+                      </p>
+
+                      <p
+                        className={`text-sm ${darkMode ? "text-stone-400" : "text-stone-600"
+                          }`}
+                      >
+                        ₹{amount} • {bookingDate}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className={`font-medium ${darkMode ? 'text-white' : 'text-stone-900'}`}>
-                      {booking.farmhouse.name}
-                    </p>
-                    <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                      ₹{booking.totalAmount} • {new Date(booking.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
           </div>
 
           {/* Recent Farmhouses */}
