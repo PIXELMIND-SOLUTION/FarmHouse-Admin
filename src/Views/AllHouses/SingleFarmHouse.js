@@ -21,7 +21,6 @@ const SingleFarmhouse = ({ darkMode }) => {
   const [index, setIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
 
-
   useEffect(() => {
     axios.get(`${API_BASE}/farmhouse/${id}`).then((res) => {
       setData(res.data.farmhouse);
@@ -39,7 +38,7 @@ const SingleFarmhouse = ({ darkMode }) => {
   if (!data)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg font-semibold animate-pulse opacity-70">
+        <div className="text-base sm:text-lg font-semibold animate-pulse opacity-70">
           Loading luxury farmhouse...
         </div>
       </div>
@@ -52,292 +51,121 @@ const SingleFarmhouse = ({ darkMode }) => {
         : "bg-gradient-to-br from-lime-100 to-white text-stone-900"
         }`}
     >
-      {/* BACK */}
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        {/* BACK */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-8 px-6 py-2 rounded-xl font-semibold
-          bg-lime-600 hover:bg-lime-700 text-white shadow-lg transition"
+          className="flex items-center gap-2 mb-6 sm:mb-8 px-4 sm:px-6 py-2 rounded-xl font-semibold bg-lime-600 hover:bg-lime-700 text-white shadow-lg transition text-sm sm:text-base"
         >
           <FaArrowLeft /> Back
         </button>
 
-        {/* ================= HERO CAROUSEL ================= */}
+        {/* HERO CAROUSEL */}
+        <div className="relative rounded-3xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.6)] mb-8">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={data.images[index]}
+              src={data.images[index]}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="h-[260px] sm:h-[340px] md:h-[420px] lg:h-[520px] w-full object-cover"
+            />
+          </AnimatePresence>
 
-        <div className="relative rounded-3xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.6)] mb-10">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
-          {data?.images?.length > 0 ? (
-
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={data.images[index]}
-                src={data.images[index]}
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="h-[520px] w-full object-cover"
-              />
-            </AnimatePresence>
-
-          ) : (
-
-            <div
-              className={`h-[520px] w-full flex items-center justify-center relative overflow-hidden ${
-                darkMode 
-                  ? 'bg-gradient-to-br from-stone-800 via-stone-700 to-stone-900'
-                  : 'bg-gradient-to-br from-lime-100 via-amber-100 to-lime-200'
-              }`}
-            >
-              {/* Glow blobs */}
-              <div className={`absolute w-[400px] h-[400px] rounded-full blur-[120px] opacity-40 top-[-100px] left-[-100px] ${
-                darkMode ? 'bg-lime-700' : 'bg-lime-300'
-              }`} />
-              <div className={`absolute w-[350px] h-[350px] rounded-full blur-[120px] opacity-40 bottom-[-100px] right-[-100px] ${
-                darkMode ? 'bg-amber-700' : 'bg-amber-300'
-              }`} />
-
-              {/* Content */}
-              <div className="relative text-center px-6 py-4">
-                <div className="flex justify-center items-center mb-4">
-                  <FaHome className={`text-6xl ${darkMode ? 'text-lime-500' : 'text-lime-600'}`} />
-                </div>
-
-
-                <h2 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-lime-400' : 'text-stone-700'}`}>
-                  No Farmhouse Images Yet
-                </h2>
-
-                <p className={darkMode ? 'text-stone-400' : 'text-stone-500'}>
-                  Upload high-quality images to attract more bookings
-                  and build trust with your guests.
-                </p>
-              </div>
-            </div>
-
-          )}
-
-
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-          {/* Title */}
-          <div
-            className="
-    absolute bottom-10 left-10
-    bg-white/10
-    backdrop-blur-xl
-    border border-white/20
-    shadow-2xl
-    rounded-2xl
-    px-6 py-4
-  "
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-1 text-white">
+          {/* TITLE */}
+          <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">
               {data.name}
             </h1>
-
             <div className="flex items-center gap-2 text-white/90">
-              <FaMapMarkerAlt />
-              {data.address}
+              <FaMapMarkerAlt /> {data.address}
             </div>
           </div>
 
-
-          {/* Controls */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-6 top-1/2 -translate-y-1/2
-            bg-white/20 backdrop-blur-lg p-3 rounded-full hover:bg-white/40 transition"
-          >
+          <button onClick={prevSlide} className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 bg-white/20 p-2 sm:p-3 rounded-full">
             <FaChevronLeft />
           </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-6 top-1/2 -translate-y-1/2
-            bg-white/20 backdrop-blur-lg p-3 rounded-full hover:bg-white/40 transition"
-          >
+          <button onClick={nextSlide} className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 bg-white/20 p-2 sm:p-3 rounded-full">
             <FaChevronRight />
           </button>
         </div>
 
-        {/* ================= BADGES ================= */}
-
-        <div className="flex gap-3 mb-8 flex-wrap">
-          <span className={`px-4 py-1 rounded-full shadow ${
-            darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
-          }`}>
+        {/* BADGES */}
+        <div className="flex gap-2 sm:gap-3 mb-6 flex-wrap">
+          <span className="px-4 py-1 rounded-full bg-lime-500 text-white">
             {data.bookingFor}
           </span>
-
-          <span className={`px-4 py-1 rounded-full flex items-center gap-1 font-semibold shadow ${
-            darkMode ? 'bg-amber-600 text-white' : 'bg-amber-400 text-stone-900'
-          }`}>
+          <span className="px-4 py-1 rounded-full flex items-center gap-1 bg-amber-400 text-stone-900">
             <FaStar /> {data.rating}
           </span>
         </div>
 
-        {/* ================= MAIN GRID ================= */}
-
-        <div className="grid md:grid-cols-3 gap-8">
-
-          {/* LEFT */}
+        {/* GRID */}
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           <div
-            className={`md:col-span-2 p-8 rounded-3xl backdrop-blur-xl border shadow-xl ${darkMode
-              ? "bg-white/5 border-stone-700"
-              : "bg-white border-lime-200"
+            className={`lg:col-span-2 p-5 sm:p-6 lg:p-8 rounded-3xl border ${darkMode ? "bg-white/5 border-stone-700" : "bg-white border-lime-200"
               }`}
           >
-            <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
+            <h2 className="text-2xl font-bold mb-4 text-lime-600">
               About this Farmhouse
             </h2>
+            <p className="mb-6">{data.description}</p>
 
-            <p className={`leading-relaxed mb-8 ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>
-              {data.description}
-            </p>
-
-            {/* Amenities */}
-            <h3 className={`font-semibold mb-4 text-lg ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
+            <h3 className="font-semibold mb-4 text-lg text-lime-600">
               Amenities
             </h3>
-
-            <div className="flex flex-wrap gap-3 mb-8">
+            <div className="flex flex-wrap gap-2 mb-8">
               {data.amenities.map((a, i) => (
-                <span
-                  key={i}
-                  className={`px-4 py-1 rounded-full border text-xs font-semibold ${
-                    darkMode 
-                      ? 'bg-lime-500/10 border-lime-500 text-lime-400'
-                      : 'bg-lime-100 border-lime-400 text-lime-700'
-                  }`}
-                >
+                <span key={i} className="px-3 py-1 rounded-full bg-lime-100 text-lime-700 text-xs font-semibold">
                   {a}
                 </span>
               ))}
             </div>
 
-            {/* Pricing */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className={`p-6 rounded-2xl border ${
-                darkMode 
-                  ? 'bg-lime-500/10 border-lime-500'
-                  : 'bg-lime-100 border-lime-400'
-              }`}>
-                <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                  Price / Hour
-                </p>
-                <p className={`text-3xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-                  ₹{data.pricePerHour}
-                </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="p-6 rounded-2xl bg-lime-100 text-gray-900 border border-lime-400">
+                ₹{data.pricePerHour}/hr
               </div>
-
-              <div className={`p-6 rounded-2xl border ${
-                darkMode 
-                  ? 'bg-amber-500/10 border-amber-500'
-                  : 'bg-amber-100 border-amber-400'
-              }`}>
-                <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                  Price / Day
-                </p>
-                <p className={`text-3xl font-bold ${darkMode ? 'text-amber-400' : 'text-amber-700'}`}>
-                  ₹{data.pricePerDay}
-                </p>
+              <div className="p-6 rounded-2xl bg-amber-100 text-gray-900 border border-amber-400">
+                ₹{data.pricePerDay}/day
               </div>
             </div>
           </div>
 
           {/* SIDEBAR */}
-          <div
-            className={`p-8 rounded-3xl backdrop-blur-xl border shadow-xl ${darkMode
-              ? "bg-white/5 border-stone-700"
-              : "bg-white border-lime-200"
-              }`}
-          >
-            <h3 className={`text-xl font-bold mb-6 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
+          <div className={`p-5 sm:p-6 lg:p-8 rounded-3xl border ${darkMode ? "bg-white/5 border-stone-700" : "bg-white border-lime-200"
+            }`}>
+            <h3 className="text-xl font-bold mb-6 text-lime-600">
               Quick Info
             </h3>
-
-            <div className="space-y-6 text-sm">
-
-              <div>
-                <p className={darkMode ? 'text-stone-400' : 'text-stone-600'}>
-                  Feedback
-                </p>
-                <p className="font-medium">
-                  {data.feedbackSummary}
-                </p>
-              </div>
-
-              <div>
-                <p className={darkMode ? 'text-stone-400' : 'text-stone-600'}>
-                  Total Bookings
-                </p>
-                <p className={`text-3xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-                  {data.bookedSlots.length}
-                </p>
-              </div>
-
-              <div>
-                <p className={darkMode ? 'text-stone-400' : 'text-stone-600'}>
-                  Rating
-                </p>
-                <p className="flex items-center gap-2 font-semibold">
-                  <FaStar className={darkMode ? 'text-amber-400' : 'text-amber-500'} />
-                  {data.rating}
-                </p>
-              </div>
-
-            </div>
+            <p>{data.feedbackSummary}</p>
+            <p className="text-3xl font-bold mt-4 text-lime-600">
+              {data.bookedSlots.length} bookings
+            </p>
           </div>
         </div>
 
-        {/* ================= BOOKED SLOTS ================= */}
-
+        {/* BOOKED SLOTS */}
         {data.bookedSlots.length > 0 && (
-          <div
-            className={`mt-10 p-8 rounded-3xl backdrop-blur-xl border shadow-xl ${darkMode
-              ? "bg-white/5 border-stone-700"
-              : "bg-white border-lime-200"
-              }`}
-          >
-            <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${
-              darkMode ? 'text-lime-400' : 'text-lime-700'
+          <div className={`mt-10 p-6 rounded-3xl border bg-white border-lime-200  ${darkMode ? "bg-white/5 border-stone-700" : "bg-white border-lime-200"
             }`}>
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-lime-600">
               <FaCalendarAlt /> Booked Slots
             </h3>
-
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
               {data.bookedSlots.map((b) => (
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  key={b._id}
-                  className={`flex justify-between items-center p-5 rounded-2xl border ${
-                    darkMode 
-                      ? 'bg-lime-500/10 border-lime-500'
-                      : 'bg-lime-100 border-lime-300'
-                  }`}
-                >
-                  <div>
-                    <p className="font-semibold text-lg">
-                      {b.label}
-                    </p>
-                    <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                      {b.timing}
-                    </p>
-                  </div>
-
-                  <div className={`text-xs text-right ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                    {new Date(b.checkIn).toLocaleDateString()}
-                    <br />–<br />
-                    {new Date(b.checkOut).toLocaleDateString()}
-                  </div>
-                </motion.div>
+                <div key={b._id} className="p-4 rounded-xl bg-lime-100 text-gray-900 border border-lime-300">
+                  <p className="font-semibold">{b.label}</p>
+                  <p className="text-sm">{b.timing}</p>
+                </div>
               ))}
             </div>
           </div>
         )}
-
         {data?.vendorCredentials?.name ? (
 
 
@@ -360,11 +188,10 @@ const SingleFarmhouse = ({ darkMode }) => {
                     `Farmhouse Credentials:\nUserId: ${data?.vendorCredentials?.name}\nPassword: ${data?.vendorCredentials?.password}`
                   )
                 }
-                className={`px-4 py-2 rounded-xl border font-semibold text-sm transition ${
-                  darkMode 
-                    ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
-                    : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
-                }`}
+                className={`px-4 py-2 rounded-xl border font-semibold text-sm transition ${darkMode
+                  ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
+                  : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
+                  }`}
               >
                 Copy All
               </button>
@@ -374,11 +201,10 @@ const SingleFarmhouse = ({ darkMode }) => {
 
               {/* USERNAME */}
               <div
-                className={`flex justify-between items-center rounded-2xl border p-5 ${
-                  darkMode 
-                    ? 'bg-lime-500/10 border-lime-500'
-                    : 'bg-lime-100 border-lime-400'
-                }`}
+                className={`flex justify-between items-center rounded-2xl border p-5 ${darkMode
+                  ? 'bg-lime-500/10 border-lime-500'
+                  : 'bg-lime-100 border-lime-400'
+                  }`}
               >
                 <div>
                   <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
@@ -395,11 +221,10 @@ const SingleFarmhouse = ({ darkMode }) => {
                       `${data?.vendorCredentials?.name}`
                     )
                   }
-                  className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${
-                    darkMode 
-                      ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
-                      : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
-                  }`}
+                  className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
+                    ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
+                    : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
+                    }`}
                 >
                   Copy
                 </button>
@@ -407,11 +232,10 @@ const SingleFarmhouse = ({ darkMode }) => {
 
               {/* PASSWORD */}
               <div
-                className={`flex justify-between items-center rounded-2xl border p-5 ${
-                  darkMode 
-                    ? 'bg-lime-500/10 border-lime-500'
-                    : 'bg-lime-100 border-lime-400'
-                }`}
+                className={`flex justify-between items-center rounded-2xl border p-5 ${darkMode
+                  ? 'bg-lime-500/10 border-lime-500'
+                  : 'bg-lime-100 border-lime-400'
+                  }`}
               >
                 <div>
                   <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
@@ -428,11 +252,10 @@ const SingleFarmhouse = ({ darkMode }) => {
                   {/* Eye Toggle */}
                   <button
                     onClick={() => setShowPassword(!showPassword)}
-                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${
-                      darkMode 
-                        ? 'bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30'
-                        : 'bg-amber-100 border-amber-400 text-amber-700 hover:bg-amber-200'
-                    }`}
+                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30'
+                      : 'bg-amber-100 border-amber-400 text-amber-700 hover:bg-amber-200'
+                      }`}
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
@@ -444,11 +267,10 @@ const SingleFarmhouse = ({ darkMode }) => {
                         `${data?.vendorCredentials?.password}`
                       )
                     }
-                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${
-                      darkMode 
-                        ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
-                        : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
-                    }`}
+                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
+                      ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
+                      : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
+                      }`}
                   >
                     Copy
                   </button>
@@ -464,8 +286,6 @@ const SingleFarmhouse = ({ darkMode }) => {
         ) :
           null
         }
-
-
 
       </div>
     </div >

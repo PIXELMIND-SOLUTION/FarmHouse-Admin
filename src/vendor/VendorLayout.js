@@ -7,22 +7,15 @@ import VendorFarmHouse from "./VendorFarmHouse";
 const VendorLayout = () => {
     const navigate = useNavigate();
 
-    /* Protect Vendor */
     useEffect(() => {
         const isVendor = sessionStorage.getItem("isVendor");
         if (!isVendor) navigate("/vendor-login");
     }, [navigate]);
 
-    /* Sidebar Logic */
-    const [sidebarOpen, setSidebarOpen] = useState(
-        window.innerWidth >= 1024
-    );
+    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
 
     useEffect(() => {
-        const handleResize = () => {
-            setSidebarOpen(window.innerWidth >= 1024);
-        };
-
+        const handleResize = () => setSidebarOpen(window.innerWidth >= 1024);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
@@ -35,45 +28,24 @@ const VendorLayout = () => {
     };
 
     return (
-        <div className="h-screen flex overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+        <div className="h-screen flex overflow-hidden bg-gradient-to-br from-lime-50 via-amber-50 to-lime-100">
 
-            {/* Sidebar */}
             <VendorSidebar
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
                 onNavigate={handleNavigation}
             />
 
-            {/* RIGHT SIDE */}
             <div className="flex-1 flex flex-col overflow-hidden">
-
-                {/* Navbar (fixed inside layout) */}
                 <VendorNavbar toggleSidebar={toggleSidebar} />
 
-                {/* ⭐ SCROLLABLE AREA */}
                 <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10">
-
-                    <div
-                        className="
-                        rounded-2xl md:rounded-3xl
-                        bg-white/90
-                        backdrop-blur-xl
-                        border border-white/40
-                        shadow-lg
-                        p-4 sm:p-6 md:p-8 lg:p-10
-                        min-h-full
-                        "
-                    >
+                    <div className="rounded-3xl bg-white/80 backdrop-blur-xl border border-lime-200 shadow-xl p-4 sm:p-6 md:p-8 lg:p-10 min-h-full">
                         <Routes>
                             <Route path="/farmhouses" element={<VendorFarmHouse />} />
-
-                            <Route
-                                path="*"
-                                element={<Navigate to="/vendor/farmhouses" />}
-                            />
+                            <Route path="*" element={<Navigate to="/vendor/farmhouses" />} />
                         </Routes>
                     </div>
-
                 </main>
             </div>
         </div>
