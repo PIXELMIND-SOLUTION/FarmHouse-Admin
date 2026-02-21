@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const DATE = "2026-02-10";
 
@@ -10,39 +11,102 @@ const FarmhouseSlotsModal = ({ farmhouseId, open, onClose, name }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [reason, setReason] = useState("");
 
+  /* ================= FETCH ================= */
   const fetchSlots = async () => {
     if (!farmhouseId) return;
+
     setLoading(true);
     try {
       const res = await axios.get(
         `http://31.97.206.144:5124/api/${farmhouseId}/slots?date=${DATE}`
       );
-      setSlots(res.data.slots);
-    } catch (err) { console.error(err); }
-    setLoading(false);
+
+      setSlots(res.data.slots || []);
+    } catch (err) {
+      console.error(err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Fetch Slots",
+        text: "Something went wrong while loading slots.",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (open) fetchSlots(); }, [open]);
+  useEffect(() => {
+    if (open) fetchSlots();
+  }, [open]);
 
+  /* ================= TOGGLE SLOT ================= */
   const toggleSlot = async () => {
     if (!selectedSlot) return;
-    setToggling(selectedSlot.slotId);
+
+    // Confirm First
+    const result = await Swal.fire({
+      title: selectedSlot.isActive ? "Deactivate Slot?" : "Activate Slot?",
+      text: "Please confirm this action.",
+      icon: "warning",
+      input: "text",
+      inputPlaceholder: "Enter reason...",
+      inputValue: reason,
+      showCancelButton: true,
+      confirmButtonText: "Yes, Continue",
+      confirmButtonColor: "#84cc16",
+      cancelButtonColor: "#ef4444",
+      inputValidator: (value) => {
+        if (!value) return "Reason is required!";
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
+    const finalReason = result.value;
 
     try {
+      setToggling(selectedSlot.slotId);
+
       await axios.put(
         `http://31.97.206.144:5124/api/${farmhouseId}/slots/${selectedSlot.slotId}/toggle?date=${DATE}`,
-        { isActive: !selectedSlot.isActive, reason: reason || "Vendor updated" }
+        {
+          isActive: !selectedSlot.isActive,
+          reason: finalReason || "Vendor updated",
+        }
       );
 
+      // Update UI
       setSlots(prev =>
-        prev.map(s => s.slotId === selectedSlot.slotId ? { ...s, isActive: !s.isActive } : s)
+        prev.map(s =>
+          s.slotId === selectedSlot.slotId
+            ? { ...s, isActive: !s.isActive }
+            : s
+        )
       );
 
       setSelectedSlot(null);
       setReason("");
-    } catch (err) { console.error(err); }
 
-    setToggling(null);
+      Swal.fire({
+        icon: "success",
+        title: `Slot ${!selectedSlot.isActive ? "Activated" : "Deactivated"}`,
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+    } catch (err) {
+      console.error(err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: "Could not update slot status.",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setToggling(null);
+    }
   };
 
   if (!open) return null;
@@ -78,9 +142,8 @@ const FarmhouseSlotsModal = ({ farmhouseId, open, onClose, name }) => {
 
                   <button
                     onClick={() => { setSelectedSlot(slot); setReason(""); }}
-                    className={`mt-4 w-full py-2 rounded-xl font-semibold text-white transition ${
-                      slot.isActive ? "bg-red-500 hover:bg-red-600" : "bg-lime-500 hover:bg-lime-600"
-                    }`}
+                    className={`mt-4 w-full py-2 rounded-xl font-semibold text-white transition ${slot.isActive ? "bg-red-500 hover:bg-red-600" : "bg-lime-500 hover:bg-lime-600"
+                      }`}
                   >
                     {slot.isActive ? "Deactivate" : "Activate"}
                   </button>
@@ -113,9 +176,8 @@ const FarmhouseSlotsModal = ({ farmhouseId, open, onClose, name }) => {
                   className="px-4 py-2 border rounded-lg hover:bg-lime-50">Cancel</button>
 
                 <button disabled={toggling} onClick={toggleSlot}
-                  className={`px-5 py-2 rounded-lg text-white font-semibold ${
-                    selectedSlot.isActive ? "bg-red-500 hover:bg-red-600" : "bg-lime-500 hover:bg-lime-600"
-                  }`}>
+                  className={`px-5 py-2 rounded-lg text-white font-semibold ${selectedSlot.isActive ? "bg-red-500 hover:bg-red-600" : "bg-lime-500 hover:bg-lime-600"
+                    }`}>
                   {toggling ? "Updating..." : "Confirm"}
                 </button>
               </div>

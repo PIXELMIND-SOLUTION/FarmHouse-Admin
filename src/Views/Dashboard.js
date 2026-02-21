@@ -12,6 +12,7 @@ import {
   Sun, Moon, ChevronRight, Menu, Filter, Search,
   Bell, Settings, LogOut, Heart, Share2, Bookmark
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = ({ darkMode, collapsed }) => {
   const [data, setData] = useState(null);
@@ -19,6 +20,7 @@ const Dashboard = ({ darkMode, collapsed }) => {
   const [error, setError] = useState(null);
   const [timeRange, setTimeRange] = useState('week');
   const [selectedChart, setSelectedChart] = useState('revenue');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchDashboardData();
@@ -89,7 +91,8 @@ const Dashboard = ({ darkMode, collapsed }) => {
       icon: Users,
       color: 'from-lime-500 to-lime-600',
       bgColor: 'lime',
-      trend: 'up'
+      trend: 'up',
+      link: '/admin/users'
     },
     {
       title: 'Farmhouses',
@@ -98,7 +101,8 @@ const Dashboard = ({ darkMode, collapsed }) => {
       icon: Home,
       color: 'from-amber-500 to-amber-600',
       bgColor: 'amber',
-      trend: 'up'
+      trend: 'up',
+      link: '/admin/farmhouses'
     },
     {
       title: 'Bookings',
@@ -107,7 +111,8 @@ const Dashboard = ({ darkMode, collapsed }) => {
       icon: Calendar,
       color: 'from-lime-600 to-lime-700',
       bgColor: 'lime',
-      trend: 'up'
+      trend: 'up',
+      link: '/admin/allbookings'
     },
     {
       title: 'Revenue',
@@ -116,26 +121,29 @@ const Dashboard = ({ darkMode, collapsed }) => {
       icon: DollarSign,
       color: 'from-amber-600 to-orange-600',
       bgColor: 'amber',
-      trend: 'up'
+      trend: 'up',
+      link: '/admin/revenue'
     },
-    {
-      title: 'Vendors',
-      value: summary.vendors.total,
-      change: `+${summary.vendors.newThisMonth} this month`,
-      icon: Building,
-      color: 'from-lime-500 to-emerald-600',
-      bgColor: 'lime',
-      trend: 'up'
-    },
-    {
-      title: 'Completion Rate',
-      value: `${summary.bookings.completionRate}%`,
-      change: 'of bookings completed',
-      icon: CheckCircle,
-      color: 'from-lime-600 to-green-600',
-      bgColor: 'lime',
-      trend: 'up'
-    }
+    // {
+    //   title: 'Vendors',
+    //   value: summary.vendors.total,
+    //   change: `+${summary.vendors.newThisMonth} this month`,
+    //   icon: Building,
+    //   color: 'from-lime-500 to-emerald-600',
+    //   bgColor: 'lime',
+    //   trend: 'up',
+    //   link: '/admin/allfarmhouses'
+    // },
+    // {
+    //   title: 'Completion Rate',
+    //   value: `${summary.bookings.completionRate}%`,
+    //   change: 'of bookings completed',
+    //   icon: CheckCircle,
+    //   color: 'from-lime-600 to-green-600',
+    //   bgColor: 'lime',
+    //   trend: 'up',
+    //   link: '/admin/allbookings'
+    //}
   ];
 
   return (
@@ -172,7 +180,7 @@ const Dashboard = ({ darkMode, collapsed }) => {
       {/* Main Content */}
       <div className="p-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statsCards.map((stat, index) => (
             <div
               key={index}
@@ -180,6 +188,7 @@ const Dashboard = ({ darkMode, collapsed }) => {
                 ? 'bg-stone-800/50 border-stone-700 hover:border-stone-600'
                 : 'bg-white border-lime-200 hover:border-lime-300'
                 } p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
+              onClick={() => navigate(`${stat.link}`)}
             >
               {/* Gradient Background */}
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />

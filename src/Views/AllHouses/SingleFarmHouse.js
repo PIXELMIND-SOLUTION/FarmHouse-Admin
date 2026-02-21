@@ -11,6 +11,7 @@ import {
   FaHome,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import Swal from "sweetalert2";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 
@@ -183,14 +184,26 @@ const SingleFarmhouse = ({ darkMode }) => {
 
               {/* Copy BOTH */}
               <button
-                onClick={() =>
-                  navigator.clipboard.writeText(
-                    `Farmhouse Credentials:\nUserId: ${data?.vendorCredentials?.name}\nPassword: ${data?.vendorCredentials?.password}`
-                  )
-                }
+                onClick={async () => {
+                  const text = `Farmhouse Credentials:
+                          UserId: ${data?.vendorCredentials?.name}
+                          Password: ${data?.vendorCredentials?.password}`;
+
+                  await navigator.clipboard.writeText(text);
+
+                  Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: "Credentials copied to clipboard",
+                    showConfirmButton: false,
+                    timer: 1800,
+                    timerProgressBar: true,
+                  });
+                }}
                 className={`px-4 py-2 rounded-xl border font-semibold text-sm transition ${darkMode
-                  ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
-                  : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
+                  ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
+                  : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
                   }`}
               >
                 Copy All
@@ -216,14 +229,22 @@ const SingleFarmhouse = ({ darkMode }) => {
                 </div>
 
                 <button
-                  onClick={() =>
-                    navigator.clipboard.writeText(
-                      `${data?.vendorCredentials?.name}`
-                    )
-                  }
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(data?.vendorCredentials?.name || "");
+
+                    Swal.fire({
+                      toast: true,
+                      position: "top-end",
+                      icon: "success",
+                      title: "User ID copied",
+                      showConfirmButton: false,
+                      timer: 1600,
+                      timerProgressBar: true,
+                    });
+                  }}
                   className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                    ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
-                    : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
+                      ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
+                      : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
                     }`}
                 >
                   Copy
@@ -262,14 +283,22 @@ const SingleFarmhouse = ({ darkMode }) => {
 
                   {/* Copy */}
                   <button
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        `${data?.vendorCredentials?.password}`
-                      )
-                    }
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(data?.vendorCredentials?.password || "");
+
+                      Swal.fire({
+                        toast: true,
+                        position: "top-end",
+                        icon: "success",
+                        title: "Password copied",
+                        showConfirmButton: false,
+                        timer: 1600,
+                        timerProgressBar: true,
+                      });
+                    }}
                     className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                      ? 'bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30'
-                      : 'bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200'
+                        ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
+                        : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
                       }`}
                   >
                     Copy

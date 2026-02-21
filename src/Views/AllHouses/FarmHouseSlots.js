@@ -8,6 +8,7 @@ import {
   FaToggleOn,
   FaToggleOff,
 } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 
@@ -29,6 +30,12 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
     if (!selectedDate || !farmhouseId) return;
 
     try {
+      Swal.fire({
+        title: "Loading Slots...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       setLoading(true);
 
       const res = await axios.get(
@@ -36,9 +43,16 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
       );
 
       setSlots(res.data?.slots || []);
+
+      Swal.close(); // close loader
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch slots");
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Fetch Slots",
+        text: "Unable to load slots for selected date.",
+      });
     } finally {
       setLoading(false);
     }
@@ -62,11 +76,36 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
     if (!selectedSlot) return;
 
     if (!reason.trim()) {
-      alert("Please enter a reason");
+      Swal.fire({
+        icon: "warning",
+        title: "Reason Required",
+        text: "Please enter a reason before changing slot status.",
+      });
       return;
     }
 
+    const actionText = selectedSlot.isActive ? "Deactivate" : "Activate";
+
+    // 🔴 Confirmation Popup
+    const confirm = await Swal.fire({
+      title: `${actionText} Slot?`,
+      text: "This action will update slot availability.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#16a34a",
+      cancelButtonColor: "#d33",
+      confirmButtonText: `Yes, ${actionText}`,
+    });
+
+    if (!confirm.isConfirmed) return;
+
     try {
+      Swal.fire({
+        title: "Updating Slot...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       setTogglingId(selectedSlot.slotId);
 
       await axios.put(
@@ -75,21 +114,32 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
           isActive: !selectedSlot.isActive,
           reason,
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
 
       setReasonModal(false);
       setSelectedSlot(null);
 
-      fetchSlots(date);
+      await fetchSlots(date);
+
+      Swal.fire({
+        icon: "success",
+        title: `Slot ${actionText}d`,
+        text: "Slot status updated successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
     } catch (err) {
       console.error("Toggle Error:", err?.response?.data || err.message);
-      alert("Failed to toggle slot");
+
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text:
+          err?.response?.data?.message ||
+          "Failed to toggle slot. Please try again.",
+      });
     } finally {
       setTogglingId(null);
     }
@@ -106,20 +156,17 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
           className={`relative w-full max-w-5xl mx-4 rounded-3xl overflow-hidden
           shadow-[0_25px_80px_rgba(0,0,0,0.6)]
           border backdrop-blur-2xl
-          ${
-            darkMode
+          ${darkMode
               ? "bg-gradient-to-br from-stone-900/95 to-stone-950 border-stone-700 text-white"
               : "bg-gradient-to-br from-white/95 to-lime-100 border-lime-200 text-stone-900"
-          }`}
+            }`}
         >
 
           {/* HEADER */}
-          <div className={`sticky top-0 flex justify-between items-center px-8 py-6 border-b ${
-            darkMode ? 'border-stone-700' : 'border-lime-200'
-          }`}>
-            <h2 className={`text-3xl font-bold flex items-center gap-3 ${
-              darkMode ? 'text-lime-400' : 'text-lime-700'
+          <div className={`sticky top-0 flex justify-between items-center px-8 py-6 border-b ${darkMode ? 'border-stone-700' : 'border-lime-200'
             }`}>
+            <h2 className={`text-3xl font-bold flex items-center gap-3 ${darkMode ? 'text-lime-400' : 'text-lime-700'
+              }`}>
               <FaCalendarAlt className={darkMode ? 'text-lime-500' : 'text-lime-600'} />
               Available Slots
             </h2>
@@ -137,15 +184,13 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
 
             {/* DATE */}
             <div
-              className={`flex items-center justify-between gap-4 p-6 rounded-2xl border ${
-                darkMode
-                  ? "bg-stone-800/60 border-stone-700"
-                  : "bg-white border-lime-200"
-              }`}
+              className={`flex items-center justify-between gap-4 p-6 rounded-2xl border ${darkMode
+                ? "bg-stone-800/60 border-stone-700"
+                : "bg-white border-lime-200"
+                }`}
             >
-              <div className={`flex items-center gap-3 text-lg font-semibold ${
-                darkMode ? 'text-lime-400' : 'text-lime-700'
-              }`}>
+              <div className={`flex items-center gap-3 text-lg font-semibold ${darkMode ? 'text-lime-400' : 'text-lime-700'
+                }`}>
                 <FaCalendarAlt className={darkMode ? 'text-lime-500' : 'text-lime-600'} />
                 Select Date
               </div>
@@ -154,11 +199,10 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className={`px-5 py-3 rounded-xl border shadow-md ${
-                  darkMode 
-                    ? 'bg-stone-900 border-stone-700 text-white'
-                    : 'bg-white border-lime-300 text-stone-900'
-                }`}
+                className={`px-5 py-3 rounded-xl border shadow-md ${darkMode
+                  ? 'bg-stone-900 border-stone-700 text-white'
+                  : 'bg-white border-lime-300 text-stone-900'
+                  }`}
               />
             </div>
 
@@ -172,13 +216,12 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                 {slots.map((slot) => (
                   <div
                     key={slot.slotId}
-                    className={`p-6 rounded-2xl border transition ${
-                      slot.available
-                        ? darkMode 
-                          ? 'border-lime-500 bg-lime-500/10'
-                          : 'border-lime-500 bg-lime-100'
-                        : 'border-red-500 bg-red-500/10'
-                    }`}
+                    className={`p-6 rounded-2xl border transition ${slot.available
+                      ? darkMode
+                        ? 'border-lime-500 bg-lime-500/10'
+                        : 'border-lime-500 bg-lime-100'
+                      : 'border-red-500 bg-red-500/10'
+                      }`}
                   >
                     <div className="flex justify-between items-center">
                       <div>
@@ -189,9 +232,8 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                           {slot.timing}
                         </p>
 
-                        <p className={`mt-2 text-2xl font-bold ${
-                          darkMode ? 'text-lime-400' : 'text-lime-700'
-                        }`}>
+                        <p className={`mt-2 text-2xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'
+                          }`}>
                           ₹{slot.price}
                         </p>
                       </div>
@@ -200,9 +242,8 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
 
                         {/* STATUS */}
                         {slot.available ? (
-                          <span className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                            darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
-                          }`}>
+                          <span className={`flex items-center gap-2 px-4 py-2 rounded-full ${darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
+                            }`}>
                             <FaCheckCircle />
                             Available
                           </span>
@@ -217,15 +258,14 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
                         <button
                           disabled={togglingId === slot.slotId}
                           onClick={() => openReasonModal(slot)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold ${
-                            slot.isActive
-                              ? darkMode 
-                                ? 'bg-lime-600 hover:bg-lime-700 text-white'
-                                : 'bg-lime-500 hover:bg-lime-600 text-white'
-                              : darkMode
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold ${slot.isActive
+                            ? darkMode
+                              ? 'bg-lime-600 hover:bg-lime-700 text-white'
+                              : 'bg-lime-500 hover:bg-lime-600 text-white'
+                            : darkMode
                               ? 'bg-stone-600 hover:bg-stone-700 text-white'
                               : 'bg-stone-500 hover:bg-stone-600 text-white'
-                          }`}
+                            }`}
                         >
                           {slot.isActive ? (
                             <>
@@ -248,9 +288,8 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
           </div>
 
           {/* FOOTER */}
-          <div className={`flex justify-end px-8 py-6 border-t ${
-            darkMode ? 'border-stone-700' : 'border-lime-200'
-          }`}>
+          <div className={`flex justify-end px-8 py-6 border-t ${darkMode ? 'border-stone-700' : 'border-lime-200'
+            }`}>
             <button
               onClick={onClose}
               className="px-8 py-3 rounded-xl font-semibold
@@ -268,15 +307,13 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
       {reasonModal && selectedSlot && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-lg">
           <div
-            className={`w-full max-w-lg p-8 rounded-3xl shadow-2xl border ${
-              darkMode
-                ? "bg-stone-900 border-stone-700 text-white"
-                : "bg-white border-lime-200"
-            }`}
+            className={`w-full max-w-lg p-8 rounded-3xl shadow-2xl border ${darkMode
+              ? "bg-stone-900 border-stone-700 text-white"
+              : "bg-white border-lime-200"
+              }`}
           >
-            <h3 className={`text-2xl font-bold mb-4 ${
-              darkMode ? 'text-lime-400' : 'text-lime-700'
-            }`}>
+            <h3 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-lime-400' : 'text-lime-700'
+              }`}>
               Enter Reason
             </h3>
 
@@ -285,28 +322,25 @@ const FarmhouseSlots = ({ open, onClose, farmhouseId, darkMode }) => {
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Type reason here..."
-              className={`w-full p-4 rounded-xl border ${
-                darkMode 
-                  ? 'bg-stone-800 border-stone-700 text-white'
-                  : 'bg-white border-lime-300 text-stone-900'
-              }`}
+              className={`w-full p-4 rounded-xl border ${darkMode
+                ? 'bg-stone-800 border-stone-700 text-white'
+                : 'bg-white border-lime-300 text-stone-900'
+                }`}
             />
 
             <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setReasonModal(false)}
-                className={`px-6 py-2 rounded-lg ${
-                  darkMode ? 'bg-stone-600 text-white' : 'bg-stone-400 text-white'
-                }`}
+                className={`px-6 py-2 rounded-lg ${darkMode ? 'bg-stone-600 text-white' : 'bg-stone-400 text-white'
+                  }`}
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleToggle}
-                className={`px-6 py-2 rounded-lg ${
-                  darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
-                }`}
+                className={`px-6 py-2 rounded-lg ${darkMode ? 'bg-lime-600 text-white' : 'bg-lime-500 text-white'
+                  }`}
               >
                 Confirm
               </button>

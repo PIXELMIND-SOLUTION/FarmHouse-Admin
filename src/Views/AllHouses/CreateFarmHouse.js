@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaTrash, FaPlus } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 
@@ -35,6 +36,12 @@ const FarmhouseForm = ({ darkMode }) => {
     if (!isEditMode) return;
 
     const fetchData = async () => {
+      Swal.fire({
+        title: "Loading Farmhouse...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       try {
         const res = await axios.get(`${API_BASE}/farmhouse/${id}`);
         const f = res.data.farmhouse;
@@ -55,9 +62,17 @@ const FarmhouseForm = ({ darkMode }) => {
 
         setExistingImages(f.images || []);
         setTimePrices(f.timePrices || []);
+
+        Swal.close(); // close loading popup
+
       } catch (err) {
         console.error("Fetch Error:", err);
-        alert("Failed to load farmhouse data");
+
+        Swal.fire({
+          icon: "error",
+          title: "Failed to Load",
+          text: "Unable to fetch farmhouse data.",
+        });
       }
     };
 
@@ -89,13 +104,20 @@ const FarmhouseForm = ({ darkMode }) => {
     try {
       setLoading(true);
 
+      // 🔵 Loading popup
+      Swal.fire({
+        title: isEditMode ? "Updating Farmhouse..." : "Creating Farmhouse...",
+        text: "Please wait while we save the data.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const fd = new FormData();
 
       Object.entries(form).forEach(([key, value]) => {
         fd.append(key, value);
       });
 
-      // EXACT POSTMAN FORMAT
       fd.append("timePrices", JSON.stringify(timePrices));
 
       images.forEach((img) => {
@@ -103,23 +125,44 @@ const FarmhouseForm = ({ darkMode }) => {
       });
 
       const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       };
 
       if (isEditMode) {
         await axios.put(`${API_BASE}/farmhouse/${id}`, fd, config);
-        alert("Farmhouse updated successfully");
+
+        Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: "Farmhouse updated successfully.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
       } else {
         await axios.post(`${API_BASE}/farmhouse-create`, fd, config);
-        alert("Farmhouse created successfully");
+
+        Swal.fire({
+          icon: "success",
+          title: "Created!",
+          text: "Farmhouse created successfully.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       }
 
       navigate("/admin/farmhouses");
+
     } catch (err) {
       console.error("API ERROR:", err?.response?.data || err.message);
-      alert("Something went wrong while saving farmhouse");
+
+      Swal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text:
+          err?.response?.data?.message ||
+          "Something went wrong while saving farmhouse.",
+      });
     } finally {
       setLoading(false);
     }
@@ -127,11 +170,10 @@ const FarmhouseForm = ({ darkMode }) => {
 
   return (
     <div
-      className={`min-h-screen p-8 ${
-        darkMode
-          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
-          : "bg-gradient-to-br from-lime-100 via-white to-lime-200"
-      }`}
+      className={`min-h-screen p-8 ${darkMode
+        ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+        : "bg-gradient-to-br from-lime-100 via-white to-lime-200"
+        }`}
     >
       <div className="max-w-6xl mx-auto">
 
@@ -149,20 +191,18 @@ const FarmhouseForm = ({ darkMode }) => {
         </h2>
 
         <div
-          className={`p-8 rounded-3xl border shadow-2xl backdrop-blur-md ${
-            darkMode
-              ? "bg-stone-900/70 border-stone-700"
-              : "bg-white/80 border-lime-300"
-          }`}
+          className={`p-8 rounded-3xl border shadow-2xl backdrop-blur-md ${darkMode
+            ? "bg-stone-900/70 border-stone-700"
+            : "bg-white/80 border-lime-300"
+            }`}
         >
 
           {/* INPUT GRID */}
           <div className="grid md:grid-cols-2 gap-6">
             {Object.keys(initialForm).map((key) => (
               <div key={key} className="flex flex-col gap-1">
-                <label className={`text-sm font-semibold capitalize ${
-                  darkMode ? 'text-stone-400' : 'text-stone-700'
-                }`}>
+                <label className={`text-sm font-semibold capitalize ${darkMode ? 'text-stone-400' : 'text-stone-700'
+                  }`}>
                   {key}
                 </label>
 
@@ -171,11 +211,10 @@ const FarmhouseForm = ({ darkMode }) => {
                   value={form[key]}
                   onChange={handleChange}
                   placeholder={`Enter ${key}`}
-                  className={`px-4 py-3 rounded-xl border-2 outline-none transition ${
-                    darkMode
-                      ? "bg-stone-800 border-stone-700 text-white focus:border-lime-500 focus:ring-2 focus:ring-lime-500/50"
-                      : "bg-white border-lime-300 text-stone-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-                  }`}
+                  className={`px-4 py-3 rounded-xl border-2 outline-none transition ${darkMode
+                    ? "bg-stone-800 border-stone-700 text-white focus:border-lime-500 focus:ring-2 focus:ring-lime-500/50"
+                    : "bg-white border-lime-300 text-stone-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
+                    }`}
                 />
               </div>
             ))}
@@ -215,11 +254,10 @@ const FarmhouseForm = ({ darkMode }) => {
               type="file"
               multiple
               onChange={(e) => setImages([...e.target.files])}
-              className={`w-full p-3 border-2 border-dashed rounded-xl cursor-pointer ${
-                darkMode
-                  ? "border-stone-700 bg-stone-800 hover:border-lime-500"
-                  : "border-lime-300 bg-lime-50 hover:border-lime-400"
-              }`}
+              className={`w-full p-3 border-2 border-dashed rounded-xl cursor-pointer ${darkMode
+                ? "border-stone-700 bg-stone-800 hover:border-lime-500"
+                : "border-lime-300 bg-lime-50 hover:border-lime-400"
+                }`}
             />
           </div>
 
@@ -249,11 +287,10 @@ const FarmhouseForm = ({ darkMode }) => {
               {timePrices.map((tp, i) => (
                 <div
                   key={i}
-                  className={`grid md:grid-cols-3 gap-3 p-4 rounded-xl border ${
-                    darkMode
-                      ? "bg-stone-800 border-stone-700"
-                      : "bg-lime-50 border-lime-300"
-                  }`}
+                  className={`grid md:grid-cols-3 gap-3 p-4 rounded-xl border ${darkMode
+                    ? "bg-stone-800 border-stone-700"
+                    : "bg-lime-50 border-lime-300"
+                    }`}
                 >
                   <input
                     value={tp.label}
@@ -261,11 +298,10 @@ const FarmhouseForm = ({ darkMode }) => {
                       updateTimePrice(i, "label", e.target.value)
                     }
                     placeholder="Label"
-                    className={`p-3 rounded-lg border ${
-                      darkMode
-                        ? "bg-stone-900 border-stone-700 text-white"
-                        : "bg-white border-lime-300 text-stone-900"
-                    }`}
+                    className={`p-3 rounded-lg border ${darkMode
+                      ? "bg-stone-900 border-stone-700 text-white"
+                      : "bg-white border-lime-300 text-stone-900"
+                      }`}
                   />
 
                   <input
@@ -274,11 +310,10 @@ const FarmhouseForm = ({ darkMode }) => {
                       updateTimePrice(i, "timing", e.target.value)
                     }
                     placeholder="Timing"
-                    className={`p-3 rounded-lg border ${
-                      darkMode
-                        ? "bg-stone-900 border-stone-700 text-white"
-                        : "bg-white border-lime-300 text-stone-900"
-                    }`}
+                    className={`p-3 rounded-lg border ${darkMode
+                      ? "bg-stone-900 border-stone-700 text-white"
+                      : "bg-white border-lime-300 text-stone-900"
+                      }`}
                   />
 
                   <button
@@ -305,8 +340,8 @@ const FarmhouseForm = ({ darkMode }) => {
               {loading
                 ? "Saving..."
                 : isEditMode
-                ? "Update Farmhouse"
-                : "Create Farmhouse"}
+                  ? "Update Farmhouse"
+                  : "Create Farmhouse"}
             </button>
           </div>
 

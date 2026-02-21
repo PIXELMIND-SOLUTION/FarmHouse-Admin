@@ -48,7 +48,7 @@ const Login = () => {
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
 
       {/* 🌿 FARMHOUSE GARDEN BACKGROUND */}
-      
+
       {/* Sky Gradient - Light Brown & Green Theme */}
       <div className="absolute inset-0 -z-30 bg-gradient-to-b from-amber-50 via-stone-50 to-lime-50" />
 
@@ -94,15 +94,15 @@ const Login = () => {
         <div className="relative">
           {/* Roof */}
           <div className="w-0 h-0 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[40px] border-b-amber-700 mx-auto"></div>
-          
+
           {/* Chimney */}
           <div className="absolute top-2 right-8 w-6 h-12 bg-stone-700 rounded-t"></div>
-          
+
           {/* House Body */}
           <div className="w-32 h-28 bg-amber-600 rounded-b-sm relative">
             {/* Door */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-14 bg-amber-800 rounded-t"></div>
-            
+
             {/* Windows */}
             <div className="absolute top-4 left-3 w-6 h-6 bg-yellow-300 border border-amber-700"></div>
             <div className="absolute top-4 right-3 w-6 h-6 bg-yellow-300 border border-amber-700"></div>
@@ -115,12 +115,12 @@ const Login = () => {
         <div className="relative">
           {/* Slanted Roof */}
           <div className="w-0 h-0 border-l-[45px] border-l-transparent border-r-[45px] border-r-transparent border-b-[30px] border-b-stone-600 mx-auto"></div>
-          
+
           {/* Small House Body */}
           <div className="w-24 h-20 bg-stone-500 rounded-b-sm relative">
             {/* Window */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-8 h-8 bg-amber-300 border border-stone-700"></div>
-            
+
             {/* Door */}
             <div className="absolute bottom-0 left-2 w-6 h-10 bg-stone-700 rounded-t-sm"></div>
           </div>
@@ -128,7 +128,7 @@ const Login = () => {
       </div>
 
       {/* 🌳 TREES - Decorative Elements */}
-      
+
       {/* Tree Left */}
       <div className="absolute bottom-32 left-48 -z-10 opacity-40">
         <div className="w-4 h-16 bg-amber-700 mx-auto"></div>
@@ -150,7 +150,7 @@ const Login = () => {
           <div className="w-3 h-8 bg-lime-600"></div>
           <div className="w-6 h-6 bg-yellow-400 rounded-full -mt-3 border-4 border-yellow-500"></div>
         </div>
-        
+
         <div className="flex flex-col items-center">
           <div className="w-2 h-6 bg-lime-500"></div>
           <div className="w-5 h-5 bg-pink-400 rounded-full -mt-2 border-2 border-pink-500"></div>
@@ -354,6 +354,31 @@ const Login = () => {
             )}
           </button>
         </form>
+
+        {/* VENDOR LOGIN BUTTON */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600 mb-3 font-medium">
+            Are you a Vendor?
+          </p>
+
+          <button
+            onClick={() => navigate("/vendor-login")}
+            className="
+                w-full py-3
+                rounded-xl
+                font-semibold
+                border-2 border-lime-400
+                text-lime-700
+                hover:bg-lime-50
+                hover:scale-[1.02]
+                active:scale-[0.98]
+                transition-all duration-300
+                shadow-sm
+              "
+          >
+            Login as Vendor
+          </button>
+        </div>
 
         {/* FOOTER */}
         <div className="text-center mt-8 pt-6 border-t border-lime-200/30">

@@ -39,20 +39,53 @@ const VendorFarmhouse = () => {
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl border border-lime-200 overflow-hidden">
 
         {/* IMAGE */}
-        <div className="relative h-72 md:h-96">
-          <img
-            src={farmhouse.images?.[imageIndex] || "https://via.placeholder.com/1200x600"}
-            alt=""
-            className="w-full h-full object-cover"
-          />
+        <div className="relative h-72 md:h-96 rounded-2xl overflow-hidden">
 
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-            {farmhouse.images?.map((_, i) => (
-              <div key={i}
-                className={`w-3 h-3 rounded-full ${i === imageIndex ? "bg-lime-400" : "bg-white/50"}`}
+          {farmhouse.images && farmhouse.images.length > 0 ? (
+            <>
+              <img
+                src={farmhouse.images[imageIndex]}
+                alt="Farmhouse"
+                className="w-full h-full object-cover"
               />
-            ))}
-          </div>
+
+              {/* Dots Indicator */}
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                {farmhouse.images.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full transition ${i === imageIndex ? "bg-lime-400" : "bg-white/50"
+                      }`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            /* NO IMAGE STATE */
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-200 to-stone-300 text-stone-600">
+
+              {/* Icon */}
+              <svg
+                className="w-16 h-16 mb-4 opacity-70"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16l4-4a3 3 0 014 0l4 4m-4-4l1.5-1.5a3 3 0 014 0L21 16M3 16V6a2 2 0 012-2h14a2 2 0 012 2v10"
+                />
+              </svg>
+
+              <p className="text-lg font-semibold">No Images Available</p>
+              <p className="text-sm opacity-70 mt-1">
+                This farmhouse has no uploaded images yet.
+              </p>
+            </div>
+          )}
+
         </div>
 
         {/* BODY */}

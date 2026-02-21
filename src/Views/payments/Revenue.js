@@ -142,14 +142,14 @@ const Revenue = ({ darkMode, collapsed }) => {
                             </p>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}
+                            {/* <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}
                                 className={`px-4 py-2 rounded-xl border outline-none ${darkMode ? 'bg-stone-800 border-stone-700 text-white focus:ring-2 focus:ring-lime-500' : 'bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-400'}`}>
                                 <option value="day">Today</option>
                                 <option value="week">This Week</option>
                                 <option value="month">This Month</option>
                                 <option value="quarter">This Quarter</option>
                                 <option value="year">This Year</option>
-                            </select>
+                            </select> */}
                             <button onClick={fetchRevenueData} className={`p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-stone-800' : 'hover:bg-lime-100'}`}>
                                 <RefreshCw className={`h-5 w-5 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`} />
                             </button>

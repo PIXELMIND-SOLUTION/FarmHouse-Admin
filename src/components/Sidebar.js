@@ -27,6 +27,7 @@ import {
 import { FaBilibili, FaPhotoFilm } from 'react-icons/fa6';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollapsed, onNavigate }) => {
   const location = useLocation();
@@ -117,13 +118,41 @@ const Sidebar = ({ sidebarOpen, darkMode, toggleSidebar, collapsed, toggleCollap
     }
   };
 
-  const handleLogout = () => {
-    // Handle logout logic here
-    sessionStorage.removeItem('authToken');
-    sessionStorage.removeItem('AdminData');
-    sessionStorage.removeItem('isAdmin');
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Logout?",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#10b981",
+      confirmButtonText: "Yes, Logout",
+    });
 
-    window.location.href = '/';
+    if (!result.isConfirmed) return;
+
+    // optional loading animation
+    Swal.fire({
+      title: "Logging out...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    setTimeout(() => {
+      sessionStorage.removeItem("authToken");
+      sessionStorage.removeItem("AdminData");
+      sessionStorage.removeItem("isAdmin");
+      localStorage.removeItem("authToken");
+
+      Swal.fire({
+        icon: "success",
+        title: "Logged out successfully",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      window.location.href = "/";
+    }, 800);
   };
 
   // Check if a subitem is active

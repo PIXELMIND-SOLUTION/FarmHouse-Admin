@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import FarmhouseSlots from "./FarmHouseSlots";
+import Swal from "sweetalert2";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 const ITEMS_PER_PAGE = 10;
@@ -40,8 +41,12 @@ const Farmhouses = ({ darkMode }) => {
       setLoading(true);
       const res = await axios.get(`${API_BASE}/all-farmhouse`);
       setFarmhouses(res.data.farmhouses || []);
-    } catch {
-      alert("Failed to load farmhouses");
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Load",
+        text: "Unable to fetch farmhouses. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -53,9 +58,37 @@ const Farmhouses = ({ darkMode }) => {
 
   /* ================= DELETE ================= */
   const deleteFarmhouse = async (id) => {
-    if (!window.confirm("Delete this farmhouse?")) return;
-    await axios.delete(`${API_BASE}/farmhouse/${id}`);
-    fetchFarmhouses();
+    const result = await Swal.fire({
+      title: "Delete Farmhouse?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE}/farmhouse/${id}`);
+      fetchFarmhouses();
+
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Farmhouse deleted successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Delete Failed",
+        text: "Could not delete farmhouse.",
+      });
+    }
   };
 
   /* ================= TOGGLE ACTIVE STATUS ================= */
@@ -67,33 +100,58 @@ const Farmhouses = ({ darkMode }) => {
   };
 
   const confirmToggleStatus = async () => {
+
     if (!statusReason.trim()) {
-      alert("Please provide a reason for the status change");
+      Swal.fire({
+        icon: "warning",
+        title: "Reason Required",
+        text: "Please provide a reason for the status change.",
+      });
       return;
     }
+
+    // Loading popup
+    Swal.fire({
+      title: "Updating Status...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
 
     try {
       await axios.put(`${API_BASE}/${statusUpdateId}/toggle-active`, {
         active: newStatus,
         reason: statusReason.trim()
       });
-      
-      // Update local state
-      setFarmhouses(prev => prev.map(farm => 
-        farm._id === statusUpdateId 
-          ? { ...farm, active: newStatus } 
-          : farm
-      ));
-      
+
+      // update UI
+      setFarmhouses(prev =>
+        prev.map(farm =>
+          farm._id === statusUpdateId
+            ? { ...farm, active: newStatus }
+            : farm
+        )
+      );
+
       setShowStatusModal(false);
       setStatusReason("");
       setStatusUpdateId(null);
       setNewStatus(null);
-      
-      alert(`Farmhouse ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+
+      Swal.fire({
+        icon: "success",
+        title: "Status Updated!",
+        text: `Farmhouse ${newStatus ? "activated" : "deactivated"} successfully.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
     } catch (error) {
-      alert("Failed to update status. Please try again.");
-      console.error("Status update error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: "Failed to update farmhouse status.",
+      });
+      console.error(error);
     }
   };
 
@@ -103,13 +161,13 @@ const Farmhouses = ({ darkMode }) => {
       const s = search.toLowerCase();
       const matchesSearch = f.name?.toLowerCase().includes(s) ||
         f.address?.toLowerCase().includes(s);
-      
+
       const matchesBookingFor = !filterBookingFor || f.bookingFor === filterBookingFor;
-      
-      const matchesStatus = !filterStatus || 
+
+      const matchesStatus = !filterStatus ||
         (filterStatus === "active" && f.active === true) ||
         (filterStatus === "inactive" && f.active === false);
-      
+
       return matchesSearch && matchesBookingFor && matchesStatus;
     });
   }, [farmhouses, search, filterBookingFor, filterStatus]);
@@ -145,39 +203,36 @@ const Farmhouses = ({ darkMode }) => {
 
   return (
     <div
-      className={`min-h-screen p-4 md:p-8 ${
-        darkMode
+      className={`min-h-screen p-4 md:p-8 ${darkMode
           ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
           : "bg-gradient-to-br from-lime-100 via-white to-lime-200"
-      }`}
+        }`}
     >
       {/* Status Update Modal */}
       {showStatusModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-2xl p-6 w-full max-w-md ${
-            darkMode ? "bg-stone-800 border-2 border-stone-700" : "bg-white border-2 border-lime-200"
-          }`}>
+          <div className={`rounded-2xl p-6 w-full max-w-md ${darkMode ? "bg-stone-800 border-2 border-stone-700" : "bg-white border-2 border-lime-200"
+            }`}>
             <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
               {newStatus ? "Activate Farmhouse" : "Deactivate Farmhouse"}
             </h3>
-            
+
             <p className={`mb-4 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-              {newStatus 
-                ? "Please provide a reason for activating this farmhouse:" 
+              {newStatus
+                ? "Please provide a reason for activating this farmhouse:"
                 : "Please provide a reason for deactivating this farmhouse:"}
             </p>
-            
+
             <textarea
               value={statusReason}
               onChange={(e) => setStatusReason(e.target.value)}
               placeholder="Enter reason..."
-              className={`w-full p-3 rounded-xl border-2 mb-4 min-h-[120px] ${
-                darkMode 
-                  ? "bg-stone-900 border-stone-700 text-white" 
+              className={`w-full p-3 rounded-xl border-2 mb-4 min-h-[120px] ${darkMode
+                  ? "bg-stone-900 border-stone-700 text-white"
                   : "bg-white border-lime-300 text-stone-900"
-              }`}
+                }`}
             />
-            
+
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => {
@@ -185,22 +240,20 @@ const Farmhouses = ({ darkMode }) => {
                   setStatusReason("");
                   setStatusUpdateId(null);
                 }}
-                className={`px-5 py-2 rounded-xl font-medium ${
-                  darkMode 
-                    ? "bg-stone-700 hover:bg-stone-600" 
+                className={`px-5 py-2 rounded-xl font-medium ${darkMode
+                    ? "bg-stone-700 hover:bg-stone-600"
                     : "bg-stone-200 hover:bg-stone-300"
-                }`}
+                  }`}
               >
                 Cancel
               </button>
-              
+
               <button
                 onClick={confirmToggleStatus}
-                className={`px-5 py-2 rounded-xl font-medium text-white ${
-                  newStatus 
-                    ? "bg-lime-600 hover:bg-lime-700" 
+                className={`px-5 py-2 rounded-xl font-medium text-white ${newStatus
+                    ? "bg-lime-600 hover:bg-lime-700"
                     : "bg-red-600 hover:bg-red-700"
-                }`}
+                  }`}
               >
                 Confirm
               </button>
@@ -214,9 +267,8 @@ const Farmhouses = ({ darkMode }) => {
         {/* PREMIUM HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
-            <h2 className={`text-3xl md:text-4xl font-bold flex items-center gap-3 ${
-              darkMode ? 'text-lime-400' : 'text-lime-700'
-            }`}>
+            <h2 className={`text-3xl md:text-4xl font-bold flex items-center gap-3 ${darkMode ? 'text-lime-400' : 'text-lime-700'
+              }`}>
               🏡 Farmhouses
             </h2>
             <p className={`mt-1 text-sm md:text-base ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
@@ -249,24 +301,21 @@ const Farmhouses = ({ darkMode }) => {
 
         {/* FILTER BAR */}
         <div
-          className={`mb-8 p-4 md:p-5 rounded-2xl border shadow-lg backdrop-blur-md ${
-            darkMode
+          className={`mb-8 p-4 md:p-5 rounded-2xl border shadow-lg backdrop-blur-md ${darkMode
               ? "bg-stone-800/60 border-stone-700"
               : "bg-white/80 border-lime-300"
-          }`}
+            }`}
         >
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <FaSearch className={`absolute left-4 top-1/2 -translate-y-1/2 ${
-                darkMode ? 'text-stone-500' : 'text-stone-400'
-              }`} />
+              <FaSearch className={`absolute left-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-stone-500' : 'text-stone-400'
+                }`} />
               <input
-                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 outline-none ${
-                  darkMode
+                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 outline-none ${darkMode
                     ? "bg-stone-900 border-stone-700 text-white focus:border-lime-500"
                     : "bg-white border-lime-300 text-stone-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-                }`}
+                  }`}
                 placeholder="Search farmhouse..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -275,11 +324,10 @@ const Farmhouses = ({ darkMode }) => {
 
             {/* Booking For Filter */}
             <select
-              className={`px-4 py-3 rounded-xl border-2 outline-none font-medium ${
-                darkMode
+              className={`px-4 py-3 rounded-xl border-2 outline-none font-medium ${darkMode
                   ? "bg-stone-900 border-stone-700 text-white focus:border-lime-500"
                   : "bg-white border-lime-300 text-stone-900 focus:border-lime-500"
-              }`}
+                }`}
               value={filterBookingFor}
               onChange={(e) => setFilterBookingFor(e.target.value)}
             >
@@ -291,11 +339,10 @@ const Farmhouses = ({ darkMode }) => {
 
             {/* Status Filter */}
             <select
-              className={`px-4 py-3 rounded-xl border-2 outline-none font-medium ${
-                darkMode
+              className={`px-4 py-3 rounded-xl border-2 outline-none font-medium ${darkMode
                   ? "bg-stone-900 border-stone-700 text-white focus:border-lime-500"
                   : "bg-white border-lime-300 text-stone-900 focus:border-lime-500"
-              }`}
+                }`}
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
@@ -309,24 +356,21 @@ const Farmhouses = ({ darkMode }) => {
         {/* PREMIUM TABLE */}
         <div className="overflow-x-auto">
           <div
-            className={`rounded-2xl overflow-hidden border shadow-2xl min-w-[800px] ${
-              darkMode
+            className={`rounded-2xl overflow-hidden border shadow-2xl min-w-[800px] ${darkMode
                 ? "bg-stone-900 border-stone-700"
                 : "bg-white border-lime-300"
-            }`}
+              }`}
           >
             <table className="w-full">
               <thead
-                className={`text-sm uppercase tracking-wider ${
-                  darkMode ? "bg-stone-800" : "bg-lime-100"
-                }`}
+                className={`text-sm uppercase tracking-wider ${darkMode ? "bg-stone-800" : "bg-lime-100"
+                  }`}
               >
                 <tr>
                   {["#", "Farmhouse", "Booking", "Price", "Status", "Booked", "Actions"].map(
                     (h) => (
-                      <th key={h} className={`px-4 md:px-6 py-3 md:py-4 text-left font-bold border-b whitespace-nowrap ${
-                        darkMode ? 'border-stone-700 text-lime-400' : 'border-lime-200 text-lime-700'
-                      }`}>
+                      <th key={h} className={`px-4 md:px-6 py-3 md:py-4 text-left font-bold border-b whitespace-nowrap ${darkMode ? 'border-stone-700 text-lime-400' : 'border-lime-200 text-lime-700'
+                        }`}>
                         {h}
                       </th>
                     )
@@ -351,11 +395,10 @@ const Farmhouses = ({ darkMode }) => {
                   paginatedData.map((f, index) => (
                     <tr
                       key={f._id}
-                      className={`border-b transition ${
-                        darkMode 
-                          ? 'border-stone-800 hover:bg-stone-800' 
+                      className={`border-b transition ${darkMode
+                          ? 'border-stone-800 hover:bg-stone-800'
                           : 'border-lime-100 hover:bg-lime-50'
-                      }`}
+                        }`}
                     >
                       <td className="px-4 md:px-6 py-3 md:py-4 font-semibold whitespace-nowrap">
                         {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
@@ -368,20 +411,18 @@ const Farmhouses = ({ darkMode }) => {
                       </td>
 
                       <td className="px-4 md:px-6 py-3 md:py-4">
-                        <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${
-                          f.bookingFor === 'birthday' 
+                        <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${f.bookingFor === 'birthday'
                             ? darkMode ? 'bg-pink-500/20 text-pink-400' : 'bg-pink-100 text-pink-700'
-                            : f.bookingFor === 'party' 
-                            ? darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-700'
-                            : darkMode ? 'bg-lime-500/20 text-lime-400' : 'bg-lime-100 text-lime-700'
-                        }`}>
+                            : f.bookingFor === 'party'
+                              ? darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-700'
+                              : darkMode ? 'bg-lime-500/20 text-lime-400' : 'bg-lime-100 text-lime-700'
+                          }`}>
                           {f.bookingFor}
                         </span>
                       </td>
 
-                      <td className={`px-4 md:px-6 py-3 md:py-4 font-bold whitespace-nowrap ${
-                        darkMode ? 'text-lime-400' : 'text-lime-600'
-                      }`}>
+                      <td className={`px-4 md:px-6 py-3 md:py-4 font-bold whitespace-nowrap ${darkMode ? 'text-lime-400' : 'text-lime-600'
+                        }`}>
                         ₹{f.pricePerDay}
                       </td>
 
@@ -390,13 +431,12 @@ const Farmhouses = ({ darkMode }) => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => toggleActiveStatus(f._id, f.active)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                              f.active
-                                ? darkMode 
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${f.active
+                                ? darkMode
                                   ? "bg-lime-500/20 text-lime-400 hover:bg-lime-500/30"
                                   : "bg-lime-100 text-lime-700 hover:bg-lime-200"
                                 : "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400"
-                            }`}
+                              }`}
                           >
                             {f.active ? (
                               <>
@@ -414,11 +454,10 @@ const Farmhouses = ({ darkMode }) => {
                       </td>
 
                       <td className="px-4 md:px-6 py-3 md:py-4">
-                        <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${
-                          (f.bookedSlots?.length || 0) > 0 
+                        <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${(f.bookedSlots?.length || 0) > 0
                             ? darkMode ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
                             : darkMode ? 'bg-stone-700 text-stone-400' : 'bg-stone-100 text-stone-700'
-                        }`}>
+                          }`}>
                           {f.bookedSlots?.length || 0}
                         </span>
                       </td>
@@ -427,17 +466,15 @@ const Farmhouses = ({ darkMode }) => {
                       <td className="px-4 md:px-6 py-3 md:py-4">
                         <div className="flex gap-3 md:gap-4 text-base md:text-lg">
                           <FaEye
-                            className={`cursor-pointer hover:scale-125 transition ${
-                              darkMode ? 'text-lime-400 hover:text-lime-500' : 'text-lime-600 hover:text-lime-700'
-                            }`}
+                            className={`cursor-pointer hover:scale-125 transition ${darkMode ? 'text-lime-400 hover:text-lime-500' : 'text-lime-600 hover:text-lime-700'
+                              }`}
                             title="View Details"
                             onClick={() => navigate(`/admin/farmhouses/${f._id}`)}
                           />
 
                           <FaBox
-                            className={`cursor-pointer hover:scale-125 transition ${
-                              darkMode ? 'text-amber-400 hover:text-amber-500' : 'text-amber-600 hover:text-amber-700'
-                            }`}
+                            className={`cursor-pointer hover:scale-125 transition ${darkMode ? 'text-amber-400 hover:text-amber-500' : 'text-amber-600 hover:text-amber-700'
+                              }`}
                             title="Manage Slots"
                             onClick={() => {
                               setFarmhouseId(f._id);
@@ -446,9 +483,8 @@ const Farmhouses = ({ darkMode }) => {
                           />
 
                           <FaEdit
-                            className={`cursor-pointer hover:scale-125 transition ${
-                              darkMode ? 'text-blue-400 hover:text-blue-500' : 'text-blue-600 hover:text-blue-700'
-                            }`}
+                            className={`cursor-pointer hover:scale-125 transition ${darkMode ? 'text-blue-400 hover:text-blue-500' : 'text-blue-600 hover:text-blue-700'
+                              }`}
                             title="Edit Farmhouse"
                             onClick={() =>
                               navigate(`/admin/farmhouses/edit/${f._id}`)
@@ -481,11 +517,10 @@ const Farmhouses = ({ darkMode }) => {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition disabled:opacity-40 ${
-                  darkMode
+                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition disabled:opacity-40 ${darkMode
                     ? "border-stone-700 hover:bg-stone-800"
                     : "border-lime-300 hover:bg-lime-100"
-                }`}
+                  }`}
               >
                 Prev
               </button>
@@ -497,11 +532,10 @@ const Farmhouses = ({ darkMode }) => {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition disabled:opacity-40 ${
-                  darkMode
+                className={`px-4 md:px-5 py-2 rounded-xl border font-semibold transition disabled:opacity-40 ${darkMode
                     ? "border-stone-700 hover:bg-stone-800"
                     : "border-lime-300 hover:bg-lime-100"
-                }`}
+                  }`}
               >
                 Next
               </button>
