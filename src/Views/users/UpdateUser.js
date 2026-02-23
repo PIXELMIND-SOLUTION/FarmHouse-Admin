@@ -96,8 +96,8 @@ const UpdateUser = ({ darkMode }) => {
   return (
     <div
       className={`min-h-screen p-8 ${darkMode
-          ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
-          : "bg-gradient-to-br from-lime-100 via-white to-lime-200 text-stone-900"
+        ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
+        : "bg-gradient-to-br from-lime-100 via-white to-lime-200 text-stone-900"
         }`}
     >
       <div className={`max-w-3xl mx-auto rounded-3xl shadow-2xl p-8 ${darkMode ? 'bg-stone-800/50 border-2 border-stone-700' : 'bg-white border-2 border-lime-200'
@@ -107,8 +107,8 @@ const UpdateUser = ({ darkMode }) => {
         <button
           onClick={() => navigate(-1)}
           className={`flex items-center gap-2 mb-6 font-semibold transition ${darkMode
-              ? 'text-lime-400 hover:text-lime-300'
-              : 'text-lime-600 hover:text-lime-700'
+            ? 'text-lime-400 hover:text-lime-300'
+            : 'text-lime-600 hover:text-lime-700'
             }`}
         >
           <FaArrowLeft /> Back
@@ -130,17 +130,33 @@ const UpdateUser = ({ darkMode }) => {
             { label: "Username", name: "username" },
           ].map((f) => (
             <div key={f.name}>
-              <label className={`text-sm font-semibold ${darkMode ? 'text-stone-300' : 'text-stone-700'
-                }`}>
+              <label
+                className={`text-sm font-semibold ${darkMode ? "text-stone-300" : "text-stone-700"
+                  }`}
+              >
                 {f.label}
               </label>
+
               <input
+                type={f.name === "phoneNumber" ? "tel" : "text"}
+                inputMode={f.name === "phoneNumber" ? "numeric" : "text"}
+                maxLength={f.name === "phoneNumber" ? 10 : undefined}
+                pattern={f.name === "phoneNumber" ? "[0-9]{10}" : undefined}
                 name={f.name}
                 value={form[f.name]}
-                onChange={handleChange}
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // ✅ Special rule for phone field
+                  if (f.name === "phoneNumber") {
+                    value = value.replace(/\D/g, "").slice(0, 10);
+                  }
+
+                  setForm({ ...form, [f.name]: value });
+                }}
                 className={`w-full mt-1 px-4 py-3 rounded-xl border-2 outline-none transition ${darkMode
-                    ? 'bg-stone-900 border-stone-700 text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
-                    : 'bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+                    ? "bg-stone-900 border-stone-700 text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
+                    : "bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
                   }`}
               />
             </div>
@@ -157,8 +173,8 @@ const UpdateUser = ({ darkMode }) => {
               value={form.gender}
               onChange={handleChange}
               className={`w-full mt-1 px-4 py-3 rounded-xl border-2 outline-none transition ${darkMode
-                  ? 'bg-stone-900 border-stone-700 text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
-                  : 'bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+                ? 'bg-stone-900 border-stone-700 text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
+                : 'bg-white border-lime-300 text-stone-900 focus:ring-2 focus:ring-lime-500 focus:border-lime-500'
                 }`}
             >
               <option value="">Select</option>
