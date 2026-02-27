@@ -1,35 +1,67 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
+import {
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaTimes,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa";
 import Swal from "sweetalert2";
 
-const DATE = "2026-02-10";
+const API_BASE = "http://31.97.206.144:5124/api";
 
-const FarmhouseSlotsModal = ({ farmhouseId, open, onClose, name }) => {
+const FarmhouseSlotsModal = ({ open, onClose, farmhouseId, darkMode }) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  const [date, setDate] = useState(today);
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [toggling, setToggling] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
+
+  const [reasonModal, setReasonModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [reason, setReason] = useState("");
 
-  /* ================= FETCH ================= */
-  const fetchSlots = async () => {
-    if (!farmhouseId) return;
+  /* 🔒 BODY SCROLL LOCK */
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "auto";
+    return () => (document.body.style.overflow = "auto");
+  }, [open]);
 
-    setLoading(true);
+  /* ⌨️ ESC CLOSE */
+  useEffect(() => {
+    const handleEsc = (e) => e.key === "Escape" && onClose();
+    if (open) window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [open, onClose]);
+
+  /* 📡 FETCH SLOTS */
+  const fetchSlots = async (selectedDate) => {
+    if (!selectedDate || !farmhouseId) return;
+
     try {
+      Swal.fire({
+        title: "Loading Slots...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      setLoading(true);
+
       const res = await axios.get(
-        `http://31.97.206.144:5124/api/${farmhouseId}/slots?date=${DATE}`
+        `${API_BASE}/${farmhouseId}/slots?date=${selectedDate}`
       );
 
-      setSlots(res.data.slots || []);
-    } catch (err) {
-      console.error(err);
-
+      setSlots(res.data?.slots || []);
+      Swal.close();
+    } catch {
       Swal.fire({
         icon: "error",
         title: "Failed to Fetch Slots",
-        text: "Something went wrong while loading slots.",
-        confirmButtonColor: "#ef4444",
       });
     } finally {
       setLoading(false);
@@ -37,156 +69,198 @@ const FarmhouseSlotsModal = ({ farmhouseId, open, onClose, name }) => {
   };
 
   useEffect(() => {
-    if (open) fetchSlots();
-  }, [open]);
+    if (open) fetchSlots(date);
+  }, [open, date]);
 
-  /* ================= TOGGLE SLOT ================= */
-  const toggleSlot = async () => {
+  /* 🟡 OPEN REASON MODAL */
+  const openReasonModal = (slot) => {
+    setSelectedSlot(slot);
+    setReason("");
+    setReasonModal(true);
+  };
+
+  /* 🔁 ACTIVATE / DEACTIVATE SLOT */
+  const handleToggle = async () => {
     if (!selectedSlot) return;
 
-    // Confirm First
-    const result = await Swal.fire({
-      title: selectedSlot.isActive ? "Deactivate Slot?" : "Activate Slot?",
-      text: "Please confirm this action.",
-      icon: "warning",
-      input: "text",
-      inputPlaceholder: "Enter reason...",
-      inputValue: reason,
-      showCancelButton: true,
-      confirmButtonText: "Yes, Continue",
-      confirmButtonColor: "#84cc16",
-      cancelButtonColor: "#ef4444",
-      inputValidator: (value) => {
-        if (!value) return "Reason is required!";
-      }
-    });
+    if (!reason.trim()) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Reason Required",
+        text: "Please enter a reason.",
+      });
+    }
 
-    if (!result.isConfirmed) return;
-
-    const finalReason = result.value;
+    const actionText = selectedSlot.isActive ? "Deactivating" : "Activating";
 
     try {
-      setToggling(selectedSlot.slotId);
+      Swal.fire({
+        title: `${actionText} Slot...`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      setTogglingId(selectedSlot.slotId);
 
       await axios.put(
-        `http://31.97.206.144:5124/api/${farmhouseId}/slots/${selectedSlot.slotId}/toggle?date=${DATE}`,
+        `${API_BASE}/${farmhouseId}/slots/${selectedSlot.slotId}/toggle?date=${date}`,
         {
           isActive: !selectedSlot.isActive,
-          reason: finalReason || "Vendor updated",
-        }
+          reason: reason.trim(),
+        },
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      // Update UI
-      setSlots(prev =>
-        prev.map(s =>
-          s.slotId === selectedSlot.slotId
-            ? { ...s, isActive: !s.isActive }
-            : s
-        )
-      );
-
+      setReasonModal(false);
       setSelectedSlot(null);
       setReason("");
 
+      await fetchSlots(date);
+
       Swal.fire({
         icon: "success",
-        title: `Slot ${!selectedSlot.isActive ? "Activated" : "Deactivated"}`,
-        timer: 1200,
+        title: `Slot ${selectedSlot.isActive ? "Deactivated" : "Activated"} Successfully`,
+        timer: 1500,
         showConfirmButton: false,
       });
 
-    } catch (err) {
-      console.error(err);
-
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Update Failed",
-        text: "Could not update slot status.",
-        confirmButtonColor: "#ef4444",
+        text: error?.response?.data?.message || "Something went wrong",
       });
     } finally {
-      setToggling(null);
+      setTogglingId(null);
     }
   };
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
-      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-lime-200">
+  /* ================= MAIN MODAL ================= */
 
+  const mainModal = (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-xl"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full max-w-5xl mx-4 rounded-3xl overflow-hidden shadow-2xl border ${
+          darkMode
+            ? "bg-stone-900 border-stone-700 text-white"
+            : "bg-white border-lime-200 text-stone-900"
+        }`}
+      >
         {/* HEADER */}
-        <div className="sticky top-0 flex justify-between items-center px-8 py-6 border-b bg-gradient-to-r from-lime-50 to-amber-50">
-          <div>
-            <h2 className="text-2xl font-bold text-lime-800">Slot Manager</h2>
-            <p className="text-sm text-lime-600">{name} • {DATE}</p>
-          </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-full bg-lime-100 hover:bg-lime-200">✕</button>
+        <div className="flex justify-between items-center px-8 py-6 border-b">
+          <h2 className="text-2xl font-bold flex items-center gap-3">
+            <FaCalendarAlt /> Available Slots
+          </h2>
+          <button onClick={onClose} className="p-3 rounded-full hover:bg-red-500/70">
+            <FaTimes />
+          </button>
         </div>
 
         {/* BODY */}
-        <div className="p-8 overflow-y-auto max-h-[calc(90vh-96px)]">
+        <div className="p-8 space-y-6">
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="px-4 py-2 rounded-lg border"
+          />
+
           {loading ? (
-            <div className="text-center py-20 text-lime-600">Loading slots…</div>
+            <div className="text-center py-10">Loading...</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {slots.map(slot => (
-                <div key={slot.slotId}
-                  className="relative border border-lime-200 rounded-2xl p-5 bg-gradient-to-br from-white to-lime-50 shadow hover:shadow-xl transition">
+            <div className="grid sm:grid-cols-2 gap-6 max-h-[55vh] overflow-y-auto">
+              {slots.map((slot) => (
+                <div key={slot.slotId} className="p-5 rounded-2xl border shadow">
+                  <h3 className="text-lg font-bold">{slot.label}</h3>
+                  <p className="text-sm">{slot.timing}</p>
+                  <p className="text-xl font-bold mt-2">₹{slot.price}</p>
 
-                  <div className={`absolute top-4 right-4 w-3 h-3 rounded-full ${slot.isActive ? "bg-lime-500" : "bg-gray-300"}`} />
+                  <div className="flex justify-between items-center mt-4">
+                    {slot.available ? (
+                      <span className="text-green-600 flex gap-2">
+                        <FaCheckCircle /> Available
+                      </span>
+                    ) : (
+                      <span className="text-red-600 flex gap-2">
+                        <FaTimesCircle /> Booked
+                      </span>
+                    )}
 
-                  <h3 className="font-bold text-lg text-lime-800">{slot.label}</h3>
-                  <p className="text-sm text-lime-600">{slot.timing}</p>
-                  <p className="mt-2 font-semibold text-lime-800">₹{slot.price}</p>
-
-                  <button
-                    onClick={() => { setSelectedSlot(slot); setReason(""); }}
-                    className={`mt-4 w-full py-2 rounded-xl font-semibold text-white transition ${slot.isActive ? "bg-red-500 hover:bg-red-600" : "bg-lime-500 hover:bg-lime-600"
-                      }`}
-                  >
-                    {slot.isActive ? "Deactivate" : "Activate"}
-                  </button>
+                    <button
+                      disabled={togglingId === slot.slotId}
+                      onClick={() => openReasonModal(slot)}
+                      className="px-4 py-2 rounded-lg bg-lime-600 text-white"
+                    >
+                      {slot.isActive ? <FaToggleOn /> : <FaToggleOff />}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* REASON MODAL */}
-        {selectedSlot && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">
-            <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl border border-lime-200">
-
-              <h3 className="text-xl font-bold mb-2 text-lime-800">
-                {selectedSlot.isActive ? "Deactivate Slot" : "Activate Slot"}
-              </h3>
-
-              <p className="text-lime-600 mb-4">Please provide a reason.</p>
-
-              <textarea
-                rows={3}
-                className="w-full border border-lime-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-lime-400"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setSelectedSlot(null)}
-                  className="px-4 py-2 border rounded-lg hover:bg-lime-50">Cancel</button>
-
-                <button disabled={toggling} onClick={toggleSlot}
-                  className={`px-5 py-2 rounded-lg text-white font-semibold ${selectedSlot.isActive ? "bg-red-500 hover:bg-red-600" : "bg-lime-500 hover:bg-lime-600"
-                    }`}>
-                  {toggling ? "Updating..." : "Confirm"}
-                </button>
-              </div>
-
-            </div>
-          </div>
-        )}
+        <div className="flex justify-end px-8 py-6 border-t">
+          <button onClick={onClose} className="px-6 py-3 bg-lime-600 text-white rounded-lg">
+            Close
+          </button>
+        </div>
       </div>
     </div>
+  );
+
+  /* ================= REASON MODAL ================= */
+
+  const reasonModalContent =
+    reasonModal &&
+    selectedSlot &&
+    createPortal(
+      <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-lg">
+        <div className="w-full max-w-lg p-8 bg-white rounded-3xl shadow-2xl">
+          <h3 className="text-xl font-bold mb-4">Enter Reason</h3>
+
+          <textarea
+            rows="4"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="w-full p-4 border rounded-lg"
+          />
+
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              onClick={() => setReasonModal(false)}
+              className="px-4 py-2 bg-gray-400 text-white rounded-lg"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={handleToggle}
+              className={`px-6 py-2 rounded-lg text-white font-semibold ${
+                selectedSlot?.isActive
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+            >
+              {selectedSlot?.isActive ? "Deactivate Slot" : "Activate Slot"}
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+
+  return (
+    <>
+      {createPortal(mainModal, document.body)}
+      {reasonModalContent}
+    </>
   );
 };
 
