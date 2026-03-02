@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 
@@ -35,6 +36,40 @@ const SingleFarmhouse = ({ darkMode }) => {
     setIndex((prev) =>
       prev === 0 ? data.images.length - 1 : prev - 1
     );
+
+  const copyToClipboard = async (text) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      // 🎉 Toast success animation
+      toast.success("Copied to clipboard!", {
+        duration: 2000,
+        style: {
+          borderRadius: "12px",
+          background: "#111",
+          color: "#fff",
+          padding: "12px 18px",
+          fontSize: "14px",
+        },
+      });
+
+    } catch (err) {
+      toast.error("Copy failed!");
+      console.error(err);
+    }
+  };
 
   if (!data)
     return (
@@ -185,11 +220,14 @@ const SingleFarmhouse = ({ darkMode }) => {
               {/* Copy BOTH */}
               <button
                 onClick={async () => {
-                  const text = `Farmhouse Credentials:
-                          UserId: ${data?.vendorCredentials?.name}
-                          Password: ${data?.vendorCredentials?.password}`;
+                  const text = [
+  "Farmhouse Credentials",
+  "---------------------",
+  `User ID : ${data?.vendorCredentials?.name || ""}`,
+  `Password: ${data?.vendorCredentials?.password || ""}`
+].join("\n");
 
-                  await navigator.clipboard.writeText(text);
+                  copyToClipboard(text);
 
                   Swal.fire({
                     toast: true,
@@ -230,7 +268,7 @@ const SingleFarmhouse = ({ darkMode }) => {
 
                 <button
                   onClick={async () => {
-                    await navigator.clipboard.writeText(data?.vendorCredentials?.name || "");
+                    copyToClipboard(data?.vendorCredentials?.name || "");
 
                     Swal.fire({
                       toast: true,
@@ -243,8 +281,8 @@ const SingleFarmhouse = ({ darkMode }) => {
                     });
                   }}
                   className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                      ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
-                      : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
+                    ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
+                    : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
                     }`}
                 >
                   Copy
@@ -284,7 +322,7 @@ const SingleFarmhouse = ({ darkMode }) => {
                   {/* Copy */}
                   <button
                     onClick={async () => {
-                      await navigator.clipboard.writeText(data?.vendorCredentials?.password || "");
+                      copyToClipboard(data?.vendorCredentials?.password || "");
 
                       Swal.fire({
                         toast: true,
@@ -297,8 +335,8 @@ const SingleFarmhouse = ({ darkMode }) => {
                       });
                     }}
                     className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                        ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
-                        : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
+                      ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
+                      : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
                       }`}
                   >
                     Copy

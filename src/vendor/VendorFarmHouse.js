@@ -3,26 +3,40 @@ import axios from "axios";
 import { FiEye, FiMapPin, FiStar, FiHeart } from "react-icons/fi";
 import FarmhouseSlotsModal from "./FarmhouseSlotModal";
 
-const farmHouse = JSON.parse(sessionStorage.getItem("VendorData"));
-const FARMHOUSE_ID = farmHouse?.farmhouseId;
+// const farmHouse = JSON.parse(sessionStorage.getItem("VendorData"));
+// const FARMHOUSE_ID = farmHouse?.farmhouseId;
 
 const VendorFarmhouse = () => {
   const [farmhouse, setFarmhouse] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
 
+  const [farmhouseId, setFarmhouseId] = useState(null);
+
+  useEffect(() => {
+    const vendor = JSON.parse(sessionStorage.getItem("VendorData"));
+    if (vendor?.farmhouseId) {
+      setFarmhouseId(vendor.farmhouseId);
+    }
+  }, []);
+
   const fetchFarmhouse = async () => {
+    if (!farmhouseId) return; // ⛔ WAIT until ID exists
+
     try {
       const res = await axios.get(
-        `http://31.97.206.144:5124/api/farmhouse/${FARMHOUSE_ID}`
+        `http://31.97.206.144:5124/api/farmhouse/${farmhouseId}`
       );
+      console.log("API RESPONSE:", res.data); // debug
       setFarmhouse(res.data.farmhouse);
     } catch (err) {
-      console.error(err);
+      console.error("API ERROR:", err);
     }
   };
 
-  useEffect(() => { fetchFarmhouse(); }, []);
+  useEffect(() => {
+    fetchFarmhouse();
+  }, [farmhouseId]);
 
   useEffect(() => {
     if (!farmhouse?.images?.length) return;
@@ -32,7 +46,25 @@ const VendorFarmhouse = () => {
     return () => clearInterval(interval);
   }, [farmhouse]);
 
-  if (!farmhouse) return <div className="p-6 text-lime-700">Loading...</div>;
+  if (!farmhouse)
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="relative w-16 h-16">
+
+          {/* outer ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-lime-200"></div>
+
+          {/* spinning ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-lime-600 border-t-transparent animate-spin"></div>
+
+          {/* center dot */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-3 h-3 bg-lime-600 rounded-full animate-pulse"></div>
+          </div>
+
+        </div>
+      </div>
+    );
 
   return (
     <>
@@ -135,7 +167,7 @@ const VendorFarmhouse = () => {
       <FarmhouseSlotsModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        farmhouseId={FARMHOUSE_ID}
+        farmhouseId={farmhouseId}
         name={farmhouse.name}
       />
     </>
