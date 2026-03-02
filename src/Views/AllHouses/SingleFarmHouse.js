@@ -39,22 +39,24 @@ const SingleFarmhouse = ({ darkMode }) => {
 
   const copyToClipboard = async (text) => {
     try {
-      if (navigator?.clipboard?.writeText) {
+      // ✅ Clipboard API works only in secure context (https / localhost)
+      if (window.isSecureContext && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
       } else {
+        // ✅ Fallback for HTTP / old browsers
         const textarea = document.createElement("textarea");
         textarea.value = text;
         textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
         document.body.appendChild(textarea);
         textarea.focus();
         textarea.select();
         document.execCommand("copy");
-        document.body.removeChild(textarea);
+        textarea.remove();
       }
 
-      // 🎉 Toast success animation
-      toast.success("Copied to clipboard!", {
+      toast.success("📋 Copied to clipboard!", {
         duration: 2000,
         style: {
           borderRadius: "12px",
@@ -66,8 +68,8 @@ const SingleFarmhouse = ({ darkMode }) => {
       });
 
     } catch (err) {
-      toast.error("Copy failed!");
-      console.error(err);
+      console.error("Clipboard error:", err);
+      toast.error("Unable to copy ❌");
     }
   };
 
@@ -221,11 +223,11 @@ const SingleFarmhouse = ({ darkMode }) => {
               <button
                 onClick={async () => {
                   const text = [
-  "Farmhouse Credentials",
-  "---------------------",
-  `User ID : ${data?.vendorCredentials?.name || ""}`,
-  `Password: ${data?.vendorCredentials?.password || ""}`
-].join("\n");
+                    "Farmhouse Credentials",
+                    "---------------------",
+                    `User ID : ${data?.vendorCredentials?.name || ""}`,
+                    `Password: ${data?.vendorCredentials?.password || ""}`
+                  ].join("\n");
 
                   copyToClipboard(text);
 
