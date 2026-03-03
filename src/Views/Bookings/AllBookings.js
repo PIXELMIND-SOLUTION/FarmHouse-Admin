@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Calendar, Search, Filter, RefreshCw, Eye,
   CheckCircle, XCircle, Clock, AlertCircle, DollarSign,
-  ChevronLeft, ChevronRight, ArrowUpDown, TrendingUp, Award,
+  ChevronLeft, ChevronRight, ArrowUpDown, TrendingUp, Award, Trash2,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 
 const API = 'http://31.97.206.144:5124/api/order/admin/summary';
+const DELETE_API = (id) => `http://31.97.206.144:5124/api/order/deletebooking/${id}`;
 
 // ─── SAFE HELPERS ─────────────────────────────────────────
 const safe    = (val, fallback = '—')  => (val != null ? val : fallback);
@@ -48,7 +49,21 @@ const AllBookings = ({ darkMode }) => {
   const [sortDir, setSortDir]       = useState('desc');
   const [selected, setSelected]     = useState(null);
   const [showModal, setShowModal]   = useState(false);
+
+  // Delete state
+  const [deleteTarget, setDeleteTarget]   = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting]           = useState(false);
+  const [deleteError, setDeleteError]     = useState(null);
+  const [toast, setToast]                 = useState(null);
+
   const itemsPerPage = 10;
+
+  // TOAST HELPER
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   // FETCH
   const fetchData = async () => {
@@ -70,6 +85,43 @@ const AllBookings = ({ darkMode }) => {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  // DELETE HANDLER
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+      const res    = await fetch(DELETE_API(deleteTarget._id), { method: 'DELETE' });
+      const result = await res.json();
+      if (res.ok || result?.success) {
+        // Optimistically remove from local state
+        setData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            recentBookings: safeArr(prev.recentBookings).filter((b) => b._id !== deleteTarget._id),
+          };
+        });
+        setShowDeleteModal(false);
+        setDeleteTarget(null);
+        showToast(`Booking deleted successfully.`);
+      } else {
+        setDeleteError(result?.message || 'Failed to delete booking. Please try again.');
+      }
+    } catch {
+      setDeleteError('Error connecting to server. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const openDeleteModal = (e, booking) => {
+    e.stopPropagation();
+    setDeleteTarget(booking);
+    setDeleteError(null);
+    setShowDeleteModal(true);
+  };
 
   // SORT TOGGLE
   const toggleSort = (field) => {
@@ -190,6 +242,19 @@ const AllBookings = ({ darkMode }) => {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${dm ? 'bg-stone-900 text-white' : 'bg-gradient-to-br from-amber-50 via-lime-50 to-stone-100 text-stone-900'}`}>
+
+      {/* ── TOAST ── */}
+      {toast && (
+        <div className={`fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-sm font-semibold animate-fade-in transition-all
+          ${toast.type === 'success'
+            ? dm ? 'bg-lime-500/20 border-lime-500/40 text-lime-300' : 'bg-lime-50 border-lime-300 text-lime-700'
+            : dm ? 'bg-red-500/20 border-red-500/40 text-red-300'   : 'bg-red-50 border-red-300 text-red-700'
+          }`}
+        >
+          {toast.type === 'success' ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+          {toast.msg}
+        </div>
+      )}
 
       {/* ── STICKY HEADER ── */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl border-b ${dm ? 'bg-stone-900/80 border-stone-800' : 'bg-white/80 border-lime-200'}`}>
@@ -340,7 +405,7 @@ const AllBookings = ({ darkMode }) => {
                     { label: 'Date',       sortKey: 'date' },
                     { label: 'Amount',     sortKey: 'amount' },
                     { label: 'Status',     sortKey: 'status' },
-                    { label: 'View',       sortKey: null },
+                    { label: 'Actions',    sortKey: null },
                   ].map(({ label, sortKey }) => (
                     <th
                       key={label}
@@ -419,15 +484,28 @@ const AllBookings = ({ darkMode }) => {
                         <td className="px-5 py-4">
                           <StatusBadge status={status} dm={dm} />
                         </td>
-                        {/* View */}
+                        {/* Actions */}
                         <td className="px-5 py-4">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setSelected(b); setShowModal(true); }}
-                            className={`p-2 rounded-xl border transition hover:scale-110
-                              ${dm ? 'border-lime-500/20 text-lime-400 hover:bg-lime-500/10' : 'border-lime-300 text-lime-600 hover:bg-lime-50'}`}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center gap-2">
+                            {/* View */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelected(b); setShowModal(true); }}
+                              className={`p-2 rounded-xl border transition hover:scale-110
+                                ${dm ? 'border-lime-500/20 text-lime-400 hover:bg-lime-500/10' : 'border-lime-300 text-lime-600 hover:bg-lime-50'}`}
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            {/* Delete */}
+                            <button
+                              onClick={(e) => openDeleteModal(e, b)}
+                              className={`p-2 rounded-xl border transition hover:scale-110
+                                ${dm ? 'border-red-500/20 text-red-400 hover:bg-red-500/10' : 'border-red-200 text-red-500 hover:bg-red-50'}`}
+                              title="Delete Booking"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -535,6 +613,90 @@ const AllBookings = ({ darkMode }) => {
                 className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition
                   ${dm ? 'border-stone-600 text-stone-300 hover:bg-stone-700' : 'border-lime-200 text-stone-600 hover:bg-lime-50'}`}>
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DELETE CONFIRM MODAL ── */}
+      {showDeleteModal && deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => !deleting && setShowDeleteModal(false)} />
+          <div className={`relative w-full max-w-md rounded-2xl shadow-2xl border z-10 overflow-hidden
+            ${dm ? 'bg-stone-800 border-stone-700' : 'bg-white border-red-200'}`}
+          >
+            {/* Header */}
+            <div className={`flex items-center gap-3 px-6 py-4 border-b ${dm ? 'border-stone-700' : 'border-red-100'}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${dm ? 'bg-red-500/20' : 'bg-red-100'}`}>
+                <Trash2 className="h-5 w-5 text-red-500" />
+              </div>
+              <h3 className={`text-lg font-extrabold ${dm ? 'text-white' : 'text-stone-900'}`}>Delete Booking</h3>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5">
+              <p className={`text-sm mb-4 ${dm ? 'text-stone-300' : 'text-stone-600'}`}>
+                Are you sure you want to permanently delete this booking? This action cannot be undone.
+              </p>
+
+              {/* Booking summary */}
+              <div className={`rounded-xl p-4 space-y-2 ${dm ? 'bg-stone-700/50' : 'bg-red-50'}`}>
+                <div className="flex justify-between text-sm">
+                  <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Booking ID</span>
+                  <code className={`text-xs font-mono ${dm ? 'text-red-300' : 'text-red-600'}`}>…{safeStr(deleteTarget._id).slice(-8)}</code>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Farmhouse</span>
+                  <span className={`font-semibold ${dm ? 'text-white' : 'text-stone-800'}`}>{safe(deleteTarget?.farmhouse?.name)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Amount</span>
+                  <span className={`font-bold ${dm ? 'text-red-400' : 'text-red-600'}`}>{fmtMoney(deleteTarget?.totalAmount)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Customer</span>
+                  <span className={`text-xs ${dm ? 'text-stone-300' : 'text-stone-700'}`}>{safe(deleteTarget?.user?.email, 'Guest User')}</span>
+                </div>
+              </div>
+
+              {/* Error */}
+              {deleteError && (
+                <div className={`mt-4 flex items-center gap-2 px-4 py-3 rounded-xl border text-sm
+                  ${dm ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-300 text-red-600'}`}>
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {deleteError}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={`flex justify-end gap-3 px-6 py-4 border-t ${dm ? 'border-stone-700' : 'border-red-100'}`}>
+              <button
+                onClick={() => { setShowDeleteModal(false); setDeleteTarget(null); setDeleteError(null); }}
+                disabled={deleting}
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition disabled:opacity-50
+                  ${dm ? 'border-stone-600 text-stone-300 hover:bg-stone-700' : 'border-stone-200 text-stone-600 hover:bg-stone-50'}`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white
+                  bg-gradient-to-r from-red-500 to-red-600 hover:scale-105 transition shadow-lg disabled:opacity-50 disabled:hover:scale-100"
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Delete Booking
+                  </>
+                )}
               </button>
             </div>
           </div>

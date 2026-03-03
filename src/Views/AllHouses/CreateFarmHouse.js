@@ -11,16 +11,13 @@ const initialForm = {
   address: "",
   description: "",
   amenities: "",
-  rating: "",
-  feedbackSummary: "",
-  bookingFor: "",
   lat: "",
   lng: "",
-  pricePerHour: "",
-  pricePerDay: "",
+  price: "",
+  active: true,
 };
 
-const FarmhouseForm = ({ darkMode }) => {
+const FarmhouseForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
@@ -31,18 +28,48 @@ const FarmhouseForm = ({ darkMode }) => {
   const [timePrices, setTimePrices] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH ================= */
+  /* ================= FORMAT TIME (24h → 12h AM/PM) ================= */
+  const formatTime = (time) => {
+    if (!time) return "";
+    const [hour, minute] = time.split(":");
+    const h = parseInt(hour);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const formattedHour = h % 12 || 12;
+    return `${formattedHour}:${minute} ${ampm}`;
+  };
+
+  /* ================= PARSE TIME (12h AM/PM → 24h) ================= */
+  const parseTime = (timeStr) => {
+    if (!timeStr) return "";
+    // Handles "9:00 AM" or "12:00 PM" format
+    const trimmed = timeStr.trim();
+    const [time, modifier] = trimmed.split(" ");
+    if (!time || !modifier) return "";
+    
+    let [hour, minute] = time.split(":").map(Number);
+    
+    if (modifier.toUpperCase() === "PM" && hour !== 12) {
+      hour += 12;
+    }
+    if (modifier.toUpperCase() === "AM" && hour === 12) {
+      hour = 0;
+    }
+    
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  };
+
+  /* ================= FETCH FOR EDIT ================= */
   useEffect(() => {
     if (!isEditMode) return;
 
     const fetchData = async () => {
-      Swal.fire({
-        title: "Loading Farmhouse...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
-
       try {
+        Swal.fire({
+          title: "Loading...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
+        });
+
         const res = await axios.get(`${API_BASE}/farmhouse/${id}`);
         const f = res.data.farmhouse;
 
@@ -51,28 +78,30 @@ const FarmhouseForm = ({ darkMode }) => {
           address: f.address || "",
           description: f.description || "",
           amenities: f.amenities?.join(",") || "",
-          rating: f.rating || "",
-          feedbackSummary: f.feedbackSummary || "",
-          bookingFor: f.bookingFor || "",
           lat: f.location?.coordinates?.[1] || "",
           lng: f.location?.coordinates?.[0] || "",
-          pricePerHour: f.pricePerHour || "",
-          pricePerDay: f.pricePerDay || "",
+          price: f.price || "",
+          active: f.active ?? true,
         });
 
         setExistingImages(f.images || []);
-        setTimePrices(f.timePrices || []);
+        
+        // Parse timePrices: split "9:00 AM - 12:00 PM" → start/end in 24h format
+        setTimePrices(
+          f.timePrices?.map((tp) => {
+            const [startRaw, endRaw] = tp.timing?.split(" - ") || ["", ""];
+            return {
+              label: tp.label || "",
+              start: parseTime(startRaw),
+              end: parseTime(endRaw),
+            };
+          }) || []
+        );
 
-        Swal.close(); // close loading popup
-
+        Swal.close();
       } catch (err) {
-        console.error("Fetch Error:", err);
-
-        Swal.fire({
-          icon: "error",
-          title: "Failed to Load",
-          text: "Unable to fetch farmhouse data.",
-        });
+        console.error("Fetch error:", err);
+        Swal.fire("Error", "Failed to load farmhouse", "error");
       }
     };
 
@@ -85,7 +114,7 @@ const FarmhouseForm = ({ darkMode }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const addTimePrice = () =>
-    setTimePrices([...timePrices, { label: "", timing: "" }]);
+    setTimePrices([...timePrices, { label: "", start: "", end: "" }]);
 
   const updateTimePrice = (index, key, value) => {
     const updated = [...timePrices];
@@ -94,7 +123,6 @@ const FarmhouseForm = ({ darkMode }) => {
   };
 
   const removeTimePrice = (index) => {
-    if (!window.confirm("Remove this time slot?")) return;
     setTimePrices(timePrices.filter((_, i) => i !== index));
   };
 
@@ -104,21 +132,31 @@ const FarmhouseForm = ({ darkMode }) => {
     try {
       setLoading(true);
 
-      // 🔵 Loading popup
       Swal.fire({
-        title: isEditMode ? "Updating Farmhouse..." : "Creating Farmhouse...",
-        text: "Please wait while we save the data.",
+        title: isEditMode ? "Updating..." : "Creating...",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
 
       const fd = new FormData();
 
-      Object.entries(form).forEach(([key, value]) => {
-        fd.append(key, value);
-      });
+      fd.append("name", form.name);
+      fd.append("address", form.address);
+      fd.append("description", form.description);
+      fd.append("amenities", form.amenities);
+      fd.append("lat", form.lat);
+      fd.append("lng", form.lng);
+      fd.append("price", form.price);
+      fd.append("active", form.active);
 
-      fd.append("timePrices", JSON.stringify(timePrices));
+      const formattedTimePrices = timePrices
+        .filter((tp) => tp.label && tp.start && tp.end) // Only send complete slots
+        .map((tp) => ({
+          label: tp.label,
+          timing: `${formatTime(tp.start)} - ${formatTime(tp.end)}`,
+        }));
+
+      fd.append("timePrices", JSON.stringify(formattedTimePrices));
 
       images.forEach((img) => {
         fd.append("images", img);
@@ -130,222 +168,178 @@ const FarmhouseForm = ({ darkMode }) => {
 
       if (isEditMode) {
         await axios.put(`${API_BASE}/farmhouse/${id}`, fd, config);
-
-        Swal.fire({
-          icon: "success",
-          title: "Updated!",
-          text: "Farmhouse updated successfully.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
       } else {
         await axios.post(`${API_BASE}/farmhouse-create`, fd, config);
-
-        Swal.fire({
-          icon: "success",
-          title: "Created!",
-          text: "Farmhouse created successfully.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
       }
 
+      Swal.fire("Success", "Farmhouse saved successfully!", "success");
       navigate("/admin/farmhouses");
-
     } catch (err) {
-      console.error("API ERROR:", err?.response?.data || err.message);
-
-      Swal.fire({
-        icon: "error",
-        title: "Save Failed",
-        text:
-          err?.response?.data?.message ||
-          "Something went wrong while saving farmhouse.",
-      });
+      console.error("Submit error:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.message || "Something went wrong",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className={`min-h-screen p-8 ${darkMode
-        ? "bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white"
-        : "bg-gradient-to-br from-lime-100 via-white to-lime-200"
-        }`}
-    >
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-10 py-10 bg-gradient-to-br from-amber-50 via-lime-50 to-amber-100">
+      <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-200">
 
         {/* HEADER */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-6 px-5 py-2 rounded-xl font-semibold
-          bg-lime-600 hover:bg-lime-700 text-white shadow-lg"
+          className="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold
+          bg-gradient-to-r from-amber-500 to-lime-500 text-white shadow-lg hover:scale-105 transition"
         >
           <FaArrowLeft /> Back
         </button>
 
-        <h2 className={`text-4xl font-bold mb-8 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-          {isEditMode ? "✏️ Edit Farmhouse" : "➕ Create Farmhouse"}
+        <h2 className="text-3xl sm:text-4xl font-bold mb-8 bg-gradient-to-r from-amber-600 to-lime-600 bg-clip-text text-transparent">
+          {isEditMode ? "Edit Farmhouse" : "Create Farmhouse"}
         </h2>
 
-        <div
-          className={`p-8 rounded-3xl border shadow-2xl backdrop-blur-md ${darkMode
-            ? "bg-stone-900/70 border-stone-700"
-            : "bg-white/80 border-lime-300"
-            }`}
-        >
+        {/* FORM GRID */}
+        <div className="grid sm:grid-cols-2 gap-6">
+          {Object.keys(initialForm).map((key) => (
+            <div key={key} className="flex flex-col gap-2">
+              <label className="font-semibold capitalize text-amber-700">
+                {key}
+              </label>
 
-          {/* INPUT GRID */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {Object.keys(initialForm).map((key) => (
-              <div key={key} className="flex flex-col gap-1">
-                <label className={`text-sm font-semibold capitalize ${darkMode ? 'text-stone-400' : 'text-stone-700'
-                  }`}>
-                  {key}
-                </label>
-
+              {key === "active" ? (
+                <select
+                  name="active"
+                  value={form.active}
+                  onChange={(e) =>
+                    setForm({ ...form, active: e.target.value === "true" })
+                  }
+                  className="p-3 border border-amber-300 rounded-xl focus:ring-2 focus:ring-lime-400 outline-none"
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              ) : (
                 <input
                   name={key}
                   value={form[key]}
                   onChange={handleChange}
-                  placeholder={`Enter ${key}`}
-                  className={`px-4 py-3 rounded-xl border-2 outline-none transition ${darkMode
-                    ? "bg-stone-800 border-stone-700 text-white focus:border-lime-500 focus:ring-2 focus:ring-lime-500/50"
-                    : "bg-white border-lime-300 text-stone-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-                    }`}
+                  className="p-3 border border-amber-300 rounded-xl focus:ring-2 focus:ring-lime-400 outline-none"
                 />
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ))}
+        </div>
 
-          {/* EXISTING IMAGES */}
-          {existingImages.length > 0 && (
-            <div className="mt-10">
-              <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-                Existing Images
-              </h3>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {existingImages.map((img, i) => (
-                  <div
-                    key={i}
-                    className="overflow-hidden rounded-xl shadow-md hover:scale-105 transition border-2 border-lime-400"
-                  >
-                    <img
-                      src={img}
-                      alt=""
-                      className="h-32 w-full object-cover"
-                    />
-                  </div>
+        {/* IMAGE UPLOAD */}
+        <div className="mt-10">
+          <label className="font-semibold text-amber-700">
+            Upload Images
+          </label>
+          <input
+            type="file"
+            multiple
+            onChange={(e) => setImages([...e.target.files])}
+            className="mt-3 w-full border-2 border-dashed border-lime-400 p-4 rounded-xl bg-lime-50"
+          />
+          
+          {/* Show existing images in edit mode */}
+          {isEditMode && existingImages.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-amber-700 mb-2">Existing Images:</p>
+              <div className="flex flex-wrap gap-2">
+                {existingImages.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img.trim()}
+                    alt={`Existing ${idx + 1}`}
+                    className="w-20 h-20 object-cover rounded-lg border border-amber-200"
+                  />
                 ))}
               </div>
             </div>
           )}
+        </div>
 
-          {/* IMAGE UPLOAD */}
-          <div className="mt-10">
-            <label className={`font-semibold block mb-2 ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-              Upload Images
-            </label>
-
-            <input
-              type="file"
-              multiple
-              onChange={(e) => setImages([...e.target.files])}
-              className={`w-full p-3 border-2 border-dashed rounded-xl cursor-pointer ${darkMode
-                ? "border-stone-700 bg-stone-800 hover:border-lime-500"
-                : "border-lime-300 bg-lime-50 hover:border-lime-400"
-                }`}
-            />
-          </div>
-
-          {/* TIME SLOT */}
-          <div className="mt-12">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-                Time Slots
-              </h3>
-
-              <button
-                onClick={addTimePrice}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl
-                bg-lime-600 hover:bg-lime-700 text-white shadow-md"
-              >
-                <FaPlus /> Add Slot
-              </button>
-            </div>
-
-            {timePrices.length === 0 && (
-              <p className={darkMode ? 'text-stone-400' : 'text-stone-600'}>
-                No time slots added yet
-              </p>
-            )}
-
-            <div className="space-y-4">
-              {timePrices.map((tp, i) => (
-                <div
-                  key={i}
-                  className={`grid md:grid-cols-3 gap-3 p-4 rounded-xl border ${darkMode
-                    ? "bg-stone-800 border-stone-700"
-                    : "bg-lime-50 border-lime-300"
-                    }`}
-                >
-                  <input
-                    value={tp.label}
-                    onChange={(e) =>
-                      updateTimePrice(i, "label", e.target.value)
-                    }
-                    placeholder="Label"
-                    className={`p-3 rounded-lg border ${darkMode
-                      ? "bg-stone-900 border-stone-700 text-white"
-                      : "bg-white border-lime-300 text-stone-900"
-                      }`}
-                  />
-
-                  <input
-                    value={tp.timing}
-                    onChange={(e) =>
-                      updateTimePrice(i, "timing", e.target.value)
-                    }
-                    placeholder="Timing"
-                    className={`p-3 rounded-lg border ${darkMode
-                      ? "bg-stone-900 border-stone-700 text-white"
-                      : "bg-white border-lime-300 text-stone-900"
-                      }`}
-                  />
-
-                  <button
-                    onClick={() => removeTimePrice(i)}
-                    className="flex items-center justify-center gap-2
-                    bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* SUBMIT */}
-          <div className="mt-12 flex justify-end">
+        {/* TIME SLOTS */}
+        <div className="mt-12">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-amber-700">
+              Time Slots
+            </h3>
             <button
-              disabled={loading}
-              onClick={handleSubmit}
-              className="px-8 py-3 rounded-xl font-bold text-white
-              bg-gradient-to-r from-lime-500 to-lime-700
-              hover:scale-105 transition shadow-xl disabled:opacity-50"
+              onClick={addTimePrice}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl
+              bg-gradient-to-r from-amber-500 to-lime-500 text-white shadow-lg hover:scale-105 transition"
             >
-              {loading
-                ? "Saving..."
-                : isEditMode
-                  ? "Update Farmhouse"
-                  : "Create Farmhouse"}
+              <FaPlus /> Add Slot
             </button>
           </div>
 
+          {timePrices.map((tp, i) => (
+            <div
+              key={i}
+              className="grid sm:grid-cols-4 gap-4 mb-4 p-4 rounded-2xl border border-amber-200 bg-lime-50"
+            >
+              <input
+                value={tp.label}
+                onChange={(e) =>
+                  updateTimePrice(i, "label", e.target.value)
+                }
+                placeholder="Label (e.g., Morning)"
+                className="p-3 rounded-xl border border-amber-300"
+              />
+
+              <input
+                type="time"
+                value={tp.start}
+                onChange={(e) =>
+                  updateTimePrice(i, "start", e.target.value)
+                }
+                className="p-3 rounded-xl border border-amber-300"
+              />
+
+              <input
+                type="time"
+                value={tp.end}
+                onChange={(e) =>
+                  updateTimePrice(i, "end", e.target.value)
+                }
+                className="p-3 rounded-xl border border-amber-300"
+              />
+
+              <button
+                onClick={() => removeTimePrice(i)}
+                className="bg-red-500 text-white rounded-xl flex justify-center items-center hover:bg-red-600 transition"
+                title="Remove slot"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          ))}
+          
+          {timePrices.length === 0 && (
+            <p className="text-amber-600 text-sm italic">No time slots added yet.</p>
+          )}
         </div>
+
+        {/* SUBMIT */}
+        <div className="mt-10 flex justify-end">
+          <button
+            disabled={loading}
+            onClick={handleSubmit}
+            className="px-8 py-3 rounded-xl font-bold text-white
+            bg-gradient-to-r from-amber-500 to-lime-600
+            hover:scale-105 transition shadow-xl disabled:opacity-50 disabled:hover:scale-100"
+          >
+            {loading ? "Saving..." : "Submit"}
+          </button>
+        </div>
+
       </div>
     </div>
   );

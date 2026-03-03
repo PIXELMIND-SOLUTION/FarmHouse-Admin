@@ -367,7 +367,7 @@ const Farmhouses = ({ darkMode }) => {
                   }`}
               >
                 <tr>
-                  {["#", "Farmhouse", "Booking", "Price", "Status", "Booked", "Actions"].map(
+                  {["#", "Farmhouse", "Price", "Status", "Booked", "Actions"].map(
                     (h) => (
                       <th key={h} className={`px-4 md:px-6 py-3 md:py-4 text-left font-bold border-b whitespace-nowrap ${darkMode ? 'border-stone-700 text-lime-400' : 'border-lime-200 text-lime-700'
                         }`}>
@@ -410,20 +410,9 @@ const Farmhouses = ({ darkMode }) => {
                         <div className={`text-xs md:text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>{f.address}</div>
                       </td>
 
-                      <td className="px-4 md:px-6 py-3 md:py-4">
-                        <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${f.bookingFor === 'birthday'
-                            ? darkMode ? 'bg-pink-500/20 text-pink-400' : 'bg-pink-100 text-pink-700'
-                            : f.bookingFor === 'party'
-                              ? darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-700'
-                              : darkMode ? 'bg-lime-500/20 text-lime-400' : 'bg-lime-100 text-lime-700'
-                          }`}>
-                          {f.bookingFor}
-                        </span>
-                      </td>
-
                       <td className={`px-4 md:px-6 py-3 md:py-4 font-bold whitespace-nowrap ${darkMode ? 'text-lime-400' : 'text-lime-600'
                         }`}>
-                        ₹{f.pricePerDay}
+                        ₹{f.price}
                       </td>
 
                       {/* Status Toggle */}

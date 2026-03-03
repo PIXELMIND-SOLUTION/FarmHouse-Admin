@@ -151,8 +151,7 @@ const VendorFarmhouse = () => {
           </div>
 
           <div className="flex gap-8 font-semibold text-lg flex-wrap text-lime-800">
-            <span>₹{farmhouse.pricePerHour}/hr</span>
-            <span>₹{farmhouse.pricePerDay}/day</span>
+            <span>₹{farmhouse.price}/Slot</span>
           </div>
 
           <button

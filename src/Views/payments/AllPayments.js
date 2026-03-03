@@ -372,6 +372,8 @@ const AllPayments = ({ darkMode }) => {
       setLoading(true); setError(null);
       const res    = await fetch(`http://31.97.206.144:5124/api/order/payments/statistics?period=${p}`);
       const result = await res.json();
+      
+      console.log(result)
       if (result?.success) setData(result.statistics);
       else setError(result?.message || 'Failed to fetch payments data');
     } catch { setError('Error connecting to server'); }
@@ -597,7 +599,7 @@ const AllPayments = ({ darkMode }) => {
                     { label: 'Customer',   key: null },
                     { label: 'Date',       key: 'date' },
                     { label: 'Amount',     key: 'amount' },
-                    { label: 'Status',     key: null },
+                    // { label: 'Status',     key: null },
                     { label: 'View',       key: null },
                   ].map(({ label, key }) => (
                     <th key={label}
@@ -624,11 +626,12 @@ const AllPayments = ({ darkMode }) => {
                   </tr>
                 ) : (
                   paginated.map((p) => {
+                    console.log(paginated)
                     const id       = safeStr(p?.id);
                     const farm     = safe(p?.farmhouse);
                     const customer = safe(p?.user, 'Unknown');
                     const amount   = safeNum(p?.amount);
-                    const status   = safeStr(p?.status, 'pending');
+                    const status   = safeStr(p?.status);
                     return (
                       <tr key={id}
                         className={`border-b transition-all ${dm ? 'border-stone-700 hover:bg-stone-700/40' : 'border-lime-100 hover:bg-lime-50'}`}
@@ -652,9 +655,9 @@ const AllPayments = ({ darkMode }) => {
                         <td className="px-5 py-4">
                           <span className={`font-bold ${dm ? 'text-lime-400' : 'text-lime-700'}`}>{fmtMon(amount)}</span>
                         </td>
-                        <td className="px-5 py-4">
+                        {/* <td className="px-5 py-4">
                           <StatusBadge status={status} dm={dm} />
-                        </td>
+                        </td> */}
                         <td className="px-5 py-4">
                           <button onClick={() => setDetailId(id)}
                             className={`p-2 rounded-xl border transition hover:scale-110

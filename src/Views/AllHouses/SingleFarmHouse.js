@@ -4,360 +4,641 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
   FaStar,
-  FaCalendarAlt,
   FaMapMarkerAlt,
   FaChevronLeft,
   FaChevronRight,
-  FaHome,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaClock,
+  FaWifi,
+  FaSwimmingPool,
+  FaUtensils,
+  FaMusic,
+  FaCar,
+  FaGamepad,
+  FaLeaf,
+  FaUser,
+  FaHistory,
+  FaKey,
+  FaEye,
+  FaEyeSlash,
+  FaCopy,
+  FaIdCard,
+  FaUserShield,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
-import toast from "react-hot-toast";
 
 const API_BASE = "http://31.97.206.144:5124/api";
 
-const SingleFarmhouse = ({ darkMode }) => {
+const AMENITY_ICONS = {
+  "Swimming Pool": <FaSwimmingPool className="mr-2" />,
+  "BBQ Area": <FaUtensils className="mr-2" />,
+  "Indoor Games": <FaGamepad className="mr-2" />,
+  "Outdoor Lawn": <FaLeaf className="mr-2" />,
+  "Music System": <FaMusic className="mr-2" />,
+  "Free Parking": <FaCar className="mr-2" />,
+  "WiFi": <FaWifi className="mr-2" />,
+};
+
+const BOOKINGS_PER_PAGE = 10;
+
+// ─── PAGINATION COMPONENT ─────────────────────────────────
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const visiblePages = pages.filter(
+    (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1
+  );
+
+  const renderPages = [];
+  let prev = null;
+  for (const p of visiblePages) {
+    if (prev !== null && p - prev > 1) {
+      renderPages.push("...");
+    }
+    renderPages.push(p);
+    prev = p;
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-5">
+      {/* Prev */}
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="w-8 h-8 flex items-center justify-center rounded-lg border border-amber-200
+          text-amber-600 hover:bg-amber-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+      >
+        <FaChevronLeft size={12} />
+      </button>
+
+      {/* Pages */}
+      {renderPages.map((p, i) =>
+        p === "..." ? (
+          <span key={`ellipsis-${i}`} className="px-1 text-gray-400 text-sm select-none">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`w-8 h-8 rounded-lg text-sm font-semibold transition border
+              ${p === currentPage
+                ? "bg-gradient-to-r from-amber-500 to-lime-500 text-white border-transparent shadow-md"
+                : "border-amber-200 text-gray-600 hover:bg-amber-50"
+              }`}
+          >
+            {p}
+          </button>
+        )
+      )}
+
+      {/* Next */}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="w-8 h-8 flex items-center justify-center rounded-lg border border-amber-200
+          text-amber-600 hover:bg-amber-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+      >
+        <FaChevronRight size={12} />
+      </button>
+    </div>
+  );
+};
+
+const SingleFarmhouse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [index, setIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Pagination state
+  const [upcomingPage, setUpcomingPage] = useState(1);
+  const [pastPage, setPastPage]         = useState(1);
+
   useEffect(() => {
-    axios.get(`${API_BASE}/farmhouse/${id}`).then((res) => {
-      setData(res.data.farmhouse);
-    });
+    const fetchFarmhouse = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${API_BASE}/farmhouse/${id}`);
+        setData(res.data.farmhouse);
+        setError(null);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("Failed to load farmhouse details");
+        Swal.fire("Error", "Could not load farmhouse data", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFarmhouse();
   }, [id]);
 
   const nextSlide = () =>
-    setIndex((prev) => (prev + 1) % data.images.length);
-
+    setIndex((prev) => (prev + 1) % (data?.images?.length || 1));
   const prevSlide = () =>
     setIndex((prev) =>
-      prev === 0 ? data.images.length - 1 : prev - 1
+      prev === 0 ? (data?.images?.length || 1) - 1 : prev - 1
     );
 
-  const copyToClipboard = async (text) => {
-    try {
-      // ✅ Clipboard API works only in secure context (https / localhost)
-      if (window.isSecureContext && navigator.clipboard) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        // ✅ Fallback for HTTP / old browsers
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.style.position = "fixed";
-        textarea.style.left = "-9999px";
-        textarea.style.top = "0";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        document.execCommand("copy");
-        textarea.remove();
-      }
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString("en-IN", {
+      weekday: "short", year: "numeric", month: "short", day: "numeric",
+    });
 
-      toast.success("📋 Copied to clipboard!", {
-        duration: 2000,
-        style: {
-          borderRadius: "12px",
-          background: "#111",
-          color: "#fff",
-          padding: "12px 18px",
-          fontSize: "14px",
-        },
+  const isPastBooking = (checkOut) => new Date(checkOut) < new Date();
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text).then(() => {
+      Swal.fire({
+        icon: "success",
+        title: `${label} copied!`,
+        text: "Credentials copied to clipboard",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
       });
-
-    } catch (err) {
-      console.error("Clipboard error:", err);
-      toast.error("Unable to copy ❌");
-    }
+    }).catch(() => Swal.fire("Error", "Failed to copy to clipboard", "error"));
   };
 
-  if (!data)
+  if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-base sm:text-lg font-semibold animate-pulse opacity-70">
-          Loading luxury farmhouse...
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-lime-50 to-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-amber-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-lg font-semibold text-amber-700">Loading farmhouse...</p>
         </div>
       </div>
     );
 
+  if (error || !data)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-amber-50">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md">
+          <FaTimesCircle className="text-red-500 text-5xl mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-800 mb-2">Oops!</h3>
+          <p className="text-gray-600 mb-6">{error || "Farmhouse not found"}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-2 bg-gradient-to-r from-amber-500 to-lime-500 text-white rounded-xl font-semibold hover:scale-105 transition"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+
+  const {
+    name, images = [], address, description,
+    amenities = [], price, timePrices = [],
+    active, rating, bookedSlots = [],
+    createdAt, location, vendorCredentials,
+  } = data;
+
+  const upcomingBookings = bookedSlots.filter((b) => !isPastBooking(b.checkOut));
+  const pastBookings     = bookedSlots.filter((b) => isPastBooking(b.checkOut));
+
+  // Paginated slices
+  const upcomingTotalPages = Math.max(1, Math.ceil(upcomingBookings.length / BOOKINGS_PER_PAGE));
+  const pastTotalPages     = Math.max(1, Math.ceil(pastBookings.length / BOOKINGS_PER_PAGE));
+
+  const paginatedUpcoming = upcomingBookings.slice(
+    (upcomingPage - 1) * BOOKINGS_PER_PAGE,
+    upcomingPage * BOOKINGS_PER_PAGE
+  );
+  const paginatedPast = pastBookings.slice(
+    (pastPage - 1) * BOOKINGS_PER_PAGE,
+    pastPage * BOOKINGS_PER_PAGE
+  );
+
   return (
-    <div
-      className={`min-h-screen ${darkMode
-        ? "bg-stone-900 text-white"
-        : "bg-gradient-to-br from-lime-100 to-white text-stone-900"
-        }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-lime-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
-        {/* BACK */}
-        <button
+        {/* BACK BUTTON */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-6 sm:mb-8 px-4 sm:px-6 py-2 rounded-xl font-semibold bg-lime-600 hover:bg-lime-700 text-white shadow-lg transition text-sm sm:text-base"
+          className="flex items-center gap-2 mb-6 px-5 py-2.5 rounded-xl font-semibold 
+          bg-white/80 backdrop-blur-sm border border-amber-200 text-amber-700 
+          shadow-md hover:shadow-lg transition-all"
         >
-          <FaArrowLeft /> Back
-        </button>
+          <FaArrowLeft /> <span className="hidden sm:inline">Back</span>
+        </motion.button>
 
-        {/* HERO CAROUSEL */}
-        <div className="relative rounded-3xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.6)] mb-8">
+        {/* HERO IMAGE CAROUSEL */}
+        <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 group">
           <AnimatePresence mode="wait">
             <motion.img
-              key={data.images[index]}
-              src={data.images[index]}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              key={images[index]}
+              src={images[index]?.trim()}
+              initial={{ opacity: 0, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="h-[260px] sm:h-[340px] md:h-[420px] lg:h-[520px] w-full object-cover"
+              transition={{ duration: 0.4 }}
+              className="h-[280px] sm:h-[420px] lg:h-[520px] w-full object-cover"
+              alt={`${name} - View ${index + 1}`}
             />
           </AnimatePresence>
-
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-          {/* TITLE */}
-          <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">
-              {data.name}
-            </h1>
-            <div className="flex items-center gap-2 text-white/90">
-              <FaMapMarkerAlt /> {data.address}
-            </div>
-          </div>
-
-          <button onClick={prevSlide} className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 bg-white/20 p-2 sm:p-3 rounded-full">
-            <FaChevronLeft />
-          </button>
-          <button onClick={nextSlide} className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 bg-white/20 p-2 sm:p-3 rounded-full">
-            <FaChevronRight />
-          </button>
-        </div>
-
-        {/* BADGES */}
-        <div className="flex gap-2 sm:gap-3 mb-6 flex-wrap">
-          <span className="px-4 py-1 rounded-full bg-lime-500 text-white">
-            {data.bookingFor}
-          </span>
-          <span className="px-4 py-1 rounded-full flex items-center gap-1 bg-amber-400 text-stone-900">
-            <FaStar /> {data.rating}
-          </span>
-        </div>
-
-        {/* GRID */}
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-          <div
-            className={`lg:col-span-2 p-5 sm:p-6 lg:p-8 rounded-3xl border ${darkMode ? "bg-white/5 border-stone-700" : "bg-white border-lime-200"
-              }`}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-lime-600">
-              About this Farmhouse
-            </h2>
-            <p className="mb-6">{data.description}</p>
-
-            <h3 className="font-semibold mb-4 text-lg text-lime-600">
-              Amenities
-            </h3>
-            <div className="flex flex-wrap gap-2 mb-8">
-              {data.amenities.map((a, i) => (
-                <span key={i} className="px-3 py-1 rounded-full bg-lime-100 text-lime-700 text-xs font-semibold">
-                  {a}
-                </span>
-              ))}
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-6 rounded-2xl bg-lime-100 text-gray-900 border border-lime-400">
-                ₹{data.pricePerHour}/hr
-              </div>
-              <div className="p-6 rounded-2xl bg-amber-100 text-gray-900 border border-amber-400">
-                ₹{data.pricePerDay}/day
-              </div>
-            </div>
-          </div>
-
-          {/* SIDEBAR */}
-          <div className={`p-5 sm:p-6 lg:p-8 rounded-3xl border ${darkMode ? "bg-white/5 border-stone-700" : "bg-white border-lime-200"
-            }`}>
-            <h3 className="text-xl font-bold mb-6 text-lime-600">
-              Quick Info
-            </h3>
-            <p>{data.feedbackSummary}</p>
-            <p className="text-3xl font-bold mt-4 text-lime-600">
-              {data.bookedSlots.length} bookings
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <motion.h1
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 drop-shadow-lg"
+            >
+              {name}
+            </motion.h1>
+            <p className="flex items-center gap-2 text-white/95 text-lg drop-shadow">
+              <FaMapMarkerAlt className="text-amber-300" /> {address}
             </p>
           </div>
+          {images.length > 1 && (
+            <>
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md 
+                p-3 rounded-full text-white hover:bg-white/30 transition border border-white/30"
+                aria-label="Previous image"
+              >
+                <FaChevronLeft size={20} />
+              </motion.button>
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md 
+                p-3 rounded-full text-white hover:bg-white/30 transition border border-white/30"
+                aria-label="Next image"
+              >
+                <FaChevronRight size={20} />
+              </motion.button>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {images.map((_, idx) => (
+                  <button key={idx} onClick={() => setIndex(idx)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      idx === index ? "bg-white scale-110 shadow-lg" : "bg-white/50 hover:bg-white/70"
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+          <div className="absolute top-4 right-4">
+            {active ? (
+              <span className="px-4 py-2 rounded-full bg-lime-500/90 backdrop-blur-sm text-white flex items-center gap-2 text-sm font-semibold shadow-lg">
+                <FaCheckCircle /> Available
+              </span>
+            ) : (
+              <span className="px-4 py-2 rounded-full bg-red-500/90 backdrop-blur-sm text-white flex items-center gap-2 text-sm font-semibold shadow-lg">
+                <FaTimesCircle /> Unavailable
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* BOOKED SLOTS */}
-        {data.bookedSlots.length > 0 && (
-          <div className={`mt-10 p-6 rounded-3xl border bg-white border-lime-200  ${darkMode ? "bg-white/5 border-stone-700" : "bg-white border-lime-200"
-            }`}>
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-lime-600">
-              <FaCalendarAlt /> Booked Slots
-            </h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {data.bookedSlots.map((b) => (
-                <div key={b._id} className="p-4 rounded-xl bg-lime-100 text-gray-900 border border-lime-300">
-                  <p className="font-semibold">{b.label}</p>
-                  <p className="text-sm">{b.timing}</p>
-                </div>
-              ))}
-            </div>
+        {/* PRICE & ACTIONS BAR */}
+        <div className="flex flex-wrap gap-4 justify-between items-center mb-10 p-5 
+        bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-amber-100">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 text-white font-bold text-xl shadow-md">
+              ₹{price} <span className="text-sm font-normal opacity-90">/ slot</span>
+            </span>
+            <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-100 text-amber-700 font-semibold">
+              <FaStar className="text-amber-500 fill-amber-500" /> {rating ?? "New"}
+            </span>
+            <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-lime-100 text-lime-700 text-sm">
+              <FaClock /> {timePrices.length} time slots
+            </span>
           </div>
-        )}
-        {data?.vendorCredentials?.name ? (
+        </div>
 
+        {/* MAIN CONTENT GRID */}
+        <div className="grid lg:grid-cols-3 gap-8">
 
-          < div
-            className={`mt-10 p-8 rounded-3xl backdrop-blur-xl border shadow-xl transition ${darkMode
-              ? "bg-lime-500/10 border-lime-500"
-              : "bg-white border-lime-200"
-              }`}
-          >
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-lime-400' : 'text-lime-700'}`}>
-                Vendor Credentials
+          {/* LEFT COLUMN */}
+          <div className="lg:col-span-2 space-y-8">
+
+            {/* About */}
+            <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
+              <h2 className="text-2xl font-bold mb-4 text-amber-700 flex items-center gap-2">
+                <FaLeaf className="text-lime-500" /> About This Farmhouse
+              </h2>
+              <p className="text-gray-700 leading-relaxed text-lg">{description}</p>
+            </section>
+
+            {/* Amenities */}
+            <section className="bg-white p-7 rounded-3xl shadow-xl border border-lime-100">
+              <h3 className="text-xl font-bold mb-5 text-lime-700 flex items-center gap-2">
+                <FaCheckCircle className="text-lime-500" /> Amenities
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {amenities.map((item, i) => (
+                  <motion.span key={i} whileHover={{ scale: 1.03 }}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-lime-50 to-amber-50 
+                    text-lime-800 font-medium text-sm border border-lime-200 
+                    flex items-center gap-1.5 shadow-sm hover:shadow transition"
+                  >
+                    {AMENITY_ICONS[item] || <FaCheckCircle className="mr-1.5 text-lime-500" />}
+                    {item}
+                  </motion.span>
+                ))}
+              </div>
+            </section>
+
+            {/* ── BOOKING HISTORY ── */}
+            <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
+              <h3 className="text-xl font-bold mb-5 text-amber-700 flex items-center gap-2">
+                <FaHistory className="text-amber-500" /> Booking History
               </h3>
 
-              {/* Copy BOTH */}
-              <button
-                onClick={async () => {
-                  const text = [
-                    "Farmhouse Credentials",
-                    "---------------------",
-                    `User ID : ${data?.vendorCredentials?.name || ""}`,
-                    `Password: ${data?.vendorCredentials?.password || ""}`
-                  ].join("\n");
+              {bookedSlots.length > 0 ? (
+                <div className="space-y-8">
 
-                  copyToClipboard(text);
+                  {/* ── UPCOMING ── */}
+                  {upcomingBookings.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-lime-700 flex items-center gap-2">
+                          <FaCheckCircle className="text-lime-500" />
+                          Upcoming ({upcomingBookings.length})
+                        </h4>
+                        {upcomingTotalPages > 1 && (
+                          <span className="text-xs text-gray-400">
+                            Page {upcomingPage} of {upcomingTotalPages}
+                          </span>
+                        )}
+                      </div>
 
-                  Swal.fire({
-                    toast: true,
-                    position: "top-end",
-                    icon: "success",
-                    title: "Credentials copied to clipboard",
-                    showConfirmButton: false,
-                    timer: 1800,
-                    timerProgressBar: true,
-                  });
-                }}
-                className={`px-4 py-2 rounded-xl border font-semibold text-sm transition ${darkMode
-                  ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
-                  : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
-                  }`}
-              >
-                Copy All
-              </button>
-            </div>
+                      <div className="space-y-3">
+                        {paginatedUpcoming.map((booking) => (
+                          <motion.div
+                            key={booking._id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="p-4 rounded-2xl bg-gradient-to-r from-lime-50 to-amber-50 
+                            border border-lime-200 shadow-sm"
+                          >
+                            <div className="flex flex-wrap justify-between items-start gap-3">
+                              <div className="flex-1 min-w-[200px]">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FaUser className="text-amber-500" />
+                                  <span className="font-semibold text-gray-800">
+                                    User: {booking.userId?.slice(-6) || "N/A"}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 flex items-center gap-1.5">
+                                  <FaCalendarAlt className="text-amber-500" />
+                                  {formatDate(booking.date)}
+                                </p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1.5 mt-1">
+                                  <FaClock className="text-lime-500" />
+                                  {booking.timing} • {booking.label}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <span className="inline-block px-3 py-1 rounded-full bg-lime-100 text-lime-700 text-xs font-semibold">
+                                  Confirmed
+                                </span>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Booked: {formatDate(booking.bookedAt)}
+                                </p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+                      <Pagination
+                        currentPage={upcomingPage}
+                        totalPages={upcomingTotalPages}
+                        onPageChange={(p) => setUpcomingPage(p)}
+                      />
+                    </div>
+                  )}
 
-              {/* USERNAME */}
-              <div
-                className={`flex justify-between items-center rounded-2xl border p-5 ${darkMode
-                  ? 'bg-lime-500/10 border-lime-500'
-                  : 'bg-lime-100 border-lime-400'
-                  }`}
-              >
-                <div>
-                  <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                    User ID
-                  </p>
-                  <p className="font-semibold text-lg">
-                    {data?.vendorCredentials?.name}
-                  </p>
+                  {/* ── PAST ── */}
+                  {pastBookings.length > 0 && (
+                    <div className="pt-4 border-t border-amber-100">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-gray-600 flex items-center gap-2">
+                          <FaHistory className="text-gray-400" />
+                          Past ({pastBookings.length})
+                        </h4>
+                        {pastTotalPages > 1 && (
+                          <span className="text-xs text-gray-400">
+                            Page {pastPage} of {pastTotalPages}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        {paginatedPast.map((booking) => (
+                          <motion.div
+                            key={booking._id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="p-4 rounded-2xl bg-gray-50 border border-gray-200 opacity-80"
+                          >
+                            <div className="flex flex-wrap justify-between items-start gap-3">
+                              <div className="flex-1 min-w-[200px]">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FaUser className="text-gray-400" />
+                                  <span className="font-semibold text-gray-600">
+                                    User: {booking.userId?.slice(-6) || "N/A"}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-500 flex items-center gap-1.5">
+                                  <FaCalendarAlt className="text-gray-400" />
+                                  {formatDate(booking.date)}
+                                </p>
+                                <p className="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
+                                  <FaClock className="text-gray-400" />
+                                  {booking.timing} • {booking.label}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <span className="inline-block px-3 py-1 rounded-full bg-gray-200 text-gray-600 text-xs font-semibold">
+                                  Completed
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      <Pagination
+                        currentPage={pastPage}
+                        totalPages={pastTotalPages}
+                        onPageChange={(p) => setPastPage(p)}
+                      />
+                    </div>
+                  )}
+
                 </div>
-
-                <button
-                  onClick={async () => {
-                    copyToClipboard(data?.vendorCredentials?.name || "");
-
-                    Swal.fire({
-                      toast: true,
-                      position: "top-end",
-                      icon: "success",
-                      title: "User ID copied",
-                      showConfirmButton: false,
-                      timer: 1600,
-                      timerProgressBar: true,
-                    });
-                  }}
-                  className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                    ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
-                    : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
-                    }`}
-                >
-                  Copy
-                </button>
-              </div>
-
-              {/* PASSWORD */}
-              <div
-                className={`flex justify-between items-center rounded-2xl border p-5 ${darkMode
-                  ? 'bg-lime-500/10 border-lime-500'
-                  : 'bg-lime-100 border-lime-400'
-                  }`}
-              >
-                <div>
-                  <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                    Password
-                  </p>
-                  <p className="font-semibold text-lg tracking-widest">
-                    {showPassword
-                      ? data?.vendorCredentials?.password
-                      : "••••••••"}
-                  </p>
+              ) : (
+                <div className="text-center py-8">
+                  <FaHistory className="text-amber-300 text-4xl mx-auto mb-3" />
+                  <p className="text-gray-500 italic">No bookings yet. Be the first to book!</p>
                 </div>
+              )}
+            </section>
 
-                <div className="flex gap-2">
-                  {/* Eye Toggle */}
-                  <button
-                    onClick={() => setShowPassword(!showPassword)}
-                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                      ? 'bg-amber-500/20 border-amber-500 text-amber-400 hover:bg-amber-500/30'
-                      : 'bg-amber-100 border-amber-400 text-amber-700 hover:bg-amber-200'
-                      }`}
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-
-                  {/* Copy */}
-                  <button
-                    onClick={async () => {
-                      copyToClipboard(data?.vendorCredentials?.password || "");
-
-                      Swal.fire({
-                        toast: true,
-                        position: "top-end",
-                        icon: "success",
-                        title: "Password copied",
-                        showConfirmButton: false,
-                        timer: 1600,
-                        timerProgressBar: true,
-                      });
-                    }}
-                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition ${darkMode
-                      ? "bg-lime-500/20 border-lime-500 text-lime-400 hover:bg-lime-500/30"
-                      : "bg-lime-100 border-lime-400 text-lime-700 hover:bg-lime-200"
-                      }`}
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Hint */}
-            <p className={`text-xs mt-4 ${darkMode ? 'text-stone-500' : 'text-stone-500'}`}>
-              🔒 Keep these credentials secure. Do not share publicly.
-            </p>
           </div>
-        ) :
-          null
-        }
 
+          {/* RIGHT COLUMN - Sidebar */}
+          <div className="space-y-6">
+
+            {/* Quick Details */}
+            <div className="bg-white p-6 rounded-3xl shadow-xl border border-lime-100 sticky top-6">
+              <h3 className="text-xl font-bold mb-5 text-lime-700">Quick Details</h3>
+              <div className="space-y-4 text-gray-700">
+                <div className="flex items-start gap-3">
+                  <FaMapMarkerAlt className="text-amber-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Location</p>
+                    <p className="text-sm text-gray-600">{address}</p>
+                  </div>
+                </div>
+                {location?.coordinates && (
+                  <div className="flex items-start gap-3">
+                    <FaMapMarkerAlt className="text-lime-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold">Coordinates</p>
+                      <p className="text-sm text-gray-600 font-mono">
+                        {location.coordinates[1]?.toFixed(4)}, {location.coordinates[0]?.toFixed(4)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start gap-3">
+                  <FaCalendarAlt className="text-amber-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Listed On</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(createdAt).toLocaleDateString("en-IN", {
+                        year: "numeric", month: "short", day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FaClock className="text-lime-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Total Bookings</p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-bold text-amber-600">{bookedSlots.length}</span> confirmed
+                    </p>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-amber-100">
+                  <p className="text-sm text-gray-500">
+                    <strong className="text-amber-700">ID:</strong>{" "}
+                    <span className="font-mono text-xs break-all">{id}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Vendor Credentials */}
+            {vendorCredentials && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-br from-amber-100 to-lime-100 p-6 rounded-3xl 
+                shadow-xl border border-amber-300 sticky top-[420px]"
+              >
+                <h3 className="text-xl font-bold mb-4 text-amber-800 flex items-center gap-2">
+                  <FaUserShield className="text-lime-600" /> Vendor Credentials
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-amber-200">
+                    <div className="flex items-center gap-3">
+                      <FaUser className="text-amber-500" />
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Username</p>
+                        <p className="font-mono font-semibold text-gray-800">{vendorCredentials.name}</p>
+                      </div>
+                    </div>
+                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                      onClick={() => copyToClipboard(vendorCredentials.name, "Username")}
+                      className="p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
+                      title="Copy username"
+                    >
+                      <FaCopy size={14} />
+                    </motion.button>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-amber-200">
+                    <div className="flex items-center gap-3">
+                      <FaKey className="text-lime-500" />
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Password</p>
+                        <p className="font-mono font-semibold text-gray-800">
+                          {showPassword ? vendorCredentials.password : "••••••••"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="p-2 rounded-lg bg-lime-100 text-lime-700 hover:bg-lime-200 transition"
+                        title={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                      </motion.button>
+                      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                        onClick={() => copyToClipboard(vendorCredentials.password, "Password")}
+                        className="p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
+                        title="Copy password"
+                      >
+                        <FaCopy size={14} />
+                      </motion.button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-amber-200">
+                    <div className="flex items-center gap-3">
+                      <FaIdCard className="text-amber-500" />
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Vendor ID</p>
+                        <p className="font-mono text-xs text-gray-700 break-all">{vendorCredentials.vendorId}</p>
+                      </div>
+                    </div>
+                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                      onClick={() => copyToClipboard(vendorCredentials.vendorId, "Vendor ID")}
+                      className="p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition flex-shrink-0"
+                      title="Copy Vendor ID"
+                    >
+                      <FaCopy size={14} />
+                    </motion.button>
+                  </div>
+                  <div className="pt-2 border-t border-amber-200">
+                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                      <FaCalendarAlt className="text-amber-400" />
+                      Created: {formatDate(vendorCredentials.createdAt)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 p-3 bg-amber-50 border border-amber-300 rounded-xl">
+                  <p className="text-xs text-amber-800 flex items-start gap-2">
+                    <FaTimesCircle className="text-amber-500 mt-0.5 flex-shrink-0" />
+                    <span>
+                      <strong>Keep credentials secure!</strong> Never share these details publicly.
+                      Change password after first login.
+                    </span>
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+          </div>
+        </div>
       </div>
-    </div >
+    </div>
   );
 };
 
