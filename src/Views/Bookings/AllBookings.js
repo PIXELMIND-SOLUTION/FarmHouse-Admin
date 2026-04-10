@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 
 const API = 'http://31.97.206.144:5124/api/order/admin/summary';
-const DELETE_API = (id) => `http://31.97.206.144:5124/api/order/deletebooking/${id}`;
+const DELETE_API = (id) => `http://31.97.206.144:5124/api/order/deletebooking/${id}`; // fixed base URL
 
 // ─── SAFE HELPERS ─────────────────────────────────────────
 const safe    = (val, fallback = '—')  => (val != null ? val : fallback);
@@ -95,12 +95,12 @@ const AllBookings = ({ darkMode }) => {
       const res    = await fetch(DELETE_API(deleteTarget._id), { method: 'DELETE' });
       const result = await res.json();
       if (res.ok || result?.success) {
-        // Optimistically remove from local state
+        // Remove from local state
         setData((prev) => {
           if (!prev) return prev;
           return {
             ...prev,
-            recentBookings: safeArr(prev.recentBookings).filter((b) => b._id !== deleteTarget._id),
+            bookings: safeArr(prev.bookings).filter((b) => b._id !== deleteTarget._id),
           };
         });
         setShowDeleteModal(false);
@@ -129,15 +129,15 @@ const AllBookings = ({ darkMode }) => {
     else { setSortField(field); setSortDir('asc'); }
   };
 
-  // FILTER + SORT
+  // FILTER + SORT (using data.bookings)
   const getFiltered = () => {
-    let list = safeArr(data?.recentBookings);
+    let list = safeArr(data?.bookings);
     const s  = safeStr(searchTerm).toLowerCase();
 
     if (s) {
       list = list.filter((b) =>
-        safeStr(b?.farmhouse?.name).toLowerCase().includes(s) ||
-        safeStr(b?.user?.email).toLowerCase().includes(s)    ||
+        safeStr(b?.farmhouseId?.name).toLowerCase().includes(s) ||
+        safeStr(b?.userId?.email).toLowerCase().includes(s)    ||
         safeStr(b?._id).toLowerCase().includes(s)
       );
     }
@@ -147,20 +147,20 @@ const AllBookings = ({ darkMode }) => {
     const now = new Date();
     if (dateFilter === 'today') {
       list = list.filter((b) => {
-        const d = safeDate(b?.date);
+        const d = safeDate(b?.bookingDetails?.date);
         return d && d.toDateString() === now.toDateString();
       });
     } else if (dateFilter === 'week') {
       const ago = new Date(); ago.setDate(ago.getDate() - 7);
-      list = list.filter((b) => { const d = safeDate(b?.date); return d && d >= ago; });
+      list = list.filter((b) => { const d = safeDate(b?.bookingDetails?.date); return d && d >= ago; });
     } else if (dateFilter === 'month') {
       const ago = new Date(); ago.setMonth(ago.getMonth() - 1);
-      list = list.filter((b) => { const d = safeDate(b?.date); return d && d >= ago; });
+      list = list.filter((b) => { const d = safeDate(b?.bookingDetails?.date); return d && d >= ago; });
     }
 
     list.sort((a, b) => {
       let av, bv;
-      if (sortField === 'date')   { av = safeDate(a?.date)?.getTime() ?? 0; bv = safeDate(b?.date)?.getTime() ?? 0; }
+      if (sortField === 'date')   { av = safeDate(a?.bookingDetails?.date)?.getTime() ?? 0; bv = safeDate(b?.bookingDetails?.date)?.getTime() ?? 0; }
       else if (sortField === 'amount') { av = safeNum(a?.totalAmount); bv = safeNum(b?.totalAmount); }
       else if (sortField === 'status') { av = safeStr(a?.status); bv = safeStr(b?.status); }
       else { av = 0; bv = 0; }
@@ -175,7 +175,7 @@ const AllBookings = ({ darkMode }) => {
   const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
   const paginated  = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // SAFE SUMMARY
+  // SAFE SUMMARY (new structure)
   const summary    = data?.summary || {};
   const confirmed  = summary?.confirmed || {};
   const revenue    = data?.revenue || {};
@@ -184,6 +184,8 @@ const AllBookings = ({ darkMode }) => {
 
   const total     = safeNum(summary?.total);
   const todayCount= safeNum(summary?.today);
+  const pending   = safeNum(summary?.pending);
+  const canceled  = safeNum(summary?.canceled);
   const active    = safeNum(confirmed?.active);
   const upcoming  = safeNum(confirmed?.upcoming);
   const completed = safeNum(confirmed?.completed);
@@ -196,11 +198,11 @@ const AllBookings = ({ darkMode }) => {
     const header = ['Booking ID', 'Farmhouse', 'Address', 'Customer Email', 'Date', 'Check-in', 'Amount', 'Status'];
     const rows   = filtered.map((b) => [
       safeStr(b?._id),
-      safeStr(b?.farmhouse?.name),
-      safeStr(b?.farmhouse?.address),
-      safeStr(b?.user?.email, 'Guest'),
-      fmt(b?.date),
-      fmtTime(b?.checkIn),
+      safeStr(b?.farmhouseId?.name),
+      safeStr(b?.farmhouseId?.address),
+      safeStr(b?.userId?.email, 'Guest'),
+      fmt(b?.bookingDetails?.date),
+      fmtTime(b?.bookingDetails?.checkIn),
       safeNum(b?.totalAmount),
       safeStr(b?.status),
     ]);
@@ -288,9 +290,9 @@ const AllBookings = ({ darkMode }) => {
 
         {/* ── STAT CARDS ── */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <StatCard label="Total Bookings"   value={total}         sub={`+${todayCount} today`}            icon={<Calendar className="h-5 w-5" />} gradient="from-lime-500 to-lime-600"   dm={dm} />
+          <StatCard label="Total Bookings"   value={total}         sub={`+${todayCount} today · ${pending} pending · ${canceled} canceled`} icon={<Calendar className="h-5 w-5" />} gradient="from-lime-500 to-lime-600"   dm={dm} />
           <StatCard label="Total Revenue"    value={fmtMoney(totalRev)} sub={`Avg ${fmtMoney(avgVal)}/booking`} icon={<DollarSign className="h-5 w-5" />} gradient="from-amber-500 to-amber-600" dm={dm} />
-          <StatCard label="Active Bookings"  value={active}        sub={`Upcoming: ${upcoming} · Done: ${completed}`} icon={<Clock className="h-5 w-5" />} gradient="from-lime-600 to-lime-700" dm={dm} />
+          <StatCard label="Active Bookings"  value={active}        sub={`Upcoming: ${upcoming} · Completed: ${completed}`} icon={<Clock className="h-5 w-5" />} gradient="from-lime-600 to-lime-700" dm={dm} />
           <StatCard label="Completion Rate"  value={`${compRate}%`} sub={`${completed} of ${total} completed`} icon={<Award className="h-5 w-5" />} gradient="from-amber-600 to-amber-700" dm={dm} />
         </div>
 
@@ -387,7 +389,6 @@ const AllBookings = ({ darkMode }) => {
                 </select>
               </div>
             </div>
-            {/* META */}
             <p className={`text-xs mt-3 ${dm ? 'text-stone-500' : 'text-stone-400'}`}>
               Showing {paginated.length} of {filtered.length} bookings
             </p>
@@ -433,14 +434,14 @@ const AllBookings = ({ darkMode }) => {
                 ) : (
                   paginated.map((b) => {
                     const bookingId  = safeStr(b?._id);
-                    const farmName   = safe(b?.farmhouse?.name);
-                    const farmAddr   = safe(b?.farmhouse?.address, '');
-                    const farmImg    = safeArr(b?.farmhouse?.images)[0] || null;
-                    const email      = safe(b?.user?.email, 'Guest User');
+                    const farmName   = safe(b?.farmhouseId?.name);
+                    const farmAddr   = safe(b?.farmhouseId?.address, '');
+                    const farmImg    = safeArr(b?.farmhouseId?.images)[0] || null;
+                    const email      = safe(b?.userId?.email, 'Guest User');
                     const amount     = safeNum(b?.totalAmount);
                     const status     = safeStr(b?.status, 'pending');
-                    const bookDate   = b?.date;
-                    const checkIn    = b?.checkIn;
+                    const bookDate   = b?.bookingDetails?.date;
+                    const checkIn    = b?.bookingDetails?.checkIn;
 
                     return (
                       <tr key={bookingId}
@@ -487,7 +488,6 @@ const AllBookings = ({ darkMode }) => {
                         {/* Actions */}
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
-                            {/* View */}
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelected(b); setShowModal(true); }}
                               className={`p-2 rounded-xl border transition hover:scale-110
@@ -496,7 +496,6 @@ const AllBookings = ({ darkMode }) => {
                             >
                               <Eye className="h-4 w-4" />
                             </button>
-                            {/* Delete */}
                             <button
                               onClick={(e) => openDeleteModal(e, b)}
                               className={`p-2 rounded-xl border transition hover:scale-110
@@ -568,12 +567,12 @@ const AllBookings = ({ darkMode }) => {
                 {[
                   { label: 'Booking ID',  value: safeStr(selected?._id) || '—', mono: true },
                   { label: 'Status',      value: null, badge: safeStr(selected?.status, 'pending') },
-                  { label: 'Farmhouse',   value: safe(selected?.farmhouse?.name) },
-                  { label: 'Address',     value: safe(selected?.farmhouse?.address, 'N/A') },
-                  { label: 'Customer',    value: safe(selected?.user?.email, 'Guest User') },
-                  { label: 'User ID',     value: safe(selected?.user?._id, 'N/A'), mono: true },
-                  { label: 'Date',        value: fmt(selected?.date) },
-                  { label: 'Check-in',    value: fmtTime(selected?.checkIn) },
+                  { label: 'Farmhouse',   value: safe(selected?.farmhouseId?.name) },
+                  { label: 'Address',     value: safe(selected?.farmhouseId?.address, 'N/A') },
+                  { label: 'Customer',    value: safe(selected?.userId?.email, 'Guest User') },
+                  { label: 'User ID',     value: safe(selected?.userId?._id, 'N/A'), mono: true },
+                  { label: 'Date',        value: fmt(selected?.bookingDetails?.date) },
+                  { label: 'Check-in',    value: fmtTime(selected?.bookingDetails?.checkIn) },
                   { label: 'Amount',      value: fmtMoney(selected?.totalAmount), highlight: true },
                   { label: 'Created At',  value: selected?.createdAt ? new Date(selected.createdAt).toLocaleString('en-IN') : '—' },
                 ].map(({ label, value, badge, mono, highlight }) => (
@@ -592,11 +591,11 @@ const AllBookings = ({ darkMode }) => {
               </div>
 
               {/* Farmhouse Images */}
-              {safeArr(selected?.farmhouse?.images).length > 0 && (
+              {safeArr(selected?.farmhouseId?.images).length > 0 && (
                 <div className="mt-5">
                   <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${dm ? 'text-lime-400/70' : 'text-lime-600'}`}>Farmhouse Images</p>
                   <div className="grid grid-cols-3 gap-3">
-                    {safeArr(selected.farmhouse.images).map((img, i) => (
+                    {safeArr(selected.farmhouseId.images).map((img, i) => (
                       <img key={i} src={img} alt={`Farm ${i + 1}`}
                         className="w-full h-24 object-cover rounded-xl border-2 border-lime-300"
                         onError={(e) => { e.target.style.display = 'none'; }}
@@ -648,7 +647,7 @@ const AllBookings = ({ darkMode }) => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Farmhouse</span>
-                  <span className={`font-semibold ${dm ? 'text-white' : 'text-stone-800'}`}>{safe(deleteTarget?.farmhouse?.name)}</span>
+                  <span className={`font-semibold ${dm ? 'text-white' : 'text-stone-800'}`}>{safe(deleteTarget?.farmhouseId?.name)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Amount</span>
@@ -656,7 +655,7 @@ const AllBookings = ({ darkMode }) => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className={dm ? 'text-stone-400' : 'text-stone-500'}>Customer</span>
-                  <span className={`text-xs ${dm ? 'text-stone-300' : 'text-stone-700'}`}>{safe(deleteTarget?.user?.email, 'Guest User')}</span>
+                  <span className={`text-xs ${dm ? 'text-stone-300' : 'text-stone-700'}`}>{safe(deleteTarget?.userId?.email, 'Guest User')}</span>
                 </div>
               </div>
 
