@@ -39,7 +39,7 @@ const AMENITY_ICONS = {
   "Outdoor Lawn": <FaLeaf className="mr-2" />,
   "Music System": <FaMusic className="mr-2" />,
   "Free Parking": <FaCar className="mr-2" />,
-  "WiFi": <FaWifi className="mr-2" />,
+  WiFi: <FaWifi className="mr-2" />,
 };
 
 const BOOKINGS_PER_PAGE = 10;
@@ -78,15 +78,18 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {/* Pages */}
       {renderPages.map((p, i) =>
         p === "..." ? (
-          <span key={`ellipsis-${i}`} className="px-1 text-gray-400 text-sm select-none">…</span>
+          <span key={`ellipsis-${i}`} className="px-1 text-gray-400 text-sm select-none">
+            …
+          </span>
         ) : (
           <button
             key={p}
             onClick={() => onPageChange(p)}
             className={`w-8 h-8 rounded-lg text-sm font-semibold transition border
-              ${p === currentPage
-                ? "bg-gradient-to-r from-amber-500 to-lime-500 text-white border-transparent shadow-md"
-                : "border-amber-200 text-gray-600 hover:bg-amber-50"
+              ${
+                p === currentPage
+                  ? "bg-gradient-to-r from-amber-500 to-lime-500 text-white border-transparent shadow-md"
+                  : "border-amber-200 text-gray-600 hover:bg-amber-50"
               }`}
           >
             {p}
@@ -119,7 +122,7 @@ const SingleFarmhouse = () => {
 
   // Pagination state
   const [upcomingPage, setUpcomingPage] = useState(1);
-  const [pastPage, setPastPage]         = useState(1);
+  const [pastPage, setPastPage] = useState(1);
 
   useEffect(() => {
     const fetchFarmhouse = async () => {
@@ -148,24 +151,72 @@ const SingleFarmhouse = () => {
 
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString("en-IN", {
-      weekday: "short", year: "numeric", month: "short", day: "numeric",
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
 
   const isPastBooking = (checkOut) => new Date(checkOut) < new Date();
 
-  const copyToClipboard = (text, label) => {
-    navigator.clipboard.writeText(text).then(() => {
+  // ─── Unified copy helper with Swal toast ─────────────────────────
+  const copyToClipboard = async (text, successTitle = "Copied to clipboard!") => {
+    try {
+      if (window.isSecureContext && navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for HTTP / old browsers
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+
       Swal.fire({
-        icon: "success",
-        title: `${label} copied!`,
-        text: "Credentials copied to clipboard",
         toast: true,
         position: "top-end",
+        icon: "success",
+        title: successTitle,
         showConfirmButton: false,
-        timer: 2000,
+        timer: 1800,
         timerProgressBar: true,
       });
-    }).catch(() => Swal.fire("Error", "Failed to copy to clipboard", "error"));
+    } catch (err) {
+      console.error("Clipboard error:", err);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Failed to copy",
+        showConfirmButton: false,
+        timer: 1600,
+      });
+    }
+  };
+
+  // ─── Specific handlers for credentials ──────────────────────────
+  const handleCopyFullCredentials = () => {
+    const text = [
+      "Farmhouse Credentials",
+      "---------------------",
+      `User ID : ${data?.vendorCredentials?.name || ""}`,
+      `Password: ${data?.vendorCredentials?.password || ""}`,
+    ].join("\n");
+    copyToClipboard(text, "Credentials copied to clipboard");
+  };
+
+  const handleCopyUsername = () => {
+    copyToClipboard(data?.vendorCredentials?.name || "", "User ID copied");
+  };
+
+  const handleCopyPassword = () => {
+    copyToClipboard(data?.vendorCredentials?.password || "", "Password copied");
   };
 
   if (loading)
@@ -196,18 +247,27 @@ const SingleFarmhouse = () => {
     );
 
   const {
-    name, images = [], address, description,
-    amenities = [], price, timePrices = [],
-    active, rating, bookedSlots = [],
-    createdAt, location, vendorCredentials,
+    name,
+    images = [],
+    address,
+    description,
+    amenities = [],
+    price,
+    timePrices = [],
+    active,
+    rating,
+    bookedSlots = [],
+    createdAt,
+    location,
+    vendorCredentials,
   } = data;
 
   const upcomingBookings = bookedSlots.filter((b) => !isPastBooking(b.checkOut));
-  const pastBookings     = bookedSlots.filter((b) => isPastBooking(b.checkOut));
+  const pastBookings = bookedSlots.filter((b) => isPastBooking(b.checkOut));
 
   // Paginated slices
   const upcomingTotalPages = Math.max(1, Math.ceil(upcomingBookings.length / BOOKINGS_PER_PAGE));
-  const pastTotalPages     = Math.max(1, Math.ceil(pastBookings.length / BOOKINGS_PER_PAGE));
+  const pastTotalPages = Math.max(1, Math.ceil(pastBookings.length / BOOKINGS_PER_PAGE));
 
   const paginatedUpcoming = upcomingBookings.slice(
     (upcomingPage - 1) * BOOKINGS_PER_PAGE,
@@ -221,7 +281,6 @@ const SingleFarmhouse = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-lime-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-
         {/* BACK BUTTON */}
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -263,14 +322,20 @@ const SingleFarmhouse = () => {
           </div>
           {images.length > 1 && (
             <>
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={prevSlide}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevSlide}
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md 
                 p-3 rounded-full text-white hover:bg-white/30 transition border border-white/30"
                 aria-label="Previous image"
               >
                 <FaChevronLeft size={20} />
               </motion.button>
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={nextSlide}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={nextSlide}
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md 
                 p-3 rounded-full text-white hover:bg-white/30 transition border border-white/30"
                 aria-label="Next image"
@@ -279,7 +344,9 @@ const SingleFarmhouse = () => {
               </motion.button>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                 {images.map((_, idx) => (
-                  <button key={idx} onClick={() => setIndex(idx)}
+                  <button
+                    key={idx}
+                    onClick={() => setIndex(idx)}
                     className={`w-3 h-3 rounded-full transition-all ${
                       idx === index ? "bg-white scale-110 shadow-lg" : "bg-white/50 hover:bg-white/70"
                     }`}
@@ -320,10 +387,8 @@ const SingleFarmhouse = () => {
 
         {/* MAIN CONTENT GRID */}
         <div className="grid lg:grid-cols-3 gap-8">
-
           {/* LEFT COLUMN */}
           <div className="lg:col-span-2 space-y-8">
-
             {/* About */}
             <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
               <h2 className="text-2xl font-bold mb-4 text-amber-700 flex items-center gap-2">
@@ -339,7 +404,9 @@ const SingleFarmhouse = () => {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {amenities.map((item, i) => (
-                  <motion.span key={i} whileHover={{ scale: 1.03 }}
+                  <motion.span
+                    key={i}
+                    whileHover={{ scale: 1.03 }}
                     className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-lime-50 to-amber-50 
                     text-lime-800 font-medium text-sm border border-lime-200 
                     flex items-center gap-1.5 shadow-sm hover:shadow transition"
@@ -359,7 +426,6 @@ const SingleFarmhouse = () => {
 
               {bookedSlots.length > 0 ? (
                 <div className="space-y-8">
-
                   {/* ── UPCOMING ── */}
                   {upcomingBookings.length > 0 && (
                     <div>
@@ -479,7 +545,6 @@ const SingleFarmhouse = () => {
                       />
                     </div>
                   )}
-
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -488,12 +553,10 @@ const SingleFarmhouse = () => {
                 </div>
               )}
             </section>
-
           </div>
 
           {/* RIGHT COLUMN - Sidebar */}
           <div className="space-y-6">
-
             {/* Quick Details */}
             <div className="bg-white p-6 rounded-3xl shadow-xl border border-lime-100 sticky top-6">
               <h3 className="text-xl font-bold mb-5 text-lime-700">Quick Details</h3>
@@ -522,7 +585,9 @@ const SingleFarmhouse = () => {
                     <p className="font-semibold">Listed On</p>
                     <p className="text-sm text-gray-600">
                       {new Date(createdAt).toLocaleDateString("en-IN", {
-                        year: "numeric", month: "short", day: "numeric",
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
                       })}
                     </p>
                   </div>
@@ -553,9 +618,21 @@ const SingleFarmhouse = () => {
                 className="bg-gradient-to-br from-amber-100 to-lime-100 p-6 rounded-3xl 
                 shadow-xl border border-amber-300 sticky top-[420px]"
               >
-                <h3 className="text-xl font-bold mb-4 text-amber-800 flex items-center gap-2">
-                  <FaUserShield className="text-lime-600" /> Vendor Credentials
-                </h3>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-amber-800 flex items-center gap-2">
+                    <FaUserShield className="text-lime-600" /> Vendor Credentials
+                  </h3>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCopyFullCredentials}
+                    className="px-3 py-1.5 rounded-lg bg-amber-200 text-amber-800 text-sm font-semibold flex items-center gap-2 hover:bg-amber-300 transition shadow-sm"
+                    title="Copy both username and password"
+                  >
+                    <FaCopy size={12} /> Copy All
+                  </motion.button>
+                </div>
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-amber-200">
                     <div className="flex items-center gap-3">
@@ -565,14 +642,17 @@ const SingleFarmhouse = () => {
                         <p className="font-mono font-semibold text-gray-800">{vendorCredentials.name}</p>
                       </div>
                     </div>
-                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                      onClick={() => copyToClipboard(vendorCredentials.name, "Username")}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleCopyUsername}
                       className="p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
                       title="Copy username"
                     >
                       <FaCopy size={14} />
                     </motion.button>
                   </div>
+
                   <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-amber-200">
                     <div className="flex items-center gap-3">
                       <FaKey className="text-lime-500" />
@@ -584,15 +664,19 @@ const SingleFarmhouse = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setShowPassword(!showPassword)}
                         className="p-2 rounded-lg bg-lime-100 text-lime-700 hover:bg-lime-200 transition"
                         title={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
                       </motion.button>
-                      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                        onClick={() => copyToClipboard(vendorCredentials.password, "Password")}
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={handleCopyPassword}
                         className="p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
                         title="Copy password"
                       >
@@ -600,6 +684,7 @@ const SingleFarmhouse = () => {
                       </motion.button>
                     </div>
                   </div>
+
                   <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-amber-200">
                     <div className="flex items-center gap-3">
                       <FaIdCard className="text-amber-500" />
@@ -608,14 +693,17 @@ const SingleFarmhouse = () => {
                         <p className="font-mono text-xs text-gray-700 break-all">{vendorCredentials.vendorId}</p>
                       </div>
                     </div>
-                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                      onClick={() => copyToClipboard(vendorCredentials.vendorId, "Vendor ID")}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => copyToClipboard(vendorCredentials.vendorId, "Vendor ID copied")}
                       className="p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition flex-shrink-0"
                       title="Copy Vendor ID"
                     >
                       <FaCopy size={14} />
                     </motion.button>
                   </div>
+
                   <div className="pt-2 border-t border-amber-200">
                     <p className="text-xs text-gray-500 flex items-center gap-1.5">
                       <FaCalendarAlt className="text-amber-400" />
@@ -623,6 +711,7 @@ const SingleFarmhouse = () => {
                     </p>
                   </div>
                 </div>
+
                 <div className="mt-5 p-3 bg-amber-50 border border-amber-300 rounded-xl">
                   <p className="text-xs text-amber-800 flex items-start gap-2">
                     <FaTimesCircle className="text-amber-500 mt-0.5 flex-shrink-0" />
@@ -634,7 +723,6 @@ const SingleFarmhouse = () => {
                 </div>
               </motion.div>
             )}
-
           </div>
         </div>
       </div>

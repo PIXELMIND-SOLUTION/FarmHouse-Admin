@@ -118,7 +118,7 @@ const Revenue = ({ darkMode }) => {
     const GrowthIndicator = ({ value }) => {
         if (value > 0) return <span className="flex items-center text-lime-500"><ArrowUp className="h-4 w-4 mr-1" />{value}%</span>;
         if (value < 0) return <span className="flex items-center text-red-500"><ArrowDown className="h-4 w-4 mr-1" />{Math.abs(value)}%</span>;
-        return <span className="flex items-center text-stone-500"><Minus className="h-4 w-4 mr-1" />0%</span>;
+        return <span className="flex items-center text-stone-500 dark:text-stone-400"><Minus className="h-4 w-4 mr-1" />0%</span>;
     };
 
     const handleExport = async () => {
@@ -227,7 +227,7 @@ const Revenue = ({ darkMode }) => {
                                     onChange={(e) => setCustomStartDate(e.target.value)}
                                     className={`px-3 py-2 rounded-lg border outline-none text-sm ${darkMode ? 'bg-stone-800 border-stone-700 text-white' : 'bg-white border-lime-300 text-stone-900'}`}
                                 />
-                                <span className="text-stone-500">to</span>
+                                <span className={`${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>to</span>
                                 <input
                                     type="date"
                                     value={customEndDate}
@@ -263,7 +263,7 @@ const Revenue = ({ darkMode }) => {
                         {(period !== 'month' || farmhouseFilter || showCustomDate) && (
                             <button
                                 onClick={resetFilters}
-                                className="px-4 py-2 rounded-lg border border-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition text-sm flex items-center gap-1"
+                                className={`px-4 py-2 rounded-lg border transition text-sm flex items-center gap-1 ${darkMode ? 'border-stone-600 text-stone-300 hover:bg-stone-800' : 'border-stone-400 hover:bg-stone-100'}`}
                             >
                                 <X className="h-3 w-3" /> Reset
                             </button>
@@ -300,7 +300,7 @@ const Revenue = ({ darkMode }) => {
                         </div>
                         <h3 className={`text-sm font-medium ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Total Revenue</h3>
                         <p className={`text-3xl font-bold mt-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>{formatCurrency(combined?.totalRevenue || 0)}</p>
-                        <div className="mt-4 flex items-center text-sm">
+                        <div className={`mt-4 flex items-center text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
                             <span>{combined?.totalBookings || 0} bookings</span>
                             <span className="mx-2">•</span>
                             <span>Avg {formatCurrency(combined?.averageBookingValue || 0)}</span>
@@ -318,7 +318,7 @@ const Revenue = ({ darkMode }) => {
                                 { label: 'Cleaning Fee', value: combined?.revenueBreakdown?.cleaningFee || 0 },
                                 { label: 'Service Fee', value: combined?.revenueBreakdown?.serviceFee || 0 }
                             ].map((item, i) => (
-                                <div key={i} className="flex justify-between text-sm">
+                                <div key={i} className={`flex justify-between text-sm ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>
                                     <span>{item.label}</span>
                                     <span className="font-medium">{formatCurrency(item.value)}</span>
                                 </div>
@@ -331,26 +331,26 @@ const Revenue = ({ darkMode }) => {
                             <Home className="h-6 w-6 text-white" />
                         </div>
                         <h3 className={`text-sm font-medium ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Active Farmhouses</h3>
-                        <p className={`text-3xl font-bold mt-2`}>{combined?.uniqueFarmhouses || 0}</p>
-                        <p className={`text-sm mt-4`}>{summary?.farmhousesWithNoRevenue || 0} with no revenue</p>
+                        <p className={`text-3xl font-bold mt-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>{combined?.uniqueFarmhouses || 0}</p>
+                        <p className={`text-sm mt-4 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>{summary?.farmhousesWithNoRevenue || 0} with no revenue</p>
                     </div>
 
                     <div className={`rounded-2xl border ${darkMode ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-lime-200'} p-6`}>
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center mb-4">
                             <Award className="h-6 w-6 text-white" />
                         </div>
-                        <h3 className={`text-sm font-medium`}>Top Performer</h3>
+                        <h3 className={`text-sm font-medium ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Top Performer</h3>
                         {topFarmhouse ? (
                             <>
-                                <p className={`text-xl font-bold mt-2`}>{topFarmhouse.name}</p>
-                                <div className="mt-4 flex items-center text-sm">
+                                <p className={`text-xl font-bold mt-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>{topFarmhouse.name}</p>
+                                <div className={`mt-4 flex items-center text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
                                     <span>{formatCurrency(topFarmhouse.revenue)}</span>
                                     <span className="mx-2">•</span>
                                     <span>{topFarmhouse.bookings} bookings</span>
                                 </div>
                             </>
                         ) : (
-                            <p className="text-md mt-2 text-stone-500">No data available</p>
+                            <p className={`text-md mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>No data available</p>
                         )}
                     </div>
                 </div>
@@ -385,14 +385,14 @@ const Revenue = ({ darkMode }) => {
                                                 </linearGradient>
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#44403c' : '#d9f99d'} />
-                                            <XAxis dataKey="period" stroke={darkMode ? '#78716c' : '#6b7280'} />
-                                            <YAxis tickFormatter={(value) => chartType === 'revenue' ? `₹${value / 1000}k` : value} />
-                                            <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1c1917' : '#ffffff' }} />
+                                            <XAxis dataKey="period" stroke={darkMode ? '#78716c' : '#6b7280'} tick={{ fill: darkMode ? '#d6d3d1' : '#374151' }} />
+                                            <YAxis tickFormatter={(value) => chartType === 'revenue' ? `₹${value / 1000}k` : value} stroke={darkMode ? '#78716c' : '#6b7280'} tick={{ fill: darkMode ? '#d6d3d1' : '#374151' }} />
+                                            <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1c1917' : '#ffffff', color: darkMode ? '#e5e5e5' : '#1c1917' }} />
                                             <Area type="monotone" dataKey={chartType === 'revenue' ? 'revenue' : 'bookings'} stroke="#84cc16" fillOpacity={1} fill="url(#colorRevenue)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="h-72 flex items-center justify-center text-stone-500">No trend data available</div>
+                                    <div className={`h-72 flex items-center justify-center ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>No trend data available</div>
                                 )}
                             </div>
 
@@ -405,12 +405,12 @@ const Revenue = ({ darkMode }) => {
                                                 cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
                                                 {byFarmhouse.map((_, idx) => <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />)}
                                             </Pie>
-                                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                                            <Legend />
+                                            <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ backgroundColor: darkMode ? '#1c1917' : '#ffffff', color: darkMode ? '#e5e5e5' : '#1c1917' }} />
+                                            <Legend wrapperStyle={{ color: darkMode ? '#e5e5e5' : '#1c1917' }} />
                                         </RePieChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="h-72 flex items-center justify-center text-stone-500">No farmhouse revenue data</div>
+                                    <div className={`h-72 flex items-center justify-center ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>No farmhouse revenue data</div>
                                 )}
                             </div>
                         </div>
@@ -427,26 +427,26 @@ const Revenue = ({ darkMode }) => {
                                                 <img src={farmhouse.farmhouseImage} alt={farmhouse.farmhouseName} className="w-20 h-20 rounded-xl object-cover border-2 border-lime-300" />
                                                 <div className="flex-1">
                                                     <div className="flex justify-between">
-                                                        <h3 className={`text-lg font-semibold`}>{farmhouse.farmhouseName}</h3>
+                                                        <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-stone-900'}`}>{farmhouse.farmhouseName}</h3>
                                                         <div className="flex items-center">
                                                             <Star className="h-4 w-4 text-amber-400 fill-current" />
-                                                            <span className="ml-1">{farmhouse.farmhouseRating}</span>
+                                                            <span className={`ml-1 ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>{farmhouse.farmhouseRating}</span>
                                                         </div>
                                                     </div>
                                                     <p className={`text-sm flex items-center mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
                                                         <MapPin className="h-3 w-3 mr-1" />{farmhouse.farmhouseAddress}
                                                     </p>
                                                     <div className="grid grid-cols-3 gap-4 mt-4">
-                                                        <div><p className="text-xs">Revenue</p><p className="font-semibold">{formatCurrency(farmhouse.statistics.totalRevenue)}</p></div>
-                                                        <div><p className="text-xs">Bookings</p><p className="font-semibold">{farmhouse.statistics.bookingCount}</p></div>
-                                                        <div><p className="text-xs">Avg Value</p><p className="font-semibold">{formatCurrency(farmhouse.statistics.averageBookingValue)}</p></div>
+                                                        <div><p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Revenue</p><p className={`font-semibold ${darkMode ? 'text-white' : 'text-stone-900'}`}>{formatCurrency(farmhouse.statistics.totalRevenue)}</p></div>
+                                                        <div><p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Bookings</p><p className={`font-semibold ${darkMode ? 'text-white' : 'text-stone-900'}`}>{farmhouse.statistics.bookingCount}</p></div>
+                                                        <div><p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>Avg Value</p><p className={`font-semibold ${darkMode ? 'text-white' : 'text-stone-900'}`}>{formatCurrency(farmhouse.statistics.averageBookingValue)}</p></div>
                                                     </div>
                                                     {selectedFarmhouse === farmhouse.farmhouseId && (
                                                         <div className="mt-6 pt-6 border-t border-stone-700">
-                                                            <h4 className="text-sm font-semibold mb-3">Recent Bookings</h4>
+                                                            <h4 className={`text-sm font-semibold mb-3 ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>Recent Bookings</h4>
                                                             <div className="space-y-3">
                                                                 {farmhouse.recentBookings.map((booking, idx) => (
-                                                                    <div key={idx} className="flex justify-between text-sm">
+                                                                    <div key={idx} className={`flex justify-between text-sm ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>
                                                                         <span>{new Date(booking.date).toLocaleDateString()}</span>
                                                                         <span className="font-medium">{formatCurrency(booking.amount)}</span>
                                                                     </div>
@@ -469,7 +469,7 @@ const Revenue = ({ darkMode }) => {
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     {userDistribution.slice(0, 4).map((farmhouse) => (
                                         <div key={farmhouse.farmhouseId}>
-                                            <h3 className="text-md font-medium mb-4">{farmhouse.farmhouseName}</h3>
+                                            <h3 className={`text-md font-medium mb-4 ${darkMode ? 'text-stone-200' : 'text-stone-800'}`}>{farmhouse.farmhouseName}</h3>
                                             <div className="space-y-4">
                                                 {farmhouse.topUsers.slice(0, 5).map((user, idx) => (
                                                     <div key={user.userId} className="flex justify-between items-center">
@@ -477,10 +477,10 @@ const Revenue = ({ darkMode }) => {
                                                             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
                                                                 idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-stone-400' : 'bg-lime-500'
                                                             }`}>{idx + 1}</div>
-                                                            <span className="text-sm">User {user.userId.slice(-8)}</span>
+                                                            <span className={`text-sm ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>User {user.userId.slice(-8)}</span>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="text-sm font-medium">{user.bookingCount} bookings</p>
+                                                            <p className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-800'}`}>{user.bookingCount} bookings</p>
                                                             <p className="text-xs text-lime-500">{formatCurrency(user.totalSpent)}</p>
                                                         </div>
                                                     </div>
@@ -495,24 +495,24 @@ const Revenue = ({ darkMode }) => {
                 ) : (
                     <div className={`rounded-2xl border ${darkMode ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-lime-200'} p-12 text-center`}>
                         <TrendingUp className="h-16 w-16 mx-auto mb-4 text-stone-400" />
-                        <h3 className="text-xl font-semibold mb-2">No Revenue Data</h3>
-                        <p className="text-stone-500">No bookings or revenue found for the selected period. Try changing the filters.</p>
+                        <h3 className={`text-xl font-semibold mb-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>No Revenue Data</h3>
+                        <p className={`${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>No bookings or revenue found for the selected period. Try changing the filters.</p>
                     </div>
                 )}
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <div className={`rounded-xl border ${darkMode ? 'bg-stone-800/30 border-stone-700' : 'bg-lime-50 border-lime-200'} p-4`}>
-                        <div className="flex items-center"><Activity className="h-5 w-5 mr-2" /><span>Avg Revenue per Farmhouse</span></div>
-                        <p className="text-xl font-bold mt-2">{formatCurrency(summary?.averageRevenuePerFarmhouse || 0)}</p>
+                        <div className={`flex items-center ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}><Activity className="h-5 w-5 mr-2" /><span>Avg Revenue per Farmhouse</span></div>
+                        <p className={`text-xl font-bold mt-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>{formatCurrency(summary?.averageRevenuePerFarmhouse || 0)}</p>
                     </div>
                     <div className={`rounded-xl border ${darkMode ? 'bg-stone-800/30 border-stone-700' : 'bg-lime-50 border-lime-200'} p-4`}>
-                        <div className="flex items-center"><Target className="h-5 w-5 mr-2" /><span>Avg Bookings per Farmhouse</span></div>
-                        <p className="text-xl font-bold mt-2">{summary?.averageBookingsPerFarmhouse || 0}</p>
+                        <div className={`flex items-center ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}><Target className="h-5 w-5 mr-2" /><span>Avg Bookings per Farmhouse</span></div>
+                        <p className={`text-xl font-bold mt-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>{summary?.averageBookingsPerFarmhouse || 0}</p>
                     </div>
                     <div className={`rounded-xl border ${darkMode ? 'bg-stone-800/30 border-stone-700' : 'bg-lime-50 border-lime-200'} p-4`}>
-                        <div className="flex items-center"><Users className="h-5 w-5 mr-2" /><span>Unique Users</span></div>
-                        <p className="text-xl font-bold mt-2">{combined?.uniqueUsers || 0}</p>
+                        <div className={`flex items-center ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}><Users className="h-5 w-5 mr-2" /><span>Unique Users</span></div>
+                        <p className={`text-xl font-bold mt-2 ${darkMode ? 'text-white' : 'text-stone-900'}`}>{combined?.uniqueUsers || 0}</p>
                     </div>
                 </div>
             </div>
