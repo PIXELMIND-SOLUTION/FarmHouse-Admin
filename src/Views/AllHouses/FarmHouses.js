@@ -367,7 +367,7 @@ const Farmhouses = ({ darkMode }) => {
                   }`}
               >
                 <tr>
-                  {["#", "Farmhouse", "Price", "Status", "Booked", "Actions"].map(
+                  {["#", "Farmhouse", "Price", "Status", "Booked", "Persons Allowed", "Actions"].map(
                     (h) => (
                       <th key={h} className={`px-4 md:px-6 py-3 md:py-4 text-left font-bold border-b whitespace-nowrap ${darkMode ? 'border-stone-700 text-lime-400' : 'border-lime-200 text-lime-700'
                         }`}>
@@ -448,6 +448,15 @@ const Farmhouses = ({ darkMode }) => {
                             : darkMode ? 'bg-stone-700 text-stone-400' : 'bg-stone-100 text-stone-700'
                           }`}>
                           {f.bookedSlots?.length || 0}
+                        </span>
+                      </td>
+
+                      <td className="px-4 md:px-6 py-3 md:py-4">
+                        <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold ${f.personsAllowed > 0
+                            ? darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
+                            : darkMode ? 'bg-stone-700 text-stone-400' : 'bg-stone-100 text-stone-700'
+                          }`}>
+                          {f.noOfPersons}
                         </span>
                       </td>
 

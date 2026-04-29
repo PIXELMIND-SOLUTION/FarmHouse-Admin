@@ -15,6 +15,9 @@ const initialForm = {
   lng: "",
   price: "",
   active: true,
+  bookingFor: "",
+  rating: "",
+  noOfPersons: "",
 };
 
 const FarmhouseForm = () => {
@@ -25,6 +28,8 @@ const FarmhouseForm = () => {
   const [form, setForm] = useState(initialForm);
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [video, setVideo] = useState(null);
+  const [existingVideo, setExistingVideo] = useState("");
   const [timePrices, setTimePrices] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -82,9 +87,13 @@ const FarmhouseForm = () => {
           lng: f.location?.coordinates?.[0] || "",
           price: f.price || "",
           active: f.active ?? true,
+          bookingFor: f.bookingFor || "",
+          rating: f.rating || "",
+          noOfPersons: f.noOfPersons || "",
         });
 
         setExistingImages(f.images || []);
+        setExistingVideo(f.video || "");
         
         // Parse timePrices: split "9:00 AM - 12:00 PM" → start/end in 24h format
         setTimePrices(
@@ -148,6 +157,9 @@ const FarmhouseForm = () => {
       fd.append("lng", form.lng);
       fd.append("price", form.price);
       fd.append("active", form.active);
+      fd.append("bookingFor", form.bookingFor);
+      fd.append("rating", form.rating);
+      fd.append("noOfPersons", form.noOfPersons);
 
       const formattedTimePrices = timePrices
         .filter((tp) => tp.label && tp.start && tp.end) // Only send complete slots
@@ -161,6 +173,10 @@ const FarmhouseForm = () => {
       images.forEach((img) => {
         fd.append("images", img);
       });
+
+      if (video) {
+        fd.append("video", video);
+      }
 
       const config = {
         headers: { "Content-Type": "multipart/form-data" },
@@ -208,7 +224,7 @@ const FarmhouseForm = () => {
           {Object.keys(initialForm).map((key) => (
             <div key={key} className="flex flex-col gap-2">
               <label className="font-semibold capitalize text-amber-700">
-                {key}
+                {key === "noOfPersons" ? "Number of Persons" : key}
               </label>
 
               {key === "active" ? (
@@ -223,6 +239,46 @@ const FarmhouseForm = () => {
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>
                 </select>
+              ) : key === "rating" ? (
+                <select
+                  name="rating"
+                  value={form.rating}
+                  onChange={handleChange}
+                  className="p-3 border border-amber-300 rounded-xl focus:ring-2 focus:ring-lime-400 outline-none"
+                >
+                  <option value="">Select Rating</option>
+                  <option value="1">1 Star</option>
+                  <option value="1.5">1.5 Stars</option>
+                  <option value="2">2 Stars</option>
+                  <option value="2.5">2.5 Stars</option>
+                  <option value="3">3 Stars</option>
+                  <option value="3.5">3.5 Stars</option>
+                  <option value="4">4 Stars</option>
+                  <option value="4.5">4.5 Stars</option>
+                  <option value="5">5 Stars</option>
+                </select>
+              ) : key === "bookingFor" ? (
+                <select
+                  name="bookingFor"
+                  value={form.bookingFor}
+                  onChange={handleChange}
+                  className="p-3 border border-amber-300 rounded-xl focus:ring-2 focus:ring-lime-400 outline-none"
+                >
+                  <option value="">Select Booking Type</option>
+                  <option value="Family">Family</option>
+                  <option value="Couple">Couple</option>
+                  <option value="Friends">Friends</option>
+                  <option value="Corporate">Corporate</option>
+                </select>
+              ) : key === "noOfPersons" ? (
+                <input
+                  name={key}
+                  type="number"
+                  value={form[key]}
+                  onChange={handleChange}
+                  className="p-3 border border-amber-300 rounded-xl focus:ring-2 focus:ring-lime-400 outline-none"
+                  placeholder="Enter maximum persons"
+                />
               ) : (
                 <input
                   name={key}
@@ -243,6 +299,7 @@ const FarmhouseForm = () => {
           <input
             type="file"
             multiple
+            accept="image/*"
             onChange={(e) => setImages([...e.target.files])}
             className="mt-3 w-full border-2 border-dashed border-lime-400 p-4 rounded-xl bg-lime-50"
           />
@@ -261,6 +318,31 @@ const FarmhouseForm = () => {
                   />
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* VIDEO UPLOAD */}
+        <div className="mt-10">
+          <label className="font-semibold text-amber-700">
+            Upload Video (Optional)
+          </label>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => setVideo(e.target.files[0])}
+            className="mt-3 w-full border-2 border-dashed border-lime-400 p-4 rounded-xl bg-lime-50"
+          />
+          
+          {/* Show existing video in edit mode */}
+          {isEditMode && existingVideo && (
+            <div className="mt-4">
+              <p className="text-sm text-amber-700 mb-2">Existing Video:</p>
+              <video
+                src={existingVideo}
+                controls
+                className="w-64 rounded-lg border border-amber-200"
+              />
             </div>
           )}
         </div>

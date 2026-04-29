@@ -26,6 +26,7 @@ import {
   FaCopy,
   FaIdCard,
   FaUserShield,
+  FaVideo,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
@@ -86,10 +87,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             key={p}
             onClick={() => onPageChange(p)}
             className={`w-8 h-8 rounded-lg text-sm font-semibold transition border
-              ${
-                p === currentPage
-                  ? "bg-gradient-to-r from-amber-500 to-lime-500 text-white border-transparent shadow-md"
-                  : "border-amber-200 text-gray-600 hover:bg-amber-50"
+              ${p === currentPage
+                ? "bg-gradient-to-r from-amber-500 to-lime-500 text-white border-transparent shadow-md"
+                : "border-amber-200 text-gray-600 hover:bg-amber-50"
               }`}
           >
             {p}
@@ -251,6 +251,7 @@ const SingleFarmhouse = () => {
     images = [],
     address,
     description,
+    noOfPersons,
     amenities = [],
     price,
     timePrices = [],
@@ -347,9 +348,8 @@ const SingleFarmhouse = () => {
                   <button
                     key={idx}
                     onClick={() => setIndex(idx)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      idx === index ? "bg-white scale-110 shadow-lg" : "bg-white/50 hover:bg-white/70"
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-all ${idx === index ? "bg-white scale-110 shadow-lg" : "bg-white/50 hover:bg-white/70"
+                      }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
                 ))}
@@ -382,6 +382,22 @@ const SingleFarmhouse = () => {
             <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-lime-100 text-lime-700 text-sm">
               <FaClock /> {timePrices.length} time slots
             </span>
+            <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-100 text-amber-700 text-sm">
+              <FaCheckCircle /> {amenities.length} amenities
+            </span>
+            <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-lime-100 text-lime-700 text-sm">
+              <FaUser /> {noOfPersons} persons
+            </span>
+          </div>
+          <div className="flex gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(`/admin/edit/${id}`)}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-lime-500 to-amber-500 text-white font-semibold shadow-md hover:shadow-lg transition"
+            >
+              Edit Farmhouse
+            </motion.button>
           </div>
         </div>
 
@@ -389,6 +405,34 @@ const SingleFarmhouse = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* LEFT COLUMN */}
           <div className="lg:col-span-2 space-y-8">
+
+
+
+            {/* ── video preview ── */}
+            {data.video && (
+              <div className="mb-8 w-full">
+
+                {/* Heading */}
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-amber-700 flex items-center gap-2">
+                  <FaVideo className="text-amber-500 text-base sm:text-lg" />
+                  Video Preview
+                </h2>
+
+                {/* Video Container */}
+                <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-lg">
+                  <div className="w-full aspect-video bg-black">
+                    <iframe
+                      src={data.video}
+                      title={`${name} video preview`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
+                </div>
+
+              </div>
+            )}
             {/* About */}
             <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
               <h2 className="text-2xl font-bold mb-4 text-amber-700 flex items-center gap-2">
