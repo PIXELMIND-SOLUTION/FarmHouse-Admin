@@ -421,13 +421,13 @@ const SingleFarmhouse = () => {
                 {/* Video Container */}
                 <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-lg">
                   <div className="w-full aspect-video bg-black">
-                    <iframe
+
+                    <video
                       src={data.video}
-                      title={`${name} video preview`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
+                      controls
+                      className="w-full h-full object-cover"
                     />
+
                   </div>
                 </div>
 
