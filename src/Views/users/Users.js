@@ -25,7 +25,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const API_URL = "http://31.97.206.144:5124/api/auth/users";
+const API_URL = "https://backend.vfarmstays.com/api/auth/users";
 const PAGE_SIZE = 8;
 
 const Users = ({ darkMode }) => {
@@ -315,7 +315,7 @@ const Users = ({ darkMode }) => {
                               try {
                                 // ✅ FIXED: correct delete URL (was localhost)
                                 await axios.delete(
-                                  `http://31.97.206.144:5124/api/auth/delete/${u._id}`
+                                  `https://backend.vfarmstays.com/api/auth/delete/${u._id}`
                                 );
 
                                 setUsers((prev) => prev.filter((x) => x._id !== u._id));

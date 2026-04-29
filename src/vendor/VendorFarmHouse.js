@@ -25,7 +25,7 @@ const VendorFarmhouse = () => {
 
     try {
       const res = await axios.get(
-        `http://31.97.206.144:5124/api/farmhouse/${farmhouseId}`
+        `https://backend.vfarmstays.com/api/farmhouse/${farmhouseId}`
       );
       console.log("API RESPONSE:", res.data); // debug
       setFarmhouse(res.data.farmhouse);

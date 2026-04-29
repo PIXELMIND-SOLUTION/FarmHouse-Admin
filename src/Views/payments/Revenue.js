@@ -39,7 +39,7 @@ const Revenue = ({ darkMode }) => {
     useEffect(() => {
         const fetchFarmhouses = async () => {
             try {
-                const response = await fetch('http://31.97.206.144:5124/api/farmhouses');
+                const response = await fetch('https://backend.vfarmstays.com/api/farmhouses');
                 const result = await response.json();
                 if (result.success) {
                     setFarmhousesList(result.farmhouses || []);
@@ -55,7 +55,7 @@ const Revenue = ({ darkMode }) => {
     const fetchRevenueData = async () => {
         try {
             setLoading(true);
-            let url = 'http://31.97.206.144:5124/api/order/revenue?';
+            let url = 'https://backend.vfarmstays.com/api/order/revenue?';
             const params = new URLSearchParams();
             
             params.append('period', appliedFilters.period);

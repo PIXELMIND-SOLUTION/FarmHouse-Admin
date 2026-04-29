@@ -76,7 +76,7 @@ const PaymentDetails = ({ paymentId, darkMode: dm, onBack }) => {
   const fetchPayment = async () => {
     try {
       setLoading(true); setError(null);
-      const res    = await fetch(`http://31.97.206.144:5124/api/order/payments/${paymentId}`);
+      const res    = await fetch(`https://backend.vfarmstays.com/api/order/payments/${paymentId}`);
       const result = await res.json();
       if (result?.success) setPayment(result.payment);
       else setError(result?.message || 'Failed to fetch payment details');
@@ -365,7 +365,7 @@ const AllPayments = ({ darkMode }) => {
   const fetchData = async (p) => {
     try {
       setLoading(true); setError(null);
-      const res    = await fetch(`http://31.97.206.144:5124/api/order/payments/statistics?period=${p}`);
+      const res    = await fetch(`https://backend.vfarmstays.com/api/order/payments/statistics?period=${p}`);
       const result = await res.json();
       if (result?.success) setData(result);
       else setError(result?.message || 'Failed to fetch payments data');

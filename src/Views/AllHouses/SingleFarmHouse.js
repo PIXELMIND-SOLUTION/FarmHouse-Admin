@@ -30,7 +30,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 
-const API_BASE = "http://31.97.206.144:5124/api";
+const API_BASE = "https://backend.vfarmstays.com/api";
 
 const AMENITY_ICONS = {
   "Swimming Pool": <FaSwimmingPool className="mr-2" />,

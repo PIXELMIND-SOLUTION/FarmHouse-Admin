@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-const API_BASE = "http://31.97.206.144:5124/api/auth";
+const API_BASE = "https://backend.vfarmstays.com/api/auth";
 
 const UpdateUser = ({ darkMode }) => {
   const { id } = useParams();

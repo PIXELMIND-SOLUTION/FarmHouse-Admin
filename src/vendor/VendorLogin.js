@@ -9,7 +9,7 @@ import {
 } from "react-icons/fi";
 import { GiOakLeaf } from "react-icons/gi";
 
-const API_BASE = "http://31.97.206.144:5124/api";
+const API_BASE = "https://backend.vfarmstays.com/api";
 
 const VendorLogin = () => {
   const navigate = useNavigate();

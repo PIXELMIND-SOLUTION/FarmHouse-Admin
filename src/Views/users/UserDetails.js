@@ -18,7 +18,7 @@ const UserDetails = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_BASE = "http://31.97.206.144:5124/api/auth";
+  const API_BASE = "https://backend.vfarmstays.com/api/auth";
 
   useEffect(() => {
     fetchUser();

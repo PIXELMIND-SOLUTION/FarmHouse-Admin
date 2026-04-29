@@ -22,9 +22,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const API_URL = "http://31.97.206.144:5124/api/admin/vendor/applications/pending";
-const DELETE_URL = "http://31.97.206.144:5124/api/admin/deletevendor";
-const REVIEW_URL = "http://31.97.206.144:5124/api/admin/vendor/application";
+const API_URL = "https://backend.vfarmstays.com/api/admin/vendor/applications/pending";
+const DELETE_URL = "https://backend.vfarmstays.com/api/admin/deletevendor";
+const REVIEW_URL = "https://backend.vfarmstays.com/api/admin/vendor/application";
 const PAGE_SIZE = 8;
 
 const PendingVendors = ({ darkMode }) => {

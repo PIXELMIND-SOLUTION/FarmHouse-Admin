@@ -16,7 +16,7 @@ const Banners = ({ darkMode }) => {
   const [uploading, setUploading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const API_BASE = "http://31.97.206.144:5124/api/auth";
+  const API_BASE = "https://backend.vfarmstays.com/api/auth";
 
   /* ================= FETCH ================= */
   const fetchBanners = async () => {

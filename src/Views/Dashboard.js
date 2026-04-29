@@ -30,7 +30,7 @@ const Dashboard = ({ darkMode, collapsed }) => {
     try {
       setLoading(true);
       // ✅ Fixed API URL (use correct IP instead of localhost)
-      const response = await fetch('http://31.97.206.144:5124/api/order/dashbord');
+      const response = await fetch('https://backend.vfarmstays.com/api/order/dashbord');
       const result = await response.json();
       if (result.success) {
         setData(result);

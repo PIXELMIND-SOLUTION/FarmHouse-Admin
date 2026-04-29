@@ -9,8 +9,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const API = 'http://31.97.206.144:5124/api/order/admin/summary';
-const DELETE_API = (id) => `http://31.97.206.144:5124/api/order/deletebooking/${id}`;
+const API = 'https://backend.vfarmstays.com/api/order/admin/summary';
+const DELETE_API = (id) => `https://backend.vfarmstays.com/api/order/deletebooking/${id}`;
 
 // ─── SAFE HELPERS ─────────────────────────────────────────
 const safe    = (val, fallback = '—')  => (val != null ? val : fallback);

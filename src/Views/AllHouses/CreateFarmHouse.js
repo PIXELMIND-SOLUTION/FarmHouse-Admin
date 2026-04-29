@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaTrash, FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-const API_BASE = "http://31.97.206.144:5124/api";
+const API_BASE = "https://backend.vfarmstays.com/api";
 
 const initialForm = {
   name: "",
