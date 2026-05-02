@@ -46,20 +46,19 @@ const FarmhouseForm = () => {
   /* ================= PARSE TIME (12h AM/PM → 24h) ================= */
   const parseTime = (timeStr) => {
     if (!timeStr) return "";
-    // Handles "9:00 AM" or "12:00 PM" format
     const trimmed = timeStr.trim();
     const [time, modifier] = trimmed.split(" ");
     if (!time || !modifier) return "";
-    
+
     let [hour, minute] = time.split(":").map(Number);
-    
+
     if (modifier.toUpperCase() === "PM" && hour !== 12) {
       hour += 12;
     }
     if (modifier.toUpperCase() === "AM" && hour === 12) {
       hour = 0;
     }
-    
+
     return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
   };
 
@@ -94,7 +93,7 @@ const FarmhouseForm = () => {
 
         setExistingImages(f.images || []);
         setExistingVideo(f.video || "");
-        
+
         // Parse timePrices: split "9:00 AM - 12:00 PM" → start/end in 24h format
         setTimePrices(
           f.timePrices?.map((tp) => {
@@ -103,6 +102,7 @@ const FarmhouseForm = () => {
               label: tp.label || "",
               start: parseTime(startRaw),
               end: parseTime(endRaw),
+              price: tp.price || "",  // ← parse existing price
             };
           }) || []
         );
@@ -123,7 +123,7 @@ const FarmhouseForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const addTimePrice = () =>
-    setTimePrices([...timePrices, { label: "", start: "", end: "" }]);
+    setTimePrices([...timePrices, { label: "", start: "", end: "", price: "" }]);  // ← added price
 
   const updateTimePrice = (index, key, value) => {
     const updated = [...timePrices];
@@ -162,10 +162,11 @@ const FarmhouseForm = () => {
       fd.append("noOfPersons", form.noOfPersons);
 
       const formattedTimePrices = timePrices
-        .filter((tp) => tp.label && tp.start && tp.end) // Only send complete slots
+        .filter((tp) => tp.label && tp.start && tp.end)  // Only send complete slots
         .map((tp) => ({
           label: tp.label,
           timing: `${formatTime(tp.start)} - ${formatTime(tp.end)}`,
+          price: tp.price,  // ← include price in payload
         }));
 
       fd.append("timePrices", JSON.stringify(formattedTimePrices));
@@ -224,7 +225,13 @@ const FarmhouseForm = () => {
           {Object.keys(initialForm).map((key) => (
             <div key={key} className="flex flex-col gap-2">
               <label className="font-semibold capitalize text-amber-700">
-                {key === "noOfPersons" ? "Number of Persons" : key}
+                {
+                  key === "noOfPersons"
+                    ? "Number of Persons"
+                    : key === "price"
+                      ? "Day Price"
+                      : key
+                }
               </label>
 
               {key === "active" ? (
@@ -293,9 +300,7 @@ const FarmhouseForm = () => {
 
         {/* IMAGE UPLOAD */}
         <div className="mt-10">
-          <label className="font-semibold text-amber-700">
-            Upload Images
-          </label>
+          <label className="font-semibold text-amber-700">Upload Images</label>
           <input
             type="file"
             multiple
@@ -303,8 +308,7 @@ const FarmhouseForm = () => {
             onChange={(e) => setImages([...e.target.files])}
             className="mt-3 w-full border-2 border-dashed border-lime-400 p-4 rounded-xl bg-lime-50"
           />
-          
-          {/* Show existing images in edit mode */}
+
           {isEditMode && existingImages.length > 0 && (
             <div className="mt-4">
               <p className="text-sm text-amber-700 mb-2">Existing Images:</p>
@@ -333,8 +337,7 @@ const FarmhouseForm = () => {
             onChange={(e) => setVideo(e.target.files[0])}
             className="mt-3 w-full border-2 border-dashed border-lime-400 p-4 rounded-xl bg-lime-50"
           />
-          
-          {/* Show existing video in edit mode */}
+
           {isEditMode && existingVideo && (
             <div className="mt-4">
               <p className="text-sm text-amber-700 mb-2">Existing Video:</p>
@@ -350,9 +353,7 @@ const FarmhouseForm = () => {
         {/* TIME SLOTS */}
         <div className="mt-12">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-amber-700">
-              Time Slots
-            </h3>
+            <h3 className="text-xl font-bold text-amber-700">Time Slots</h3>
             <button
               onClick={addTimePrice}
               className="flex items-center gap-2 px-4 py-2 rounded-xl
@@ -365,13 +366,11 @@ const FarmhouseForm = () => {
           {timePrices.map((tp, i) => (
             <div
               key={i}
-              className="grid sm:grid-cols-4 gap-4 mb-4 p-4 rounded-2xl border border-amber-200 bg-lime-50"
+              className="grid sm:grid-cols-5 gap-4 mb-4 p-4 rounded-2xl border border-amber-200 bg-lime-50"
             >
               <input
                 value={tp.label}
-                onChange={(e) =>
-                  updateTimePrice(i, "label", e.target.value)
-                }
+                onChange={(e) => updateTimePrice(i, "label", e.target.value)}
                 placeholder="Label (e.g., Morning)"
                 className="p-3 rounded-xl border border-amber-300"
               />
@@ -379,18 +378,23 @@ const FarmhouseForm = () => {
               <input
                 type="time"
                 value={tp.start}
-                onChange={(e) =>
-                  updateTimePrice(i, "start", e.target.value)
-                }
+                onChange={(e) => updateTimePrice(i, "start", e.target.value)}
                 className="p-3 rounded-xl border border-amber-300"
               />
 
               <input
                 type="time"
                 value={tp.end}
-                onChange={(e) =>
-                  updateTimePrice(i, "end", e.target.value)
-                }
+                onChange={(e) => updateTimePrice(i, "end", e.target.value)}
+                className="p-3 rounded-xl border border-amber-300"
+              />
+
+              {/* ← NEW PRICE FIELD */}
+              <input
+                type="number"
+                value={tp.price}
+                onChange={(e) => updateTimePrice(i, "price", e.target.value)}
+                placeholder="Price (₹)"
                 className="p-3 rounded-xl border border-amber-300"
               />
 
@@ -403,9 +407,11 @@ const FarmhouseForm = () => {
               </button>
             </div>
           ))}
-          
+
           {timePrices.length === 0 && (
-            <p className="text-amber-600 text-sm italic">No time slots added yet.</p>
+            <p className="text-amber-600 text-sm italic">
+              No time slots added yet.
+            </p>
           )}
         </div>
 

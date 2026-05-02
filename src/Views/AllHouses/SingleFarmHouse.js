@@ -27,6 +27,7 @@ import {
   FaIdCard,
   FaUserShield,
   FaVideo,
+  FaRupeeSign,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
@@ -66,7 +67,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
   return (
     <div className="flex items-center justify-center gap-1.5 mt-5">
-      {/* Prev */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -76,7 +76,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <FaChevronLeft size={12} />
       </button>
 
-      {/* Pages */}
       {renderPages.map((p, i) =>
         p === "..." ? (
           <span key={`ellipsis-${i}`} className="px-1 text-gray-400 text-sm select-none">
@@ -97,7 +96,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         )
       )}
 
-      {/* Next */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
@@ -120,7 +118,6 @@ const SingleFarmhouse = () => {
   const [index, setIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Pagination state
   const [upcomingPage, setUpcomingPage] = useState(1);
   const [pastPage, setPastPage] = useState(1);
 
@@ -159,13 +156,11 @@ const SingleFarmhouse = () => {
 
   const isPastBooking = (checkOut) => new Date(checkOut) < new Date();
 
-  // ─── Unified copy helper with Swal toast ─────────────────────────
   const copyToClipboard = async (text, successTitle = "Copied to clipboard!") => {
     try {
       if (window.isSecureContext && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
       } else {
-        // Fallback for HTTP / old browsers
         const textarea = document.createElement("textarea");
         textarea.value = text;
         textarea.style.position = "fixed";
@@ -200,7 +195,6 @@ const SingleFarmhouse = () => {
     }
   };
 
-  // ─── Specific handlers for credentials ──────────────────────────
   const handleCopyFullCredentials = () => {
     const text = [
       "Farmhouse Credentials",
@@ -266,7 +260,6 @@ const SingleFarmhouse = () => {
   const upcomingBookings = bookedSlots.filter((b) => !isPastBooking(b.checkOut));
   const pastBookings = bookedSlots.filter((b) => isPastBooking(b.checkOut));
 
-  // Paginated slices
   const upcomingTotalPages = Math.max(1, Math.ceil(upcomingBookings.length / BOOKINGS_PER_PAGE));
   const pastTotalPages = Math.max(1, Math.ceil(pastBookings.length / BOOKINGS_PER_PAGE));
 
@@ -374,7 +367,7 @@ const SingleFarmhouse = () => {
         bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-amber-100">
           <div className="flex flex-wrap items-center gap-4">
             <span className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 text-white font-bold text-xl shadow-md">
-              ₹{price} <span className="text-sm font-normal opacity-90">/ slot</span>
+              ₹{price} <span className="text-sm font-normal opacity-90">/ day</span>
             </span>
             <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-100 text-amber-700 font-semibold">
               <FaStar className="text-amber-500 fill-amber-500" /> {rating ?? "New"}
@@ -406,34 +399,26 @@ const SingleFarmhouse = () => {
           {/* LEFT COLUMN */}
           <div className="lg:col-span-2 space-y-8">
 
-
-
-            {/* ── video preview ── */}
+            {/* ── VIDEO PREVIEW ── */}
             {data.video && (
               <div className="mb-8 w-full">
-
-                {/* Heading */}
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-amber-700 flex items-center gap-2">
                   <FaVideo className="text-amber-500 text-base sm:text-lg" />
                   Video Preview
                 </h2>
-
-                {/* Video Container */}
                 <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-lg">
                   <div className="w-full aspect-video bg-black">
-
                     <video
                       src={data.video}
                       controls
                       className="w-full h-full object-cover"
                     />
-
                   </div>
                 </div>
-
               </div>
             )}
-            {/* About */}
+
+            {/* ── ABOUT ── */}
             <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
               <h2 className="text-2xl font-bold mb-4 text-amber-700 flex items-center gap-2">
                 <FaLeaf className="text-lime-500" /> About This Farmhouse
@@ -441,7 +426,7 @@ const SingleFarmhouse = () => {
               <p className="text-gray-700 leading-relaxed text-lg">{description}</p>
             </section>
 
-            {/* Amenities */}
+            {/* ── AMENITIES ── */}
             <section className="bg-white p-7 rounded-3xl shadow-xl border border-lime-100">
               <h3 className="text-xl font-bold mb-5 text-lime-700 flex items-center gap-2">
                 <FaCheckCircle className="text-lime-500" /> Amenities
@@ -461,6 +446,47 @@ const SingleFarmhouse = () => {
                 ))}
               </div>
             </section>
+
+            {/* ── TIME PRICES ── */}
+            {timePrices.length > 0 && (
+              <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
+                <h3 className="text-xl font-bold mb-5 text-amber-700 flex items-center gap-2">
+                  <FaClock className="text-amber-500" /> Time Slots & Pricing
+                </h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {timePrices.map((tp, i) => (
+                    <motion.div
+                      key={tp._id || i}
+                      whileHover={{ scale: 1.02 }}
+                      className="p-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-lime-50 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-amber-800 capitalize text-base">
+                          {tp.label}
+                        </span>
+                        <span
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                            tp.isActive
+                              ? "bg-lime-100 text-lime-700"
+                              : "bg-red-100 text-red-600"
+                          }`}
+                        >
+                          {tp.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600 text-sm mb-2">
+                        <FaClock className="text-amber-400 flex-shrink-0" />
+                        <span>{tp.timing}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700 font-semibold text-sm">
+                        <FaRupeeSign className="text-lime-500 flex-shrink-0" />
+                        <span>₹{tp.price}</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* ── BOOKING HISTORY ── */}
             <section className="bg-white p-7 rounded-3xl shadow-xl border border-amber-100">
