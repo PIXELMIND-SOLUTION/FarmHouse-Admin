@@ -386,7 +386,7 @@ const SingleFarmhouse = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(`/admin/edit/${id}`)}
+              onClick={() => navigate(`/admin/farmhouses/edit/${id}`)}
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-lime-500 to-amber-500 text-white font-semibold shadow-md hover:shadow-lg transition"
             >
               Edit Farmhouse

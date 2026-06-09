@@ -64,10 +64,24 @@ const PendingVendors = ({ darkMode }) => {
     setCurrentPage(1);
   }, [search]);
 
+  // Helper function to get farmhouse name from application
+  const getFarmhouseName = (app) => {
+    if (app.farmhouseId?.name) return app.farmhouseId.name;
+    if (app.submittedData?.name) return app.submittedData.name;
+    return "N/A";
+  };
+
+  // Helper function to get farmhouse price from application
+  const getFarmhousePrice = (app) => {
+    if (app.farmhouseId?.price) return app.farmhouseId.price;
+    if (app.submittedData?.price) return app.submittedData.price;
+    return "N/A";
+  };
+
   const filteredApps = useMemo(() => {
     return applications.filter((app) => {
       const q = search.toLowerCase();
-      const name = (app.submittedData?.name || "").toLowerCase();
+      const name = getFarmhouseName(app).toLowerCase();
       const email = (app.email || "").toLowerCase();
       const appId = (app.applicationId || "").toLowerCase();
       return name.includes(q) || email.includes(q) || appId.includes(q);
@@ -91,10 +105,10 @@ const PendingVendors = ({ darkMode }) => {
     ];
     const rows = filteredApps.map((app, i) => [
       i + 1,
-      app.submittedData?.name || "N/A",
+      getFarmhouseName(app),
       app.email || "N/A",
       app.applicationId || "N/A",
-      app.submittedData?.price || "N/A",
+      getFarmhousePrice(app),
       app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A",
     ]);
     const csv =
@@ -214,7 +228,7 @@ const PendingVendors = ({ darkMode }) => {
       let icon = <FaClipboardList className="inline mr-1" />;
       if (a.toLowerCase().includes("pool")) icon = <FaSwimmingPool className="inline mr-1" />;
       else if (a.toLowerCase().includes("wifi")) icon = <FaWifi className="inline mr-1" />;
-      else if (a.toLowerCase().includes("food")) icon = <FaUtensils className="inline mr-1" />;
+      else if (a.toLowerCase().includes("food") || a.toLowerCase().includes("restaurant")) icon = <FaUtensils className="inline mr-1" />;
       return (
         <span key={i} className="inline-flex items-center mr-3 mb-1">
           {icon} {a}
@@ -315,8 +329,8 @@ const PendingVendors = ({ darkMode }) => {
                   </tr>
                 ) : (
                   paginatedApps.map((app, idx) => {
-                    const farmhouseName = app.submittedData?.name || "N/A";
-                    const price = app.submittedData?.price || "N/A";
+                    const farmhouseName = getFarmhouseName(app);
+                    const price = getFarmhousePrice(app);
                     return (
                       <tr
                         key={app._id}
@@ -408,7 +422,7 @@ const PendingVendors = ({ darkMode }) => {
             <div className={`sticky top-0 flex justify-between items-center p-5 border-b ${darkMode ? "border-stone-700" : "border-lime-200"} bg-inherit z-10`}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-lime-500 to-lime-600 flex items-center justify-center text-white font-bold">
-                  {viewData?.submittedData?.name?.charAt(0).toUpperCase() || "F"}
+                  {viewData?.farmhouse?.name?.charAt(0).toUpperCase() || "F"}
                 </div>
                 <h3 className="text-xl font-bold">Farmhouse Application Details</h3>
               </div>
@@ -429,16 +443,17 @@ const PendingVendors = ({ darkMode }) => {
                     <div className="border-b pb-2">
                       <h4 className="font-bold text-lime-500 flex items-center gap-2"><FaStore /> Farmhouse</h4>
                     </div>
-                    <div><span className="font-semibold">Name:</span> {viewData.submittedData?.name || "N/A"}</div>
-                    <div><span className="font-semibold">Address:</span> {viewData.submittedData?.address || "N/A"}</div>
-                    <div><span className="font-semibold">Description:</span> <p className="mt-1 text-sm">{viewData.submittedData?.description || "N/A"}</p></div>
-                    <div><span className="font-semibold">Price per night:</span> ₹{viewData.submittedData?.price || "N/A"}</div>
-                    <div><span className="font-semibold">Booking For:</span> {viewData.submittedData?.bookingFor || "Not specified"}</div>
+                    <div><span className="font-semibold">Name:</span> {viewData.farmhouse?.name || "N/A"}</div>
+                    <div><span className="font-semibold">Address:</span> {viewData.farmhouse?.address || "N/A"}</div>
+                    <div><span className="font-semibold">Description:</span> <p className="mt-1 text-sm">{viewData.farmhouse?.description || "N/A"}</p></div>
+                    <div><span className="font-semibold">Number of Persons:</span> {viewData.farmhouse?.noOfPersons || "N/A"}</div>
+                    <div><span className="font-semibold">Price per night:</span> ₹{viewData.farmhouse?.price || "N/A"}</div>
+                    <div><span className="font-semibold">Booking For:</span> {viewData.farmhouse?.bookingFor || "Not specified"}</div>
                     <div><span className="font-semibold">Amenities:</span> 
-                      <div className="flex flex-wrap mt-1">{renderAmenities(viewData.submittedData?.amenities)}</div>
+                      <div className="flex flex-wrap mt-1">{renderAmenities(viewData.farmhouse?.amenities)}</div>
                     </div>
-                    {viewData.submittedData?.lat && viewData.submittedData?.lng && (
-                      <div><span className="font-semibold">Coordinates:</span> {viewData.submittedData.lat}, {viewData.submittedData.lng}</div>
+                    {viewData.farmhouse?.location?.coordinates && (
+                      <div><span className="font-semibold">Coordinates:</span> {viewData.farmhouse.location.coordinates[1]}, {viewData.farmhouse.location.coordinates[0]}</div>
                     )}
                   </div>
 
@@ -459,14 +474,43 @@ const PendingVendors = ({ darkMode }) => {
                   </div>
                 </div>
 
-                {/* Images */}
-                {viewData.submittedData?.images && viewData.submittedData.images.length > 0 && (
+                {/* Time Prices */}
+                {viewData.farmhouse?.timePrices && viewData.farmhouse.timePrices.length > 0 && (
                   <div>
                     <div className="border-b pb-2 mb-3">
-                      <h4 className="font-bold text-lime-500 flex items-center gap-2"><FaImage /> Images</h4>
+                      <h4 className="font-bold text-lime-500 flex items-center gap-2">Time-based Pricing</h4>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className={darkMode ? "bg-stone-700" : "bg-lime-50"}>
+                            <th className="px-3 py-2 text-left">Label</th>
+                            <th className="px-3 py-2 text-left">Timing</th>
+                            <th className="px-3 py-2 text-left">Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {viewData.farmhouse.timePrices.map((tp, idx) => (
+                            <tr key={idx} className="border-t">
+                              <td className="px-3 py-2">{tp.label}</td>
+                              <td className="px-3 py-2">{tp.timing}</td>
+                              <td className="px-3 py-2">₹{tp.price}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Images */}
+                {viewData.farmhouse?.images && viewData.farmhouse.images.length > 0 && (
+                  <div>
+                    <div className="border-b pb-2 mb-3">
+                      <h4 className="font-bold text-lime-500 flex items-center gap-2"><FaImage /> Images ({viewData.farmhouse.images.length})</h4>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {viewData.submittedData.images.map((img, idx) => (
+                      {viewData.farmhouse.images.map((img, idx) => (
                         <img key={idx} src={img} alt={`Farmhouse ${idx+1}`} className="w-full h-32 object-cover rounded-lg border" />
                       ))}
                     </div>
@@ -501,8 +545,9 @@ const PendingVendors = ({ darkMode }) => {
 
             <div className="p-6 space-y-5">
               <div>
-                <label className="block font-semibold mb-2">Farmhouse: <span className="font-normal">{selectedApp.submittedData?.name}</span></label>
+                <label className="block font-semibold mb-2">Farmhouse: <span className="font-normal">{getFarmhouseName(selectedApp)}</span></label>
                 <label className="block font-semibold mb-2">Applicant: <span className="font-normal">{selectedApp.email}</span></label>
+                <label className="block font-semibold mb-2">Application ID: <span className="font-normal">{selectedApp.applicationId}</span></label>
               </div>
 
               <div>
